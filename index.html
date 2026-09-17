@@ -369,12 +369,17 @@
         
         slotMinTime: '07:00:00',
         slotMaxTime: '31:00:00', 
-        slotDuration: '01:00:00', /* <--- Adăugat pentru a arăta 1 celulă pe oră în loc de 2 */
+        slotDuration: '01:00:00', 
+        slotEventOverlap: false, /* <--- MODIFICAREA PENTRU A NU SE SUPRAPUNE TURELE SIMULTANE */
         allDaySlot: false,
         editable: false, 
         selectable: false,
         selectMirror: true,
         height: 'auto',
+
+        longPressDelay: 100, 
+        selectLongPressDelay: 100, 
+        eventLongPressDelay: 100, 
 
         datesSet: function() {
           setTimeout(renderShiftSidebar, 50);
