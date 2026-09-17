@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grafic Pază Sala Regatului</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.10/locales/ro.global.min.js"></script>
+  
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    /* Permite scroll orizontal pe telefoane */
+    .calendar-wrapper {
+      overflow-x: auto;
+      width: 100%;
+    }
+    
+    #calendar {
+      min-width: 800px;
+    }
+
+    /* Reduce înălțimea la 1 oră pentru a minimiza scroll-ul vertical */
+    .fc-timegrid-slot {
+      height: 1.4em !important; 
+    }
+    
+    .fc-event {
+      cursor: pointer;
+      border-radius: 6px;
+      font-weight: 500;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      border: none !important;
+    }
+
+    /* Containerul interior al cartonașului */
+    .fc-v-event .fc-event-main {
+      padding: 0 !important;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Stilizarea cartonașului de tură (Ore sus, Nume centrat, Congregație jos) */
+    .fc-custom-event-card {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+      padding: 4px 6px;
+      box-sizing: border-box;
+      color: #ffffff;
+    }
+
+    .fc-event-time-header {
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.2;
+      opacity: 0.95;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      padding-bottom: 2px;
+      margin-bottom: 2px;
+      white-space: nowrap;
+    }
+
+    .fc-event-body-centered {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      margin: auto 0;
+      padding: 2px 0;
+    }
+
+    .fc-event-title-text {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.25;
+      word-break: break-word;
+      text-align: center;
+    }
+
+    .fc-event-congregation-text {
+      font-size: 10px;
+      font-weight: 500;
+      opacity: 0.9;
+      margin-top: 3px;
+      text-align: center;
+      line-height: 1.1;
+      font-style: italic;
+    }
+
+    /* Linii orizontale groase de delimitare între ture */
+    .fc-timegrid-slots tr[data-time="07:00:00"] td,
+    .fc-timegrid-slots tr[data-time="07:00:00"] th {
+      border-top: 4px solid #2563eb !important; /* Albastru Pază Acces */
+    }
+
+    .fc-timegrid-slots tr[data-time="17:00:00"] td,
+    .fc-timegrid-slots tr[data-time="17:00:00"] th {
+      border-top: 4px solid #ea580c !important; /* Oranj Pază Seară */
+    }
+
+    .fc-timegrid-slots tr[data-time="21:00:00"] td,
+    .fc-timegrid-slots tr[data-time="21:00:00"] th {
+      border-top: 4px solid #dc2626 !important; /* Roșu Pază Noapte */
+    }
+    
+    .fc-header-toolbar {
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* Extinderea axei orelor pentru bara verticală */
+    .fc-timegrid-axis {
+      width: 95px !important;
+      min-width: 95px !important;
+    }
+
+    /* Împingem etichetele cu ore mai la dreapta */
+    .fc-timegrid-slot-label-cushion {
+      padding-left: 40px !important;
+    }
+
+    /* Stilul barei verticale cu secțiunile de pază */
+    #shiftSidebar {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 30px;
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+      border-radius: 6px 0 0 6px;
+      overflow: hidden;
+      box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .shift-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .shift-section span {
+      writing-mode: vertical-lr;
+      transform: rotate(180deg);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+  <header class="bg-slate-900 text-white shadow-md p-4 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-shield-halved text-amber-500 text-2xl"></i>
+        <div>
+          <h1 class="text-xl font-bold leading-tight">Grafic Pază</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span id="adminBadge" class="hidden text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5">
+          <i class="fa-solid fa-lock-open"></i> Mod Editare
+        </span>
+
+        <button id="btnCongregations" onclick="openCongregationModal()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium transition">
+          <i class="fa-solid fa-users text-amber-400"></i>
+        </button>
+
+        <button id="btnAdminAccess" onclick="handleAdminButtonClick()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center">
+          <span id="btnAdminText">|</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 md:p-6">
+      <div class="calendar-wrapper">
+        <div id="calendar"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modale PIN, Editare, Congregații -->
+  <div id="pinModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+      <form onsubmit="verifyPin(event)">
+        <input type="password" id="pinInput" placeholder="PIN" maxlength="10" 
+               class="w-full text-center tracking-widest text-xl font-bold border border-slate-300 rounded-xl py-3 mb-4 focus:ring-2 focus:ring-amber-500">
+        <p id="pinError" class="text-rose-500 text-xs text-center mb-3 hidden">Cod PIN incorect!</p>
+        <div class="flex gap-3">
+          <button type="button" onclick="closePinModal()" class="flex-1 bg-slate-100 text-slate-700 py-2.5 rounded-xl font-medium text-sm">Anulează</button>
+          <button type="submit" class="flex-1 bg-amber-600 text-white py-2.5 rounded-xl font-medium text-sm">Confirmă</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="eventModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+        <h3 id="eventModalTitle" class="text-lg font-bold text-slate-900">Adaugă Tură Pază</h3>
+        <button onclick="closeEventModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form onsubmit="saveEvent(event)" class="space-y-4">
+        <input type="hidden" id="eventId">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Nume Voluntar(i)</label>
+          <input type="text" id="eventTitle" placeholder="ex: Ion Popa" required class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-amber-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Congregația</label>
+          <select id="eventCongregation" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-amber-500">
+            <option value="Congregația Locală">Congregația Locală</option>
+            <option value="Congregația Vecină 1">Congregația Vecină 1</option>
+            <option value="Congregația Vecină 2">Congregația Vecină 2</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Ora Început</label>
+            <input type="datetime-local" id="eventStart" required class="w-full border border-slate-300 rounded-lg p-2 text-xs focus:ring-2 focus:ring-amber-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Ora Sfârșit</label>
+            <input type="datetime-local" id="eventEnd" required class="w-full border border-slate-300 rounded-lg p-2 text-xs focus:ring-2 focus:ring-amber-500">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Culoare Tură</label>
+          <div class="flex gap-3 pt-1">
+            <label class="cursor-pointer flex items-center gap-1.5"><input type="radio" name="eventColor" value="#2563eb" checked><span class="w-4 h-4 rounded-full bg-blue-600 inline-block"></span></label>
+            <label class="cursor-pointer flex items-center gap-1.5"><input type="radio" name="eventColor" value="#ea580c"><span class="w-4 h-4 rounded-full bg-orange-600 inline-block"></span></label>
+            <label class="cursor-pointer flex items-center gap-1.5"><input type="radio" name="eventColor" value="#dc2626"><span class="w-4 h-4 rounded-full bg-red-600 inline-block"></span></label>
+          </div>
+        </div>
+        <div class="flex gap-3 pt-3 border-t border-slate-100">
+          <button type="button" id="btnDeleteEvent" onclick="deleteEvent()" class="hidden bg-rose-50 text-rose-600 px-3 py-2 rounded-lg text-sm font-medium">Șterge</button>
+          <div class="flex-grow"></div>
+          <button type="button" onclick="closeEventModal()" class="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium">Anulează</button>
+          <button type="submit" class="bg-amber-600 text-white px-5 py-2 rounded-lg text-sm font-medium shadow-sm">Salvează</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="congregationModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] flex flex-col">
+      <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+        <h3 class="text-lg font-bold">Grupare Voluntari</h3>
+        <button onclick="closeCongregationModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div class="space-y-4 overflow-y-auto pr-1 flex-grow">
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          <h4 class="font-bold text-sm flex items-center gap-2 mb-2"><i class="fa-solid fa-building-user text-amber-500"></i> Congregația Locală</h4>
+        </div>
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          <h4 class="font-bold text-sm flex items-center gap-2 mb-2"><i class="fa-solid fa-building-user text-sky-500"></i> Congregația Vecină 1</h4>
+        </div>
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          <h4 class="font-bold text-sm flex items-center gap-2 mb-2"><i class="fa-solid fa-building-user text-indigo-500"></i> Congregația Vecină 2</h4>
+        </div>
+      </div>
+      <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+        <button onclick="closeCongregationModal()" class="bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-medium">Închide</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let calendar = null;
+    let isAdmin = false;
+    const ADMIN_PIN = "66401";
+
+    document.addEventListener('DOMContentLoaded', function() {
+      initCalendar();
+      loadEvents();
+    });
+
+    // Injectarea barei verticale cu secțiunile de pază
+    function renderShiftSidebar() {
+      const timegridBody = document.querySelector('.fc-timegrid-body');
+      if (!timegridBody) return;
+
+      if (document.getElementById('shiftSidebar')) return;
+
+      timegridBody.style.position = 'relative';
+
+      const sidebar = document.createElement('div');
+      sidebar.id = 'shiftSidebar';
+
+      sidebar.innerHTML = `
+        <div class="shift-section bg-blue-600 border-b border-white/20" style="height: 41.6667%;" title="Pază de Acces (07:00 - 17:00)">
+          <span>PAZĂ ACCES</span>
+        </div>
+        <div class="shift-section bg-amber-600 border-b border-white/20" style="height: 16.6666%;" title="Pază de Seară (17:00 - 21:00)">
+          <span>PAZĂ SEARĂ</span>
+        </div>
+        <div class="shift-section bg-red-600" style="height: 41.6667%;" title="Pază de Noapte (21:00 - 07:00)">
+          <span>PAZĂ NOAPTE</span>
+        </div>
+      `;
+
+      timegridBody.prepend(sidebar);
+    }
+
+    // Colorarea fundalului celulelor după interval orar
+    function colorizeTimeSlot(arg, isLabel) {
+      const tr = arg.el.closest('tr');
+      if (!tr) return;
+      const timeAttr = tr.getAttribute('data-time');
+      if (!timeAttr) return;
+
+      const hour = parseInt(timeAttr.split(':')[0]);
+      let color = '';
+      
+      if (hour >= 7 && hour < 17) {
+        color = isLabel ? '#dbeafe' : '#eff6ff';
+      } 
+      else if (hour >= 17 && hour < 21) {
+        color = isLabel ? '#ffedd5' : '#fff7ed';
+      } 
+      else if (hour >= 21 && hour < 31) {
+        color = isLabel ? '#fee2e2' : '#fef2f2';
+      }
+      
+      if (color) arg.el.style.backgroundColor = color;
+    }
+
+    function initCalendar() {
+      const calendarEl = document.getElementById('calendar');
+
+      calendar = new FullCalendar.Calendar(calendarEl, {
+        locale: 'ro',
+        initialView: 'timeGridSevenDays',
+        views: {
+          timeGridSevenDays: {
+            type: 'timeGrid',
+            duration: { days: 7 },
+            buttonText: '7 Zile'
+          }
+        },
+        validRange: { start: '2026-09-01', end: '2027-03-01' },
+        
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: '' 
+        },
+        
+        slotMinTime: '07:00:00',
+        slotMaxTime: '31:00:00', 
+        allDaySlot: false,
+        editable: false, 
+        selectable: false,
+        selectMirror: true,
+        height: 'auto',
+
+        datesSet: function() {
+          setTimeout(renderShiftSidebar, 50);
+        },
+
+        slotLabelDidMount: function(arg) { colorizeTimeSlot(arg, true); },
+        slotLaneDidMount: function(arg) { colorizeTimeSlot(arg, false); },
+
+        eventContent: function(arg) {
+          const start = arg.event.start ? arg.event.start.toLocaleTimeString('ro-RO', {hour: '2-digit', minute:'2-digit'}) : '';
+          const end = arg.event.end ? arg.event.end.toLocaleTimeString('ro-RO', {hour: '2-digit', minute:'2-digit'}) : '';
+          const timeText = start && end ? `${start} - ${end}` : arg.timeText;
+          const title = arg.event.title || '';
+          const congregation = arg.event.extendedProps.congregation || '';
+
+          const html = `
+            <div class="fc-custom-event-card">
+              <div class="fc-event-time-header">
+                <i class="fa-regular fa-clock mr-1 text-[9px]"></i>${timeText}
+              </div>
+              <div class="fc-event-body-centered">
+                <div class="fc-event-title-text">${title}</div>
+                ${congregation ? `<div class="fc-event-congregation-text">${congregation}</div>` : ''}
+              </div>
+            </div>
+          `;
+          return { html: html };
+        },
+
+        select: function(info) {
+          if (!isAdmin) return;
+          openEventModal(null, info.startStr, info.endStr);
+        },
+        eventClick: function(info) {
+          if (isAdmin) {
+            openEventModal(info.event);
+          } else {
+            const props = info.event.extendedProps;
+            alert(`📋 Detalii Tură:\n\nVoluntar: ${info.event.title}\nCongregația: ${props.congregation || 'Nespecificată'}`);
+          }
+        },
+        eventDrop: function(info) { if (isAdmin) updateEventDates(info.event); },
+        eventResize: function(info) { if (isAdmin) updateEventDates(info.event); }
+      });
+      
+      calendar.render();
+      renderShiftSidebar();
+    }
+
+    function handleAdminButtonClick() {
+      if (isAdmin) {
+        isAdmin = false;
+        document.getElementById('adminBadge').classList.add('hidden');
+        document.getElementById('btnCongregations').classList.add('hidden');
+        document.getElementById('btnAdminText').innerText = "|";
+        calendar.setOption('editable', false);
+        calendar.setOption('selectable', false);
+      } else {
+        document.getElementById('pinInput').value = '';
+        document.getElementById('pinError').classList.add('hidden');
+        document.getElementById('pinModal').classList.remove('hidden');
+        document.getElementById('pinInput').focus();
+      }
+    }
+
+    function closePinModal() { document.getElementById('pinModal').classList.add('hidden'); }
+
+    function verifyPin(e) {
+      e.preventDefault();
+      const inputPin = document.getElementById('pinInput').value;
+      if (inputPin === ADMIN_PIN) {
+        isAdmin = true;
+        closePinModal();
+        document.getElementById('adminBadge').classList.remove('hidden');
+        document.getElementById('btnCongregations').classList.remove('hidden');
+        document.getElementById('btnAdminText').innerText = "Ieșire";
+        calendar.setOption('editable', true);
+        calendar.setOption('selectable', true);
+      } else {
+        document.getElementById('pinError').classList.remove('hidden');
+      }
+    }
+
+    function openEventModal(event = null, startStr = '', endStr = '') {
+      document.getElementById('eventModal').classList.remove('hidden');
+      if (event) {
+        document.getElementById('eventModalTitle').innerText = "Editează Tură";
+        document.getElementById('eventId').value = event.id;
+        document.getElementById('eventTitle').value = event.title;
+        document.getElementById('eventCongregation').value = event.extendedProps.congregation || 'Congregația Locală';
+        document.getElementById('eventStart').value = formatDateForInput(event.start);
+        document.getElementById('eventEnd').value = formatDateForInput(event.end);
+        document.getElementById('btnDeleteEvent').classList.remove('hidden');
+      } else {
+        document.getElementById('eventModalTitle').innerText = "Adaugă Tură";
+        document.getElementById('eventId').value = '';
+        document.getElementById('eventTitle').value = '';
+        document.getElementById('eventStart').value = startStr ? formatDateForInput(new Date(startStr)) : '';
+        document.getElementById('eventEnd').value = endStr ? formatDateForInput(new Date(endStr)) : '';
+        document.getElementById('btnDeleteEvent').classList.add('hidden');
+      }
+    }
+
+    function closeEventModal() { document.getElementById('eventModal').classList.add('hidden'); }
+
+    function saveEvent(e) {
+      e.preventDefault();
+      const id = document.getElementById('eventId').value || 'evt_' + Date.now();
+      const eventData = {
+        id: id,
+        title: document.getElementById('eventTitle').value,
+        start: document.getElementById('eventStart').value,
+        end: document.getElementById('eventEnd').value,
+        backgroundColor: document.querySelector('input[name="eventColor"]:checked').value,
+        borderColor: document.querySelector('input[name="eventColor"]:checked').value,
+        extendedProps: { congregation: document.getElementById('eventCongregation').value }
+      };
+      
+      const existingEvent = calendar.getEventById(id);
+      if (existingEvent) existingEvent.remove();
+      calendar.addEvent(eventData);
+      saveEventToStorage(eventData);
+      closeEventModal();
+    }
+
+    function deleteEvent() {
+      const id = document.getElementById('eventId').value;
+      if (!id) return;
+      if (confirm("Ștergi această tură?")) {
+        const event = calendar.getEventById(id);
+        if (event) event.remove();
+        deleteEventFromStorage(id);
+        closeEventModal();
+      }
+    }
+
+    function updateEventDates(event) {
+      saveEventToStorage({
+        id: event.id,
+        title: event.title,
+        start: event.start.toISOString(),
+        end: event.end ? event.end.toISOString() : event.start.toISOString(),
+        backgroundColor: event.backgroundColor,
+        borderColor: event.borderColor,
+        extendedProps: event.extendedProps
+      });
+    }
+
+    function openCongregationModal() { document.getElementById('congregationModal').classList.remove('hidden'); }
+    function closeCongregationModal() { document.getElementById('congregationModal').classList.add('hidden'); }
+
+    function saveEventToStorage(eventData) {
+      let events = JSON.parse(localStorage.getItem('ture_paza') || '[]');
+      events = events.filter(e => e.id !== eventData.id);
+      events.push(eventData);
+      localStorage.setItem('ture_paza', JSON.stringify(events));
+    }
+
+    function deleteEventFromStorage(id) {
+      let events = JSON.parse(localStorage.getItem('ture_paza') || '[]');
+      events = events.filter(e => e.id !== id);
+      localStorage.setItem('ture_paza', JSON.stringify(events));
+    }
+
+    function loadEvents() {
+      const events = JSON.parse(localStorage.getItem('ture_paza') || '[]');
+      events.forEach(e => calendar.addEvent(e));
+    }
+
+    function formatDateForInput(date) {
+      const d = new Date(date);
+      const pad = n => n < 10 ? '0' + n : n;
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+  </script>
+</body>
+</html>
