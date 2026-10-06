@@ -10,16 +10,38 @@
   
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.10/locales/ro.global.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
+    .calendar-outer-container {
+      position: relative;
+      width: 100%;
+    }
+
+    /* Ascundem bara internă FullCalendar din scrollul calendarului pentru a folosi bara fixată pe tot ecranul */
+    .fc-header-toolbar {
+      display: none !important;
+    }
+
+    /* Bara fixată pe toată lățimea ecranului - nu glisează niciodată */
+    .calendar-fixed-controls {
+      width: 100%;
+      background: #ffffff;
+      padding: 0.5rem 0.25rem 0.75rem 0.25rem;
+      border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 0.75rem;
+    }
+
     .calendar-wrapper {
       overflow-x: auto;
       width: 100%;
       -webkit-overflow-scrolling: touch;
+      position: relative;
     }
     
     #calendar {
       min-width: 800px;
+      width: 100%;
     }
 
     .fc-timegrid-slot {
@@ -96,32 +118,46 @@
       width: 100%;
     }
 
-    /* Numele si numarul aliniate din stanga, numele complet afisat cat permite latimea celulei cu ellipsis (...) */
+    /* Rând voluntar: când spațiul pe înălțime permite (allow-wrap), textul se continuă pe al 2-lea rând în loc să pună puncte */
     .fc-event-person-row {
       font-size: 11.5px;
       font-weight: 700;
-      line-height: 1.2;
+      line-height: 1.15;
       text-align: left;
       width: 100%;
       display: flex;
-      align-items: baseline;
+      align-items: flex-start;
       gap: 3px;
-      white-space: nowrap;
-      overflow: hidden;
     }
 
-    /* Marime redusa a textului cand este 1 ora si 2 persoane pentru a incapea ambele */
+    .fc-event-person-row.nowrap-row {
+      white-space: nowrap;
+      overflow: hidden;
+      align-items: baseline;
+    }
+
+    /* Mărime redusă a textului când este 1 oră și 2 persoane pentru a încăpea ambele */
     .fc-event-person-row.compact-row {
       font-size: 9.5px !important;
       line-height: 1.05 !important;
       gap: 2px !important;
+      white-space: nowrap;
+      overflow: hidden;
+      align-items: baseline;
     }
 
     .person-name-text {
+      flex: 1;
+      display: block;
+      word-break: break-word;
+      hyphens: auto;
+    }
+
+    .fc-event-person-row.nowrap-row .person-name-text,
+    .fc-event-person-row.compact-row .person-name-text {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      flex: 1;
       display: inline-block;
     }
 
@@ -197,6 +233,9 @@
         <span id="adminBadge" class="hidden text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5">
           <i class="fa-solid fa-lock-open"></i> Mod Editare
         </span>
+        <button id="btnExportWeek" onclick="window.exportCurrentWeekA4()" class="hidden bg-emerald-700 hover:bg-emerald-600 text-white border border-emerald-600 px-3 py-1.5 rounded-lg text-sm font-semibold transition flex items-center gap-1.5 shadow-sm" title="Tipărește / Exportă Graficul A4 pentru săptămâna curentă (Azi + 6 zile)">
+          <i class="fa-solid fa-print text-emerald-200"></i> Exportă A4
+        </button>
         <button id="btnCongregations" onclick="openCongregationModal()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium transition">
           <i class="fa-solid fa-users text-amber-400"></i> Congregații
         </button>
@@ -210,6 +249,30 @@
   <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 md:p-6">
       
+      <!-- BARA DE CONTROL FIXATĂ PE TOATĂ LĂȚIMEA ECRANULUI (NU GLISEAZĂ ORIZONTAL) -->
+      <div class="calendar-fixed-controls flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="window.customCalPrev()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 px-3 py-1.5 rounded-lg text-sm font-bold transition flex items-center justify-center shadow-sm">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <button type="button" onclick="window.customCalNext()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 px-3 py-1.5 rounded-lg text-sm font-bold transition flex items-center justify-center shadow-sm">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+          <button type="button" onclick="window.customCalToday()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm">
+            Azi
+          </button>
+        </div>
+
+        <div id="customCalTitle" class="text-sm md:text-base font-extrabold text-slate-800 tracking-tight text-center flex-grow md:flex-grow-0">
+          <!-- Populat dinamic în JS cu intervalul săptămânii -->
+        </div>
+
+        <div class="text-xs font-semibold text-slate-500 hidden sm:flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+          <span>7 Zile</span>
+        </div>
+      </div>
+
       <!-- Container exterior cu suport pentru coloana înghețată la glisare orizontală -->
       <div class="calendar-outer-container relative overflow-hidden rounded-xl">
         
@@ -643,11 +706,11 @@
       const overlay = document.getElementById('frozenAxisOverlay');
       const timegrid = document.querySelector('.fc-timegrid');
       const headerTable = document.querySelector('.fc-col-header');
-      const slotsTable = document.querySelector('.fc-timegrid-slots table');
+      const timegridBody = document.querySelector('.fc-timegrid-body');
       const axisHeaderCell = document.querySelector('.fc-col-header .fc-timegrid-axis');
-      if (!overlay || !timegrid || !slotsTable) return;
+      if (!overlay || !timegrid) return;
 
-      // Determinăm poziția exactă a tabelelor calendarului în raport cu wrapperul calendar-outer-container
+      // Determinăm poziția exactă a grilei calendarului în raport cu containerul exterior
       const containerRect = overlay.parentElement.getBoundingClientRect();
       const timegridRect = timegrid.getBoundingClientRect();
       
@@ -660,58 +723,100 @@
       overlay.style.width = `${axisWidth}px`;
 
       const headerHeight = headerTable ? headerTable.offsetHeight : 36;
-      const bodyHeight = slotsTable.offsetHeight;
+      const bodyHeight = (timegridBody ? timegridBody.offsetHeight : 0) || (totalHeight - headerHeight);
 
       overlay.innerHTML = `
         <div style="height: ${headerHeight}px; width: ${axisWidth}px;" class="bg-slate-100 border-b border-r border-slate-300 flex items-center justify-center box-border shrink-0">
           <i class="fa-regular fa-clock text-slate-500 text-xs"></i>
         </div>
         <div class="relative overflow-hidden" style="height: ${bodyHeight}px; width: ${axisWidth}px;">
-          <!-- Sidebar cu secțiuni pază colorate (30px) -->
+          <!-- 1. Coloana cu secțiuni pază colorate (30px) -->
           <div class="absolute left-0 top-0 bottom-0 w-[30px] flex flex-col z-10 overflow-hidden select-none border-r border-white/20">
             <div class="shift-section bg-blue-600 border-b border-white/20" style="height: 41.6667%;" title="Pază de Acces (07:00 - 17:00)"><span>PAZĂ ACCES</span></div>
             <div class="shift-section bg-green-600 border-b border-white/20" style="height: 16.6666%;" title="Pază de Seară (17:00 - 21:00)"><span>PAZĂ SEARĂ</span></div>
             <div class="shift-section bg-red-600" style="height: 41.6667%;" title="Pază de Noapte (21:00 - 07:00)"><span>PAZĂ NOAPTE</span></div>
           </div>
-          <!-- Coloana alăturată cu celulele orelor fix cum este în calendar -->
-          <div class="pl-[30px] w-full" id="frozenHoursContainer">
+          <!-- 2. A 2-a coloană cu celulele orelor fix ca în tabelul calendarului -->
+          <div class="absolute left-[30px] right-0 top-0 bottom-0 flex flex-col overflow-hidden" id="frozenHoursContainer">
           </div>
         </div>
       `;
 
       const hoursContainer = document.getElementById('frozenHoursContainer');
-      const rows = slotsTable.querySelectorAll('tr[data-time]');
-      rows.forEach(tr => {
-        const time = tr.getAttribute('data-time') || '';
-        const hour = parseInt(time.split(':')[0]);
-        const displayHour = (hour % 24 < 10 ? '0' : '') + (hour % 24) + ':00';
-        const trHeight = tr.getBoundingClientRect().height || tr.offsetHeight || 28;
+      if (!hoursContainer) return;
 
-        let bgColor = '#ffffff';
-        let borderTop = '1px solid #e2e8f0';
+      // Căutăm rândurile orelor în ambele tabele FullCalendar (slots sau cols)
+      let rows = document.querySelectorAll('.fc-timegrid-slots tr[data-time]');
+      if (!rows || rows.length === 0) {
+        rows = document.querySelectorAll('.fc-timegrid tr[data-time]');
+      }
 
-        if (hour >= 7 && hour < 17) {
-          bgColor = '#dbeafe';
-          if (hour === 7) borderTop = '4px solid #2563eb';
-        } else if (hour >= 17 && hour < 21) {
-          bgColor = '#dcfce7';
-          if (hour === 17) borderTop = '4px solid #16a34a';
-        } else if (hour >= 21 && hour < 31) {
-          bgColor = '#fee2e2';
-          if (hour === 21) borderTop = '4px solid #dc2626';
+      if (rows && rows.length > 0) {
+        rows.forEach(tr => {
+          const time = tr.getAttribute('data-time') || '';
+          const hour = parseInt(time.split(':')[0]);
+          const displayHour = (hour % 24 < 10 ? '0' : '') + (hour % 24);
+          const trHeight = tr.getBoundingClientRect().height || tr.offsetHeight || 28;
+
+          let bgColor = '#ffffff';
+          let borderTop = '1px solid #e2e8f0';
+
+          if (hour >= 7 && hour < 17) {
+            bgColor = '#dbeafe';
+            if (hour === 7) borderTop = '4px solid #2563eb';
+          } else if (hour >= 17 && hour < 21) {
+            bgColor = '#dcfce7';
+            if (hour === 17) borderTop = '4px solid #16a34a';
+          } else if (hour >= 21 && hour < 31) {
+            bgColor = '#fee2e2';
+            if (hour === 21) borderTop = '4px solid #dc2626';
+          }
+
+          const rowDiv = document.createElement('div');
+          rowDiv.style.height = `${trHeight}px`;
+          rowDiv.style.minHeight = `${trHeight}px`;
+          rowDiv.style.backgroundColor = bgColor;
+          rowDiv.style.borderTop = borderTop;
+          rowDiv.style.borderRight = '1px solid #cbd5e1';
+          rowDiv.style.boxSizing = 'border-box';
+          rowDiv.className = "flex items-center justify-center text-xs font-black text-slate-800 select-none tracking-tight shrink-0";
+          rowDiv.innerText = displayHour;
+
+          hoursContainer.appendChild(rowDiv);
+        });
+      } else {
+        // Fallback garantat: generăm cele 24 ore de la 07:00 la 30:00 (7:00 până la 06:00 dimineața următoare)
+        const totalHoursCount = 24;
+        const singleHeight = bodyHeight / totalHoursCount;
+        for (let h = 7; h < 31; h++) {
+          const displayHour = (h % 24 < 10 ? '0' : '') + (h % 24);
+          let bgColor = '#ffffff';
+          let borderTop = '1px solid #e2e8f0';
+
+          if (h >= 7 && h < 17) {
+            bgColor = '#dbeafe';
+            if (h === 7) borderTop = '4px solid #2563eb';
+          } else if (h >= 17 && h < 21) {
+            bgColor = '#dcfce7';
+            if (h === 17) borderTop = '4px solid #16a34a';
+          } else if (h >= 21 && h < 31) {
+            bgColor = '#fee2e2';
+            if (h === 21) borderTop = '4px solid #dc2626';
+          }
+
+          const rowDiv = document.createElement('div');
+          rowDiv.style.height = `${singleHeight}px`;
+          rowDiv.style.minHeight = `${singleHeight}px`;
+          rowDiv.style.backgroundColor = bgColor;
+          rowDiv.style.borderTop = borderTop;
+          rowDiv.style.borderRight = '1px solid #cbd5e1';
+          rowDiv.style.boxSizing = 'border-box';
+          rowDiv.className = "flex items-center justify-center text-xs font-black text-slate-800 select-none tracking-tight shrink-0";
+          rowDiv.innerText = displayHour;
+
+          hoursContainer.appendChild(rowDiv);
         }
-
-        const rowDiv = document.createElement('div');
-        rowDiv.style.height = `${trHeight}px`;
-        rowDiv.style.backgroundColor = bgColor;
-        rowDiv.style.borderTop = borderTop;
-        rowDiv.style.borderRight = '1px solid #cbd5e1';
-        rowDiv.style.boxSizing = 'border-box';
-        rowDiv.className = "flex items-center justify-center text-[11px] font-bold text-slate-700 select-none";
-        rowDiv.innerText = displayHour;
-
-        hoursContainer.appendChild(rowDiv);
-      });
+      }
     }
 
     function setupScrollListener() {
@@ -761,10 +866,20 @@
         validRange: { start: '2026-09-01', end: '2027-03-01' },
         headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
         slotMinTime: '07:00:00', slotMaxTime: '31:00:00', slotDuration: '01:00:00', 
+        slotLabelFormat: {
+          hour: '2-digit',
+          minute: undefined,
+          hour12: false,
+          meridiem: false
+        },
         slotEventOverlap: false, allDaySlot: false, editable: false, selectable: false,
         selectMirror: true, height: 'auto',
-        longPressDelay: 100, selectLongPressDelay: 100, eventLongPressDelay: 100,
-        datesSet: function() { 
+        longPressDelay: 700, selectLongPressDelay: 750, eventLongPressDelay: 500,
+        datesSet: function(info) { 
+          const titleElem = document.getElementById('customCalTitle');
+          if (titleElem && info.view) {
+            titleElem.innerText = info.view.title || '';
+          }
           setTimeout(() => {
             renderShiftSidebar();
             buildFrozenColumn();
@@ -803,17 +918,27 @@
             hideHours = true; // 2 ore cu 2 persoane: dispar orele
           }
 
+          // Verificăm dacă înălțimea este suficientă pentru ca numele și familia să continue pe al 2-lea rând
+          // Ex: dacă tura are >= 3 ore cu 1 sau 2 persoane, sau 2 ore cu 1 persoană, etc.
+          // Când celula este mică (1 oră sau 2 ore cu 2 persoane), se folosește nowrap-row / compact-row
+          let allowWrap = false;
+          if (durationHours >= 3) {
+            allowWrap = true;
+          } else if (durationHours >= 2 && numPeople === 1) {
+            allowWrap = true;
+          }
+
           let namesHtml = '';
           if (volunteers.length > 0) {
             namesHtml = volunteers.map((v, i) => `
-              <div class="fc-event-person-row ${isSuperCompact ? 'compact-row' : ''}">
+              <div class="fc-event-person-row ${isSuperCompact ? 'compact-row' : (allowWrap ? 'allow-wrap' : 'nowrap-row')}">
                 <span class="opacity-90 font-bold shrink-0">${i + 1}.</span>
                 <span class="person-name-text" title="${v.name}">${v.name}</span>
               </div>
             `).join('');
           } else {
             namesHtml = `
-              <div class="fc-event-person-row ${isSuperCompact ? 'compact-row' : ''}">
+              <div class="fc-event-person-row ${isSuperCompact ? 'compact-row' : (allowWrap ? 'allow-wrap' : 'nowrap-row')}">
                 <span class="person-name-text">${arg.event.title || 'Tură Pază'}</span>
               </div>
             `;
@@ -871,6 +996,8 @@
         isAdmin = false;
         document.getElementById('adminBadge').classList.add('hidden');
         document.getElementById('btnCongregations').classList.add('hidden');
+        const btnExp = document.getElementById('btnExportWeek');
+        if (btnExp) btnExp.classList.add('hidden');
         document.getElementById('btnAdminText').innerText = "|";
         calendar.setOption('editable', false); 
         calendar.setOption('selectable', false);
@@ -889,12 +1016,25 @@
         isAdmin = true; closePinModal();
         document.getElementById('adminBadge').classList.remove('hidden');
         document.getElementById('btnCongregations').classList.remove('hidden');
+        const btnExp = document.getElementById('btnExportWeek');
+        if (btnExp) btnExp.classList.remove('hidden');
         document.getElementById('btnAdminText').innerText = "Ieșire";
         calendar.setOption('editable', true); 
         calendar.setOption('selectable', true);
       } else {
         document.getElementById('pinError').classList.remove('hidden');
       }
+    }
+
+    /* ==== COMENZI PENTRU BARA DE CONTROL FIXATĂ A CALENDARULUI ==== */
+    function customCalPrev() {
+      if (calendar) calendar.prev();
+    }
+    function customCalNext() {
+      if (calendar) calendar.next();
+    }
+    function customCalToday() {
+      if (calendar) calendar.today();
     }
 
     /* ==== MODAL DETALII TURĂ (LA CLICK PE TURĂ) ==== */
@@ -956,7 +1096,7 @@
                 <div>
                   <div class="font-bold text-slate-800 text-sm">${v.name}</div>
                   <div class="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                    <i class="fa-solid fa-church text-amber-500 text-[10px]"></i>
+                    <i class="fa-solid fa-building text-amber-500 text-[10px]"></i>
                     <span>${congName}</span>
                   </div>
                 </div>
@@ -1162,7 +1302,7 @@
           <!-- Afisare eticheta congregație detectată/asociată -->
           ${congDisplayName ? `
             <div class="mt-2 text-[11px] text-slate-600 flex items-center gap-1.5">
-              <i class="fa-solid fa-church text-amber-500"></i>
+              <i class="fa-solid fa-building text-amber-500"></i>
               <span>Congregație: <strong class="text-slate-800">${congDisplayName}</strong></span>
             </div>
           ` : ''}
@@ -1708,6 +1848,231 @@
     window.deletePerson = deletePerson;
     window.addVolunteerSlot = addVolunteerSlot;
     window.removeVolunteerSlot = removeVolunteerSlot;
+    /* ==== EXPORTARE / TIPĂRIRE GRAFIC SĂPTĂMÂNAL FORMAT A4 (AZI + 6 ZILE) ==== */
+    async function exportCurrentWeekA4() {
+      if (!calendar) return;
+
+      const btnExp = document.getElementById('btnExportWeek');
+      const originalText = btnExp ? btnExp.innerHTML : '';
+      if (btnExp) {
+        btnExp.disabled = true;
+        btnExp.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generare A4...`;
+      }
+
+      try {
+        const today = new Date();
+        const startDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+
+        // Generăm cele 7 zile (Azi + 6 zile)
+        const days = [];
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(startDay);
+          d.setDate(startDay.getDate() + i);
+          days.push(d);
+        }
+
+        // Preluăm toate evenimentele existente din calendar
+        const allEvents = calendar.getEvents();
+
+        // Container temporar de randare dedicat formatului A4 Landscape (1123 x 794 px)
+        const exportContainer = document.createElement('div');
+        exportContainer.id = 'exportWeekA4Container';
+        exportContainer.style.position = 'fixed';
+        exportContainer.style.left = '-9999px';
+        exportContainer.style.top = '0';
+        exportContainer.style.width = '1200px';
+        exportContainer.style.background = '#ffffff';
+        exportContainer.style.color = '#0f172a';
+        exportContainer.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+        exportContainer.style.padding = '24px';
+        exportContainer.style.boxSizing = 'border-box';
+        exportContainer.style.zIndex = '99999';
+
+        const startStr = days[0].toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
+        const endStr = days[6].toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        let tableHeaderCols = `
+          <th style="width: 140px; background: #0f172a; color: #ffffff; padding: 10px 8px; font-size: 13px; text-align: center; border: 1px solid #334155;">
+            TURĂ / INTERVAL
+          </th>
+        `;
+
+        days.forEach((dayObj, idx) => {
+          const isToday = idx === 0;
+          const weekday = dayObj.toLocaleDateString('ro-RO', { weekday: 'long' });
+          const dayNum = dayObj.toLocaleDateString('ro-RO', { day: 'numeric', month: 'numeric' });
+          const capWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+
+          tableHeaderCols += `
+            <th style="background: ${isToday ? '#ea580c' : '#1e293b'}; color: #ffffff; padding: 10px 6px; text-align: center; border: 1px solid #334155; font-size: 13px;">
+              <div style="font-weight: 800; font-size: 14px;">${capWeekday}</div>
+              <div style="font-size: 11px; opacity: 0.9; margin-top: 2px;">${dayNum}</div>
+              ${isToday ? `<span style="display:inline-block; margin-top:2px; font-size:10px; background:#fff; color:#ea580c; padding:1px 6px; border-radius:99px; font-weight:800;">AZI</span>` : ''}
+            </th>
+          `;
+        });
+
+        const shiftTypes = [
+          { name: "Pază de Acces", hours: "07:00 - 17:00", startH: 7, endH: 17, color: "#2563eb", bgLight: "#eff6ff" },
+          { name: "Pază de Seară", hours: "17:00 - 21:00", startH: 17, endH: 21, color: "#16a34a", bgLight: "#f0fdf4" },
+          { name: "Pază de Noapte", hours: "21:00 - 07:00", startH: 21, endH: 31, color: "#dc2626", bgLight: "#fef2f2" }
+        ];
+
+        let tableRowsHtml = '';
+
+        shiftTypes.forEach(st => {
+          let rowCells = `
+            <td style="background: ${st.bgLight}; border: 1px solid #cbd5e1; padding: 14px 10px; vertical-align: middle;">
+              <div style="font-weight: 800; font-size: 14px; color: ${st.color};">${st.name}</div>
+              <div style="font-size: 12px; font-weight: 700; color: #475569; margin-top: 3px;">${st.hours}</div>
+            </td>
+          `;
+
+          days.forEach(dayObj => {
+            const dayStart = new Date(dayObj.getFullYear(), dayObj.getMonth(), dayObj.getDate(), 0, 0, 0).getTime();
+            const dayEnd = dayStart + (24 * 60 * 60 * 1000);
+
+            // Găsim evenimentele din această zi care se suprapun cu tura curentă
+            const matchingEvts = allEvents.filter(ev => {
+              if (!ev.start) return false;
+              const evStart = ev.start.getTime();
+              const evDate = new Date(ev.start);
+              const isSameDate = evDate.getFullYear() === dayObj.getFullYear() &&
+                                 evDate.getMonth() === dayObj.getMonth() &&
+                                 evDate.getDate() === dayObj.getDate();
+              
+              if (!isSameDate) return false;
+              const evStartH = evDate.getHours();
+              // Asociere după ora de start
+              if (st.startH === 7 && evStartH >= 7 && evStartH < 17) return true;
+              if (st.startH === 17 && evStartH >= 17 && evStartH < 21) return true;
+              if (st.startH === 21 && (evStartH >= 21 || evStartH < 7)) return true;
+              return false;
+            });
+
+            let cellContent = '';
+            if (matchingEvts.length > 0) {
+              matchingEvts.forEach(ev => {
+                const vols = getVolunteersFromEvent(ev);
+                const sTime = ev.start ? ev.start.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' }) : '';
+                const eTime = ev.end ? ev.end.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' }) : '';
+
+                let namesStr = '';
+                if (vols.length > 0) {
+                  namesStr = vols.map((v, i) => {
+                    let congText = v.congregationName || '';
+                    if (!congText && v.congregationId) {
+                      const c = congregations.find(item => item.id === v.congregationId);
+                      if (c) congText = c.short || c.name;
+                    }
+                    return `
+                      <div style="font-size: 12px; font-weight: 700; color: #0f172a; margin-bottom: 2px;">
+                        <span>${i + 1}.</span> ${v.name}
+                        ${congText ? `<span style="font-size: 10px; font-weight: 600; color: #64748b; background: #e2e8f0; padding: 1px 4px; border-radius: 4px; margin-left: 3px;">${congText}</span>` : ''}
+                      </div>
+                    `;
+                  }).join('');
+                } else {
+                  namesStr = `<div style="font-size: 12px; font-weight: 700; color: #0f172a;">${ev.title || 'Tură programată'}</div>`;
+                }
+
+                cellContent += `
+                  <div style="background: #ffffff; border-left: 4px solid ${st.color}; padding: 6px 8px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); margin-bottom: 4px;">
+                    <div style="font-size: 11px; font-weight: 800; color: ${st.color}; margin-bottom: 4px;">${sTime} - ${eTime}</div>
+                    ${namesStr}
+                  </div>
+                `;
+              });
+            } else {
+              cellContent = `<div style="color: #94a3b8; font-size: 11px; font-style: italic; text-align: center; padding: 12px 0;">-- Liber --</div>`;
+            }
+
+            rowCells += `
+              <td style="border: 1px solid #cbd5e1; padding: 6px; vertical-align: top; background: ${st.bgLight}22;">
+                ${cellContent}
+              </td>
+            `;
+          });
+
+          tableRowsHtml += `<tr>${rowCells}</tr>`;
+        });
+
+        exportContainer.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #0f172a; padding-bottom: 12px; margin-bottom: 14px;">
+            <div>
+              <h2 style="font-size: 24px; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: -0.5px;">
+                Grafic Pază Sala Regatului
+              </h2>
+              <p style="font-size: 14px; font-weight: 700; color: #d97706; margin: 4px 0 0 0;">
+                Săptămâna curentă: ${startStr} — ${endStr}
+              </p>
+            </div>
+            <div style="text-align: right;">
+              <span style="font-size: 11px; color: #64748b; font-weight: 600;">Generat la: ${new Date().toLocaleDateString('ro-RO')} ${new Date().toLocaleTimeString('ro-RO', {hour:'2-digit', minute:'2-digit'})}</span>
+              <div style="font-size: 11px; font-weight: 800; color: #0f172a; margin-top: 2px;">Format Tipărire / Export A4</div>
+            </div>
+          </div>
+
+          <table style="width: 100%; border-collapse: collapse; border: 1px solid #cbd5e1;">
+            <thead>
+              <tr>${tableHeaderCols}</tr>
+            </thead>
+            <tbody>
+              ${tableRowsHtml}
+            </tbody>
+          </table>
+
+          <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 8px;">
+            <div style="display: flex; gap: 16px;">
+              <span><strong style="color: #2563eb;">■</strong> Pază de Acces (07:00 - 17:00)</span>
+              <span><strong style="color: #16a34a;">■</strong> Pază de Seară (17:00 - 21:00)</span>
+              <span><strong style="color: #dc2626;">■</strong> Pază de Noapte (21:00 - 07:00)</span>
+            </div>
+            <div style="font-weight: 700;">Sala Regatului</div>
+          </div>
+        `;
+
+        document.body.appendChild(exportContainer);
+
+        // Randăm cu html2canvas la rezoluție ridicată (scale: 2) pentru claritate tipărire
+        if (typeof html2canvas === 'function') {
+          const canvas = await html2canvas(exportContainer, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff'
+          });
+
+          document.body.removeChild(exportContainer);
+
+          // Generăm descărcarea imaginii
+          const imageURL = canvas.toDataURL('image/png');
+          const downloadLink = document.createElement('a');
+          const fileDateStr = today.toISOString().split('T')[0];
+          downloadLink.download = `Grafic_Paza_A4_${fileDateStr}.png`;
+          downloadLink.href = imageURL;
+          downloadLink.click();
+        } else {
+          // Fallback tipărire directă
+          window.print();
+          if (exportContainer.parentNode) {
+            document.body.removeChild(exportContainer);
+          }
+        }
+      } catch (err) {
+        console.error("Eroare la exportul A4:", err);
+        alert("A apărut o problemă la generarea imaginii A4.");
+      } finally {
+        if (btnExp) {
+          btnExp.disabled = false;
+          btnExp.innerHTML = originalText;
+        }
+      }
+    }
+
+    window.customCalPrev = customCalPrev;
+    window.customCalNext = customCalNext;
+    window.customCalToday = customCalToday;
+    window.exportCurrentWeekA4 = exportCurrentWeekA4;
     window.handleSlotInput = handleSlotInput;
     window.selectSuggestedPerson = selectSuggestedPerson;
     window.clearSlotInput = clearSlotInput;
