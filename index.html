@@ -218,9 +218,126 @@
     .cong-accordion-content.open {
       display: block;
     }
+
+    /* ==== TEMA ÎNTUNECATĂ (DARK THEME) ==== */
+    html.dark body {
+      background-color: #0b1120 !important;
+      color: #e2e8f0 !important;
+    }
+
+    html.dark .bg-slate-50 {
+      background-color: #0f172a !important;
+    }
+
+    html.dark header.bg-slate-900 {
+      background-color: #020617 !important;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    html.dark main .bg-white {
+      background-color: #0f172a !important;
+      border-color: #1e293b !important;
+      color: #f1f5f9 !important;
+    }
+
+    html.dark .calendar-fixed-controls {
+      background: #0f172a !important;
+      border-bottom-color: #1e293b !important;
+    }
+
+    html.dark #customCalTitle {
+      color: #f8fafc !important;
+    }
+
+    html.dark .calendar-fixed-controls button.bg-slate-100 {
+      background-color: #1e293b !important;
+      border-color: #334155 !important;
+      color: #f1f5f9 !important;
+    }
+    html.dark .calendar-fixed-controls button.bg-slate-100:hover {
+      background-color: #334155 !important;
+    }
+
+    html.dark #frozenAxisOverlay {
+      background-color: #0f172a !important;
+      border-right-color: #334155 !important;
+    }
+
+    html.dark #frozenAxisOverlay .bg-slate-100 {
+      background-color: #1e293b !important;
+      border-bottom-color: #334155 !important;
+      border-right-color: #334155 !important;
+      color: #cbd5e1 !important;
+    }
+
+    /* Grila FullCalendar în Dark Mode */
+    html.dark .fc-theme-standard td,
+    html.dark .fc-theme-standard th {
+      border-color: #334155 !important;
+    }
+
+    html.dark .fc-col-header-cell {
+      background-color: #1e293b !important;
+      color: #f1f5f9 !important;
+    }
+
+    html.dark .fc-col-header-cell a {
+      color: #f1f5f9 !important;
+    }
+
+    html.dark .fc-timegrid-axis-cushion,
+    html.dark .fc-timegrid-slot-label-cushion {
+      color: #94a3b8 !important;
+    }
+
+    html.dark .fc-col-header-cell.fc-day-today {
+      background-color: #ea580c !important;
+    }
+
+    html.dark .fc-timegrid-col.fc-day-today {
+      background-color: rgba(234, 88, 12, 0.12) !important;
+      border-left: 2px solid #ea580c !important;
+      border-right: 2px solid #ea580c !important;
+    }
+
+    /* Modale în Dark Mode */
+    html.dark #pinModal .bg-white,
+    html.dark #congregationModal .bg-white,
+    html.dark #eventModal .bg-white,
+    html.dark #viewDetailsModal .bg-white,
+    html.dark #visualCalendarModal .bg-white {
+      background-color: #0f172a !important;
+      border-color: #1e293b !important;
+      color: #f1f5f9 !important;
+    }
+
+    html.dark input,
+    html.dark select,
+    html.dark textarea {
+      background-color: #1e293b !important;
+      border-color: #334155 !important;
+      color: #f8fafc !important;
+    }
+
+    html.dark .border-slate-200 {
+      border-color: #334155 !important;
+    }
+
+    html.dark .text-slate-800 {
+      color: #f8fafc !important;
+    }
+
+    html.dark .text-slate-700 {
+      color: #e2e8f0 !important;
+    }
+
+    html.dark .text-slate-600,
+    html.dark .text-slate-500 {
+      color: #94a3b8 !important;
+    }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col transition-colors duration-200">
 
   <header class="bg-slate-900 text-white shadow-md p-4 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
@@ -239,7 +356,13 @@
         <button id="btnCongregations" onclick="openCongregationModal()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium transition">
           <i class="fa-solid fa-users text-amber-400"></i> Congregații
         </button>
-        <button id="btnAdminAccess" onclick="handleAdminButtonClick()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center">
+
+        <!-- Buton Schimbare Temă: Albă (Soare) -> Neagră (Lună) -> Sistem (Ecran) -->
+        <button id="btnThemeToggle" onclick="window.cycleTheme()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Schimbă tema: Albă / Neagră / Sistem">
+          <i id="themeToggleIcon" class="fa-solid fa-sun"></i>
+        </button>
+
+        <button id="btnAdminAccess" onclick="handleAdminButtonClick()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Acces Administrare / PIN">
           <span id="btnAdminText">|</span>
         </button>
       </div>
@@ -694,10 +817,15 @@
       const timeAttr = tr.getAttribute('data-time');
       if (!timeAttr) return;
       const hour = parseInt(timeAttr.split(':')[0]);
+      const isDark = document.documentElement.classList.contains('dark');
       let color = '';
-      if (hour >= 7 && hour < 17) color = isLabel ? '#dbeafe' : '#eff6ff';
-      else if (hour >= 17 && hour < 21) color = isLabel ? '#dcfce7' : '#f0fdf4'; // Verde deschis pentru Seară
-      else if (hour >= 21 && hour < 31) color = isLabel ? '#fee2e2' : '#fef2f2'; // Roșu deschis pentru Noapte
+      if (hour >= 7 && hour < 17) {
+        color = isDark ? (isLabel ? '#1e3a8a' : '#172554') : (isLabel ? '#dbeafe' : '#eff6ff');
+      } else if (hour >= 17 && hour < 21) {
+        color = isDark ? (isLabel ? '#14532d' : '#052e16') : (isLabel ? '#dcfce7' : '#f0fdf4');
+      } else if (hour >= 21 && hour < 31) {
+        color = isDark ? (isLabel ? '#7f1d1d' : '#450a0a') : (isLabel ? '#fee2e2' : '#fef2f2');
+      }
       if (color) arg.el.style.backgroundColor = color;
     }
 
@@ -725,9 +853,12 @@
       const headerHeight = headerTable ? headerTable.offsetHeight : 36;
       const bodyHeight = (timegridBody ? timegridBody.offsetHeight : 0) || (totalHeight - headerHeight);
 
+      const isDark = document.documentElement.classList.contains('dark');
+      const headerBgClass = isDark ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-100 border-slate-300 text-slate-500';
+
       overlay.innerHTML = `
-        <div style="height: ${headerHeight}px; width: ${axisWidth}px;" class="bg-slate-100 border-b border-r border-slate-300 flex items-center justify-center box-border shrink-0">
-          <i class="fa-regular fa-clock text-slate-500 text-xs"></i>
+        <div style="height: ${headerHeight}px; width: ${axisWidth}px;" class="${headerBgClass} border-b border-r flex items-center justify-center box-border shrink-0">
+          <i class="fa-regular fa-clock text-xs"></i>
         </div>
         <div class="relative overflow-hidden" style="height: ${bodyHeight}px; width: ${axisWidth}px;">
           <!-- 1. Coloana cu secțiuni pază colorate (30px) -->
@@ -758,17 +889,17 @@
           const displayHour = (hour % 24 < 10 ? '0' : '') + (hour % 24);
           const trHeight = tr.getBoundingClientRect().height || tr.offsetHeight || 28;
 
-          let bgColor = '#ffffff';
-          let borderTop = '1px solid #e2e8f0';
+          let bgColor = isDark ? '#0f172a' : '#ffffff';
+          let borderTop = isDark ? '1px solid #334155' : '1px solid #e2e8f0';
 
           if (hour >= 7 && hour < 17) {
-            bgColor = '#dbeafe';
+            bgColor = isDark ? '#1e3a8a' : '#dbeafe';
             if (hour === 7) borderTop = '4px solid #2563eb';
           } else if (hour >= 17 && hour < 21) {
-            bgColor = '#dcfce7';
+            bgColor = isDark ? '#14532d' : '#dcfce7';
             if (hour === 17) borderTop = '4px solid #16a34a';
           } else if (hour >= 21 && hour < 31) {
-            bgColor = '#fee2e2';
+            bgColor = isDark ? '#7f1d1d' : '#fee2e2';
             if (hour === 21) borderTop = '4px solid #dc2626';
           }
 
@@ -777,9 +908,9 @@
           rowDiv.style.minHeight = `${trHeight}px`;
           rowDiv.style.backgroundColor = bgColor;
           rowDiv.style.borderTop = borderTop;
-          rowDiv.style.borderRight = '1px solid #cbd5e1';
+          rowDiv.style.borderRight = isDark ? '1px solid #334155' : '1px solid #cbd5e1';
           rowDiv.style.boxSizing = 'border-box';
-          rowDiv.className = "flex items-center justify-center text-xs font-black text-slate-800 select-none tracking-tight shrink-0";
+          rowDiv.className = `flex items-center justify-center text-xs font-black ${isDark ? 'text-slate-100' : 'text-slate-800'} select-none tracking-tight shrink-0`;
           rowDiv.innerText = displayHour;
 
           hoursContainer.appendChild(rowDiv);
@@ -790,17 +921,17 @@
         const singleHeight = bodyHeight / totalHoursCount;
         for (let h = 7; h < 31; h++) {
           const displayHour = (h % 24 < 10 ? '0' : '') + (h % 24);
-          let bgColor = '#ffffff';
-          let borderTop = '1px solid #e2e8f0';
+          let bgColor = isDark ? '#0f172a' : '#ffffff';
+          let borderTop = isDark ? '1px solid #334155' : '1px solid #e2e8f0';
 
           if (h >= 7 && h < 17) {
-            bgColor = '#dbeafe';
+            bgColor = isDark ? '#1e3a8a' : '#dbeafe';
             if (h === 7) borderTop = '4px solid #2563eb';
           } else if (h >= 17 && h < 21) {
-            bgColor = '#dcfce7';
+            bgColor = isDark ? '#14532d' : '#dcfce7';
             if (h === 17) borderTop = '4px solid #16a34a';
           } else if (h >= 21 && h < 31) {
-            bgColor = '#fee2e2';
+            bgColor = isDark ? '#7f1d1d' : '#fee2e2';
             if (h === 21) borderTop = '4px solid #dc2626';
           }
 
@@ -809,9 +940,9 @@
           rowDiv.style.minHeight = `${singleHeight}px`;
           rowDiv.style.backgroundColor = bgColor;
           rowDiv.style.borderTop = borderTop;
-          rowDiv.style.borderRight = '1px solid #cbd5e1';
+          rowDiv.style.borderRight = isDark ? '1px solid #334155' : '1px solid #cbd5e1';
           rowDiv.style.boxSizing = 'border-box';
-          rowDiv.className = "flex items-center justify-center text-xs font-black text-slate-800 select-none tracking-tight shrink-0";
+          rowDiv.className = `flex items-center justify-center text-xs font-black ${isDark ? 'text-slate-100' : 'text-slate-800'} select-none tracking-tight shrink-0`;
           rowDiv.innerText = displayHour;
 
           hoursContainer.appendChild(rowDiv);
@@ -989,6 +1120,79 @@
 
       listenToCongregations();
       listenToEvents();
+    }
+
+    /* ==== GESTIUNE TEMĂ: ALBĂ (light), NEAGRĂ (dark), SISTEM (system) ==== */
+    let currentThemeMode = localStorage.getItem('app_theme_mode') || 'system';
+
+    function applyTheme(mode, persist = true) {
+      if (persist) {
+        currentThemeMode = mode;
+        localStorage.setItem('app_theme_mode', mode);
+      }
+
+      const iconElem = document.getElementById('themeToggleIcon');
+      const btnElem = document.getElementById('btnThemeToggle');
+
+      let effectiveDark = false;
+      if (mode === 'dark') {
+        effectiveDark = true;
+      } else if (mode === 'light') {
+        effectiveDark = false;
+      } else {
+        // system
+        effectiveDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+
+      if (effectiveDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+
+      // Actualizăm pictograma și stilul butonului în funcție de modul selectat:
+      // 1. Albă -> Soare (fa-sun)
+      // 2. Neagră -> Lună (fa-moon)
+      // 3. Sistem -> Ecran/Desktop (fa-desktop)
+      if (iconElem && btnElem) {
+        if (mode === 'light') {
+          iconElem.className = 'fa-solid fa-sun text-amber-500';
+          btnElem.title = 'Temă: Albă (click pentru Neagră)';
+        } else if (mode === 'dark') {
+          iconElem.className = 'fa-solid fa-moon text-indigo-400';
+          btnElem.title = 'Temă: Neagră (click pentru Sistem)';
+        } else {
+          // system
+          iconElem.className = 'fa-solid fa-desktop text-emerald-400';
+          btnElem.title = 'Temă: Sistem (click pentru Albă)';
+        }
+      }
+
+      // Re-colorăm sloturile din calendar și re-generăm coloana înghețată pentru noua temă
+      if (calendar) {
+        calendar.render();
+      }
+      buildFrozenColumn();
+    }
+
+    function cycleTheme() {
+      // Secvență ciclică: light -> dark -> system -> light ...
+      if (currentThemeMode === 'light') {
+        applyTheme('dark');
+      } else if (currentThemeMode === 'dark') {
+        applyTheme('system');
+      } else {
+        applyTheme('light');
+      }
+    }
+
+    // Ascultăm modificările din sistemul de operare dacă modul este 'system'
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        if (currentThemeMode === 'system') {
+          applyTheme('system', false);
+        }
+      });
     }
 
     function handleAdminButtonClick() {
@@ -1848,7 +2052,7 @@
     window.deletePerson = deletePerson;
     window.addVolunteerSlot = addVolunteerSlot;
     window.removeVolunteerSlot = removeVolunteerSlot;
-    /* ==== EXPORTARE / TIPĂRIRE GRAFIC SĂPTĂMÂNAL FORMAT A4 (AZI + 6 ZILE) ==== */
+    /* ==== EXPORTARE / TIPĂRIRE GRAFIC SĂPTĂMÂNAL IDENTIC CU TABELUL CALENDAR (AZI + 6 ZILE) ==== */
     async function exportCurrentWeekA4() {
       if (!calendar) return;
 
@@ -1856,7 +2060,7 @@
       const originalText = btnExp ? btnExp.innerHTML : '';
       if (btnExp) {
         btnExp.disabled = true;
-        btnExp.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generare A4...`;
+        btnExp.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generare imagine...`;
       }
 
       try {
@@ -1874,26 +2078,40 @@
         // Preluăm toate evenimentele existente din calendar
         const allEvents = calendar.getEvents();
 
-        // Container temporar de randare dedicat formatului A4 Landscape (1123 x 794 px)
+        // Titlul săptămânii curente exportate
+        const startStr = days[0].toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
+        const endStr = days[6].toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
+        
+        // Preluăm textul săptămânii afișat în calendar
+        const customTitleElem = document.getElementById('customCalTitle');
+        const weekHeadingText = (customTitleElem && customTitleElem.innerText.trim()) 
+          ? customTitleElem.innerText.trim() 
+          : `${startStr} — ${endStr}`;
+
+        // Orele tabelului: 24 de ore în total, de la 07:00 la 30:00 (7 dimineața până la 7 a doua zi)
+        const totalHours = 24;
+        const hourRowHeight = 36; // px per oră exact
+        const axisWidthPx = 95; // lățimea fixă a coloanei din stânga cu orele
+        const totalGridHeight = totalHours * hourRowHeight;
+
+        // Container temporar de randare
         const exportContainer = document.createElement('div');
         exportContainer.id = 'exportWeekA4Container';
         exportContainer.style.position = 'fixed';
         exportContainer.style.left = '-9999px';
         exportContainer.style.top = '0';
-        exportContainer.style.width = '1200px';
+        exportContainer.style.width = '1280px';
         exportContainer.style.background = '#ffffff';
         exportContainer.style.color = '#0f172a';
-        exportContainer.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+        exportContainer.style.fontFamily = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         exportContainer.style.padding = '24px';
         exportContainer.style.boxSizing = 'border-box';
         exportContainer.style.zIndex = '99999';
 
-        const startStr = days[0].toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
-        const endStr = days[6].toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
-
-        let tableHeaderCols = `
-          <th style="width: 140px; background: #0f172a; color: #ffffff; padding: 10px 8px; font-size: 13px; text-align: center; border: 1px solid #334155;">
-            TURĂ / INTERVAL
+        // 1. Antetul tabelului: Coloana stângă (95px) + 7 Coloane cu zile (restul lățimii împărțit egal)
+        let headerThs = `
+          <th style="width: ${axisWidthPx}px; min-width: ${axisWidthPx}px; max-width: ${axisWidthPx}px; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 10px 4px; text-align: center; vertical-align: middle; box-sizing: border-box;">
+            <i class="fa-regular fa-clock" style="font-size: 15px; color: #64748b;"></i>
           </th>
         `;
 
@@ -1903,138 +2121,270 @@
           const dayNum = dayObj.toLocaleDateString('ro-RO', { day: 'numeric', month: 'numeric' });
           const capWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
 
-          tableHeaderCols += `
-            <th style="background: ${isToday ? '#ea580c' : '#1e293b'}; color: #ffffff; padding: 10px 6px; text-align: center; border: 1px solid #334155; font-size: 13px;">
-              <div style="font-weight: 800; font-size: 14px;">${capWeekday}</div>
-              <div style="font-size: 11px; opacity: 0.9; margin-top: 2px;">${dayNum}</div>
-              ${isToday ? `<span style="display:inline-block; margin-top:2px; font-size:10px; background:#fff; color:#ea580c; padding:1px 6px; border-radius:99px; font-weight:800;">AZI</span>` : ''}
+          headerThs += `
+            <th style="background: ${isToday ? '#ea580c' : '#ffffff'}; color: ${isToday ? '#ffffff' : '#1e293b'}; border: 1px solid #cbd5e1; padding: 8px 4px; text-align: center; vertical-align: middle; box-sizing: border-box;">
+              <div style="font-size: 14px; font-weight: 800; text-transform: capitalize; letter-spacing: -0.2px;">${capWeekday}</div>
+              <div style="font-size: 12px; font-weight: 700; opacity: ${isToday ? '0.95' : '0.75'}; margin-top: 1px;">${dayNum}</div>
+              ${isToday ? `<span style="display: inline-block; margin-top: 3px; font-size: 10px; background: #ffffff; color: #ea580c; padding: 1px 7px; border-radius: 99px; font-weight: 800;">AZI</span>` : ''}
             </th>
           `;
         });
 
-        const shiftTypes = [
-          { name: "Pază de Acces", hours: "07:00 - 17:00", startH: 7, endH: 17, color: "#2563eb", bgLight: "#eff6ff" },
-          { name: "Pază de Seară", hours: "17:00 - 21:00", startH: 17, endH: 21, color: "#16a34a", bgLight: "#f0fdf4" },
-          { name: "Pază de Noapte", hours: "21:00 - 07:00", startH: 21, endH: 31, color: "#dc2626", bgLight: "#fef2f2" }
-        ];
+        // 2. Corpul tabelului (24 de rânduri de ore, de la 07 la 06)
+        let rowsHtml = '';
+        for (let hIndex = 0; hIndex < totalHours; hIndex++) {
+          const hourVal = 7 + hIndex; // de la 7 la 30
+          const displayHourNum = (hourVal % 24 < 10 ? '0' : '') + (hourVal % 24);
 
-        let tableRowsHtml = '';
+          let slotBg = '#ffffff';
+          let borderTopStyle = '1px solid #e2e8f0';
 
-        shiftTypes.forEach(st => {
-          let rowCells = `
-            <td style="background: ${st.bgLight}; border: 1px solid #cbd5e1; padding: 14px 10px; vertical-align: middle;">
-              <div style="font-weight: 800; font-size: 14px; color: ${st.color};">${st.name}</div>
-              <div style="font-size: 12px; font-weight: 700; color: #475569; margin-top: 3px;">${st.hours}</div>
+          if (hourVal >= 7 && hourVal < 17) {
+            slotBg = '#dbeafe';
+            if (hourVal === 7) borderTopStyle = '3px solid #2563eb';
+          } else if (hourVal >= 17 && hourVal < 21) {
+            slotBg = '#dcfce7';
+            if (hourVal === 17) borderTopStyle = '3px solid #16a34a';
+          } else if (hourVal >= 21 && hourVal < 31) {
+            slotBg = '#fee2e2';
+            if (hourVal === 21) borderTopStyle = '3px solid #dc2626';
+          }
+
+          // Celula orei din prima coloană (30px ocupat de sidebarul de secțiuni, restul de 65px de numărul orei)
+          const hourCellTd = `
+            <td style="width: ${axisWidthPx}px; min-width: ${axisWidthPx}px; max-width: ${axisWidthPx}px; height: ${hourRowHeight}px; padding: 0; margin: 0; box-sizing: border-box; background: ${slotBg}; border-top: ${borderTopStyle}; border-right: 1px solid #cbd5e1; border-left: 1px solid #cbd5e1; border-bottom: 1px solid #e2e8f0; vertical-align: middle;">
+              <div style="display: flex; height: 100%; width: 100%;">
+                <div style="width: 30px; shrink: 0;"></div>
+                <div style="flex: 1; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; color: #1e293b;">
+                  ${displayHourNum}
+                </div>
+              </div>
             </td>
           `;
 
-          days.forEach(dayObj => {
-            const dayStart = new Date(dayObj.getFullYear(), dayObj.getMonth(), dayObj.getDate(), 0, 0, 0).getTime();
-            const dayEnd = dayStart + (24 * 60 * 60 * 1000);
+          // Celulele fiecărei zile pentru acest rând (linii orizontale de fundal)
+          let daysColsTd = '';
+          for (let d = 0; d < 7; d++) {
+            daysColsTd += `
+              <td style="height: ${hourRowHeight}px; padding: 0; margin: 0; box-sizing: border-box; background: ${slotBg}33; border-top: ${borderTopStyle}; border-right: 1px solid #cbd5e1; border-bottom: 1px solid #f1f5f9;">
+              </td>
+            `;
+          }
 
-            // Găsim evenimentele din această zi care se suprapun cu tura curentă
-            const matchingEvts = allEvents.filter(ev => {
-              if (!ev.start) return false;
-              const evStart = ev.start.getTime();
-              const evDate = new Date(ev.start);
-              const isSameDate = evDate.getFullYear() === dayObj.getFullYear() &&
-                                 evDate.getMonth() === dayObj.getMonth() &&
-                                 evDate.getDate() === dayObj.getDate();
-              
-              if (!isSameDate) return false;
-              const evStartH = evDate.getHours();
-              // Asociere după ora de start
-              if (st.startH === 7 && evStartH >= 7 && evStartH < 17) return true;
-              if (st.startH === 17 && evStartH >= 17 && evStartH < 21) return true;
-              if (st.startH === 21 && (evStartH >= 21 || evStartH < 7)) return true;
-              return false;
-            });
+          rowsHtml += `<tr>${hourCellTd}${daysColsTd}</tr>`;
+        }
 
-            let cellContent = '';
-            if (matchingEvts.length > 0) {
-              matchingEvts.forEach(ev => {
-                const vols = getVolunteersFromEvent(ev);
-                const sTime = ev.start ? ev.start.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' }) : '';
-                const eTime = ev.end ? ev.end.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' }) : '';
+        // 3. Poziționarea sigură a cardurilor pe fiecare coloană de zi
+        // Fiecare coloană de zi primește propriul container poziționat cu left: 0 și width: 100% în cadrul coloanei respective din grilă
+        let dayColumnContainers = '';
 
-                let namesStr = '';
-                if (vols.length > 0) {
-                  namesStr = vols.map((v, i) => {
-                    let congText = v.congregationName || '';
-                    if (!congText && v.congregationId) {
-                      const c = congregations.find(item => item.id === v.congregationId);
-                      if (c) congText = c.short || c.name;
-                    }
-                    return `
-                      <div style="font-size: 12px; font-weight: 700; color: #0f172a; margin-bottom: 2px;">
-                        <span>${i + 1}.</span> ${v.name}
-                        ${congText ? `<span style="font-size: 10px; font-weight: 600; color: #64748b; background: #e2e8f0; padding: 1px 4px; border-radius: 4px; margin-left: 3px;">${congText}</span>` : ''}
-                      </div>
-                    `;
-                  }).join('');
-                } else {
-                  namesStr = `<div style="font-size: 12px; font-weight: 700; color: #0f172a;">${ev.title || 'Tură programată'}</div>`;
-                }
+        days.forEach((dayObj, dayIdx) => {
+          // Calculăm fereastra exactă de timp de 24h pentru ziua curentă: de la 07:00 în ziua respectivă până la 07:00 în ziua următoare
+          const dayStartTs = new Date(dayObj.getFullYear(), dayObj.getMonth(), dayObj.getDate(), 7, 0, 0, 0).getTime();
+          const dayEndTs = dayStartTs + (24 * 60 * 60 * 1000); // 07:00 a doua zi
 
-                cellContent += `
-                  <div style="background: #ffffff; border-left: 4px solid ${st.color}; padding: 6px 8px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); margin-bottom: 4px;">
-                    <div style="font-size: 11px; font-weight: 800; color: ${st.color}; margin-bottom: 4px;">${sTime} - ${eTime}</div>
-                    ${namesStr}
-                  </div>
-                `;
-              });
-            } else {
-              cellContent = `<div style="color: #94a3b8; font-size: 11px; font-style: italic; text-align: center; padding: 12px 0;">-- Liber --</div>`;
+          // Filtrăm evenimentele care aparțin sau se suprapun cu această zi
+          const dayEvts = allEvents.filter(ev => {
+            if (!ev.start) return false;
+            const evStartTs = ev.start.getTime();
+            const evEndTs = ev.end ? ev.end.getTime() : evStartTs + (3600 * 1000);
+            return evStartTs < dayEndTs && evEndTs > dayStartTs;
+          });
+
+          let cardsHtml = '';
+          dayEvts.forEach(ev => {
+            const evStartTs = ev.start.getTime();
+            const evEndTs = ev.end ? ev.end.getTime() : evStartTs + (3600 * 1000);
+
+            // Calculăm decalajul (offset) în ore strict față de ora 07:00 a zilei curente
+            const clampedStart = Math.max(evStartTs, dayStartTs);
+            const clampedEnd = Math.min(evEndTs, dayEndTs);
+            const startHourOffset = (clampedStart - dayStartTs) / (1000 * 60 * 60);
+            const durationInHours = (clampedEnd - clampedStart) / (1000 * 60 * 60);
+
+            if (durationInHours <= 0) return;
+
+            // Poziționare verticală exactă: de la startHourOffset * hourRowHeight cu înălțime proporțională
+            const topPx = Math.round(startHourOffset * hourRowHeight);
+            const heightPx = Math.max(Math.round(durationInHours * hourRowHeight) - 3, 26);
+
+            const vols = getVolunteersFromEvent(ev);
+            const sTime = ev.start ? ev.start.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' }) : '';
+            const eTime = ev.end ? ev.end.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' }) : '';
+
+            // Culoare card în concordanță cu calendarul aplicației
+            let cardBg = ev.backgroundColor || '#2563eb';
+            const originalStartHour = ev.start ? ev.start.getHours() : 7;
+            if (!ev.backgroundColor || ev.backgroundColor === '#2563eb') {
+              if (originalStartHour >= 17 && originalStartHour < 21) cardBg = '#16a34a';
+              else if (originalStartHour >= 21 || originalStartHour < 7) cardBg = '#dc2626';
+              else cardBg = '#2563eb';
             }
 
-            rowCells += `
-              <td style="border: 1px solid #cbd5e1; padding: 6px; vertical-align: top; background: ${st.bgLight}22;">
-                ${cellContent}
-              </td>
+            // Reguli de afișare text exact ca în aplicație
+            const fullDuration = (evEndTs - evStartTs) / (1000 * 60 * 60);
+            const numPeople = vols.length || 1;
+            let hideHours = false;
+            let isSuperCompact = false;
+            let allowWrap = false;
+
+            if (fullDuration <= 1) {
+              hideHours = true;
+              if (numPeople >= 2) isSuperCompact = true;
+            } else if (fullDuration <= 2 && numPeople >= 2) {
+              hideHours = true;
+            }
+
+            if (fullDuration >= 3) {
+              allowWrap = true;
+            } else if (fullDuration >= 2 && numPeople === 1) {
+              allowWrap = true;
+            }
+
+            let namesContent = '';
+            if (vols.length > 0) {
+              namesContent = vols.map((v, i) => {
+                return `
+                  <div style="font-size: ${isSuperCompact ? '10px' : '11.5px'}; font-weight: 700; line-height: 1.15; color: #ffffff; display: flex; align-items: flex-start; gap: 3px; margin-bottom: 2px;">
+                    <span style="opacity: 0.9; shrink: 0;">${i + 1}.</span>
+                    <span style="word-break: break-word; ${allowWrap ? '' : 'white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'}">${v.name}</span>
+                  </div>
+                `;
+              }).join('');
+            } else {
+              namesContent = `
+                <div style="font-size: 11.5px; font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  ${ev.title || 'Tură programată'}
+                </div>
+              `;
+            }
+
+            cardsHtml += `
+              <div style="position: absolute; top: ${topPx + 1}px; left: 3px; right: 3px; height: ${heightPx}px; background: ${cardBg}; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); padding: 3px 6px; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-start; z-index: 5;">
+                ${!hideHours ? `
+                  <div style="font-size: 11px; font-weight: 800; color: #ffffff; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.4); padding-bottom: 2px; margin-bottom: 3px; letter-spacing: -0.2px;">
+                    ${sTime} - ${eTime}
+                  </div>
+                ` : ''}
+                <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; overflow: hidden;">
+                  ${namesContent}
+                </div>
+              </div>
             `;
           });
 
-          tableRowsHtml += `<tr>${rowCells}</tr>`;
+          // Fiecare zi este o coloană cu flex: 1 exact peste coloana din tabel
+          dayColumnContainers += `
+            <div style="flex: 1; position: relative; height: ${totalGridHeight}px; box-sizing: border-box;">
+              ${cardsHtml}
+            </div>
+          `;
         });
 
         exportContainer.innerHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #0f172a; padding-bottom: 12px; margin-bottom: 14px;">
+          <!-- Antet Pagina: Denumire + Săptămână dedesubt (stânga) și Generat pe data/ora (dreapta) -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #0f172a; padding-bottom: 10px; margin-bottom: 14px;">
             <div>
-              <h2 style="font-size: 24px; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: -0.5px;">
-                Grafic Pază Sala Regatului
+              <h2 style="font-size: 24px; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-shield-halved" style="color: #f59e0b; font-size: 22px;"></i> Grafic Pază Sala Regatului
               </h2>
-              <p style="font-size: 14px; font-weight: 700; color: #d97706; margin: 4px 0 0 0;">
-                Săptămâna curentă: ${startStr} — ${endStr}
-              </p>
+              <div style="font-size: 15px; font-weight: 800; color: #d97706; margin-top: 4px;">
+                Săptămâna: ${weekHeadingText}
+              </div>
             </div>
             <div style="text-align: right;">
-              <span style="font-size: 11px; color: #64748b; font-weight: 600;">Generat la: ${new Date().toLocaleDateString('ro-RO')} ${new Date().toLocaleTimeString('ro-RO', {hour:'2-digit', minute:'2-digit'})}</span>
-              <div style="font-size: 11px; font-weight: 800; color: #0f172a; margin-top: 2px;">Format Tipărire / Export A4</div>
+              <span style="font-size: 12px; color: #475569; font-weight: 700;">
+                Generat pe: ${new Date().toLocaleDateString('ro-RO')} la ora ${new Date().toLocaleTimeString('ro-RO', {hour:'2-digit', minute:'2-digit'})}
+              </span>
             </div>
           </div>
 
-          <table style="width: 100%; border-collapse: collapse; border: 1px solid #cbd5e1;">
-            <thead>
-              <tr>${tableHeaderCols}</tr>
-            </thead>
-            <tbody>
-              ${tableRowsHtml}
-            </tbody>
-          </table>
-
-          <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 8px;">
-            <div style="display: flex; gap: 16px;">
-              <span><strong style="color: #2563eb;">■</strong> Pază de Acces (07:00 - 17:00)</span>
-              <span><strong style="color: #16a34a;">■</strong> Pază de Seară (17:00 - 21:00)</span>
-              <span><strong style="color: #dc2626;">■</strong> Pază de Noapte (21:00 - 07:00)</span>
+          <!-- Tabel Calendar cu Grilă Identică Aplicației -->
+          <div style="position: relative; width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #ffffff;">
+            
+            <!-- 1. Sidebarul vertical stânga cu cele 3 ture colorate (lățime 30px peste înălțimea grilei) -->
+            <div id="exportSidebarEl" style="position: absolute; left: 0; top: 45px; width: 30px; height: ${totalGridHeight}px; display: flex; flex-direction: column; z-index: 10; border-right: 1px solid rgba(255,255,255,0.3); overflow: hidden; box-sizing: border-box;">
+              <div style="height: 41.6667%; background: #2563eb; color: #ffffff; font-size: 10px; font-weight: 800; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.3);">
+                <span style="writing-mode: vertical-lr; transform: rotate(180deg); white-space: nowrap;">PAZĂ ACCES</span>
+              </div>
+              <div style="height: 16.6666%; background: #16a34a; color: #ffffff; font-size: 10px; font-weight: 800; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.3);">
+                <span style="writing-mode: vertical-lr; transform: rotate(180deg); white-space: nowrap;">PAZĂ SEARĂ</span>
+              </div>
+              <div style="height: 41.6667%; background: #dc2626; color: #ffffff; font-size: 10px; font-weight: 800; letter-spacing: 1px; display: flex; align-items: center; justify-content: center;">
+                <span style="writing-mode: vertical-lr; transform: rotate(180deg); white-space: nowrap;">PAZĂ NOAPTE</span>
+              </div>
             </div>
-            <div style="font-weight: 700;">Sala Regatului</div>
+
+            <!-- Structură tabel cu colgroup pentru a garanta lățimea exactă a coloanei din stânga și împărțirea egală a celor 7 zile -->
+            <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+              <colgroup>
+                <col style="width: ${axisWidthPx}px;" />
+                <col style="width: calc((100% - ${axisWidthPx}px) / 7);" />
+                <col style="width: calc((100% - ${axisWidthPx}px) / 7);" />
+                <col style="width: calc((100% - ${axisWidthPx}px) / 7);" />
+                <col style="width: calc((100% - ${axisWidthPx}px) / 7);" />
+                <col style="width: calc((100% - ${axisWidthPx}px) / 7);" />
+                <col style="width: calc((100% - ${axisWidthPx}px) / 7);" />
+                <col style="width: calc((100% - ${axisWidthPx}px) / 7);" />
+              </colgroup>
+              <thead>
+                <tr style="height: 45px;">
+                  ${headerThs}
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+
+            <!-- Cardurile cu ture: amplasate cu precizie într-un container flex aliniat perfect peste cele 7 coloane -->
+            <div id="exportCardsOverlay" style="position: absolute; top: 45px; left: ${axisWidthPx}px; right: 0; height: ${totalGridHeight}px; display: flex; pointer-events: none; z-index: 20;">
+              ${dayColumnContainers}
+            </div>
+
+          </div>
+
+          <!-- Indicii din josul paginii: intervale de ore, culori și denumiri -->
+          <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #475569; border-top: 2px solid #e2e8f0; padding-top: 10px;">
+            <div style="display: flex; gap: 20px;">
+              <span style="display: flex; align-items: center; gap: 6px;">
+                <span style="display: inline-block; width: 14px; height: 14px; background: #2563eb; border-radius: 3px;"></span>
+                <strong style="color: #0f172a;">Pază de Acces</strong> (07:00 - 17:00)
+              </span>
+              <span style="display: flex; align-items: center; gap: 6px;">
+                <span style="display: inline-block; width: 14px; height: 14px; background: #16a34a; border-radius: 3px;"></span>
+                <strong style="color: #0f172a;">Pază de Seară</strong> (17:00 - 21:00)
+              </span>
+              <span style="display: flex; align-items: center; gap: 6px;">
+                <span style="display: inline-block; width: 14px; height: 14px; background: #dc2626; border-radius: 3px;"></span>
+                <strong style="color: #0f172a;">Pază de Noapte</strong> (21:00 - 07:00)
+              </span>
+            </div>
+            <div style="font-weight: 800; color: #0f172a;">
+              Sala Regatului
+            </div>
           </div>
         `;
 
         document.body.appendChild(exportContainer);
 
-        // Randăm cu html2canvas la rezoluție ridicată (scale: 2) pentru claritate tipărire
+        // Măsurăm exact înălțimea antetului și a rândurilor randate de browser în exportContainer
+        const theadEl = exportContainer.querySelector('thead');
+        const firstSlotRow = exportContainer.querySelector('tbody tr');
+        const measuredHeaderHeight = theadEl ? theadEl.getBoundingClientRect().height : 54;
+        const measuredRowHeight = firstSlotRow ? firstSlotRow.getBoundingClientRect().height : hourRowHeight;
+
+        // Actualizăm poziția containerului de carduri și a sidebar-ului la înălțimea măsurată exactă a antetului
+        const cardsOverlayEl = document.getElementById('exportCardsOverlay');
+        const sidebarEl = document.getElementById('exportSidebarEl');
+        if (cardsOverlayEl) {
+          cardsOverlayEl.style.top = `${measuredHeaderHeight}px`;
+        }
+        if (sidebarEl) {
+          sidebarEl.style.top = `${measuredHeaderHeight}px`;
+        }
+
+        // Randăm cu html2canvas la rezoluție mărită (scale: 2) pentru claritate tipărire
         if (typeof html2canvas === 'function') {
           const canvas = await html2canvas(exportContainer, {
             scale: 2,
@@ -2044,23 +2394,22 @@
 
           document.body.removeChild(exportContainer);
 
-          // Generăm descărcarea imaginii
+          // Generăm descărcarea imaginii PNG
           const imageURL = canvas.toDataURL('image/png');
           const downloadLink = document.createElement('a');
           const fileDateStr = today.toISOString().split('T')[0];
-          downloadLink.download = `Grafic_Paza_A4_${fileDateStr}.png`;
+          downloadLink.download = `Grafic_Paza_Calendar_${fileDateStr}.png`;
           downloadLink.href = imageURL;
           downloadLink.click();
         } else {
-          // Fallback tipărire directă
           window.print();
           if (exportContainer.parentNode) {
             document.body.removeChild(exportContainer);
           }
         }
       } catch (err) {
-        console.error("Eroare la exportul A4:", err);
-        alert("A apărut o problemă la generarea imaginii A4.");
+        console.error("Eroare la exportul calendarului:", err);
+        alert("A apărut o problemă la generarea imaginii.");
       } finally {
         if (btnExp) {
           btnExp.disabled = false;
@@ -2072,6 +2421,7 @@
     window.customCalPrev = customCalPrev;
     window.customCalNext = customCalNext;
     window.customCalToday = customCalToday;
+    window.cycleTheme = cycleTheme;
     window.exportCurrentWeekA4 = exportCurrentWeekA4;
     window.handleSlotInput = handleSlotInput;
     window.selectSuggestedPerson = selectSuggestedPerson;
@@ -2083,6 +2433,7 @@
 
     // Inițializare la pornire
     document.addEventListener('DOMContentLoaded', function() {
+      applyTheme(currentThemeMode, false);
       initCalendar();
     });
   </script>
