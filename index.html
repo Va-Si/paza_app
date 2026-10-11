@@ -95,12 +95,13 @@
       font-weight: 800;
       letter-spacing: -0.2px;
       text-align: center;
+      padding-bottom: 2px;
     }
 
     .time-divider {
       width: 100%;
       border-top: 1px solid rgba(255, 255, 255, 0.4);
-      margin: 2px 0 2px 0;
+      margin: 3px 0 4px 0;
     }
 
     /* Corpul cardului aliniat la STÂNGA, nu centrat */
@@ -301,13 +302,20 @@
     }
 
     /* Modale în Dark Mode */
-    html.dark #pinModal .bg-white,
+    html.dark #backupModal .bg-white,
     html.dark #congregationModal .bg-white,
     html.dark #eventModal .bg-white,
     html.dark #viewDetailsModal .bg-white,
     html.dark #visualCalendarModal .bg-white {
       background-color: #0f172a !important;
       border-color: #1e293b !important;
+      color: #f1f5f9 !important;
+    }
+
+    html.dark #backupModal .bg-slate-50,
+    html.dark #backupModal .bg-emerald-50 {
+      background-color: #1e293b !important;
+      border-color: #334155 !important;
       color: #f1f5f9 !important;
     }
 
@@ -346,15 +354,18 @@
         <div><h1 class="text-xl font-bold leading-tight">Grafic Pază</h1></div>
       </div>
 
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 sm:gap-3">
         <span id="adminBadge" class="hidden text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5">
           <i class="fa-solid fa-lock-open"></i> Mod Editare
         </span>
         <button id="btnExportWeek" onclick="window.exportCurrentWeekA4()" class="hidden bg-emerald-700 hover:bg-emerald-600 text-white border border-emerald-600 px-3 py-1.5 rounded-lg text-sm font-semibold transition flex items-center gap-1.5 shadow-sm" title="Tipărește / Exportă Graficul A4 pentru săptămâna curentă (Azi + 6 zile)">
           <i class="fa-solid fa-print text-emerald-200"></i> Exportă A4
         </button>
-        <button id="btnCongregations" onclick="openCongregationModal()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium transition">
+        <button id="btnCongregations" onclick="window.openCongregationModal()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium transition">
           <i class="fa-solid fa-users text-amber-400"></i> Congregații
+        </button>
+        <button id="btnBackupRestore" onclick="window.openBackupModal()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-1.5 shadow-sm" title="Copie de Rezervă: Import & Export congregații și persoane">
+          <i class="fa-solid fa-file-arrow-up text-sky-400"></i> <span class="hidden sm:inline">Copie Rezervă</span>
         </button>
 
         <!-- Buton Schimbare Temă: Albă (Soare) -> Neagră (Lună) -> Sistem (Ecran) -->
@@ -362,8 +373,8 @@
           <i id="themeToggleIcon" class="fa-solid fa-sun"></i>
         </button>
 
-        <button id="btnAdminAccess" onclick="handleAdminButtonClick()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Acces Administrare / PIN">
-          <span id="btnAdminText">|</span>
+        <button id="btnAdminAccess" onclick="window.handleAdminButtonClick()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Autentificare Google (Admin: valeriu.siminitchi@gmail.com)">
+          <span id="btnAdminText"><i class="fa-brands fa-google text-white text-base"></i></span>
         </button>
       </div>
     </div>
@@ -413,18 +424,111 @@
     </div>
   </main>
 
-  <!-- Modal PIN Admin -->
-  <div id="pinModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
-      <form onsubmit="verifyPin(event)">
-        <input type="password" id="pinInput" placeholder="PIN" maxlength="10" 
-               class="w-full text-center tracking-widest text-xl font-bold border border-slate-300 rounded-xl py-3 mb-4 focus:ring-2 focus:ring-amber-500">
-        <p id="pinError" class="text-rose-500 text-xs text-center mb-3 hidden">Cod PIN incorect!</p>
-        <div class="flex gap-3">
-          <button type="button" onclick="closePinModal()" class="flex-1 bg-slate-100 text-slate-700 py-2.5 rounded-xl font-medium text-sm">Anulează</button>
-          <button type="submit" class="flex-1 bg-amber-600 text-white py-2.5 rounded-xl font-medium text-sm">Confirmă</button>
+  <!-- Modal Copie de Rezervă: Import & Export Congregații și Persoane -->
+  <div id="backupModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-box-archive text-amber-500"></i> Copie de Rezervă
+          </h3>
+          <p class="text-xs text-slate-500 mt-0.5">Exportă și importă congregațiile și persoanele salvate</p>
         </div>
-      </form>
+        <button onclick="window.closeBackupModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <!-- Taburi: Exportă vs Importă -->
+      <div class="flex border-b border-slate-200 mb-4">
+        <button type="button" id="tabBtnExport" onclick="window.switchBackupTab('export')" class="flex-1 py-2 text-center text-sm font-bold border-b-2 border-amber-600 text-amber-600 transition flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-file-export"></i> Exportă (Salvare)
+        </button>
+        <button type="button" id="tabBtnImport" onclick="window.switchBackupTab('import')" class="flex-1 py-2 text-center text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-file-import"></i> Importă (Restaurare)
+        </button>
+      </div>
+
+      <!-- Conținut Tab EXPORT -->
+      <div id="tabContentExport" class="space-y-4">
+        <!-- Opțiunea 1: Toate Congregațiile -->
+        <div class="bg-slate-50 border border-slate-200/90 rounded-xl p-4 transition hover:border-amber-300">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+              <i class="fa-solid fa-layer-group text-base"></i>
+            </div>
+            <div class="flex-grow">
+              <h4 class="text-sm font-bold text-slate-800">Toate Congregațiile</h4>
+              <p class="text-xs text-slate-500 mt-0.5">Descarcă o copie completă cu toate congregațiile și toți voluntarii aferenți.</p>
+              <div class="mt-3 flex items-center justify-between flex-wrap gap-2">
+                <span id="exportAllStats" class="text-xs font-semibold text-slate-600 bg-white px-2.5 py-1 rounded-lg border border-slate-200">
+                  <!-- Populat din JS -->
+                </span>
+                <button type="button" onclick="window.exportAllCongregations()" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                  <i class="fa-solid fa-download"></i> Descarcă Toate (.json)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Opțiunea 2: O singură Congregație anume -->
+        <div class="bg-slate-50 border border-slate-200/90 rounded-xl p-4 transition hover:border-sky-300">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center shrink-0 mt-0.5">
+              <i class="fa-solid fa-building text-base"></i>
+            </div>
+            <div class="flex-grow">
+              <h4 class="text-sm font-bold text-slate-800">O Congregație Separat</h4>
+              <p class="text-xs text-slate-500 mt-0.5">Alege o congregație specifică pentru a-i descărca doar persoanele și configurarea proprie.</p>
+              
+              <div class="mt-3 space-y-2.5">
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-600 mb-1">Alege congregația:</label>
+                  <select id="exportSingleCongSelect" class="w-full border border-slate-300 rounded-lg p-2 text-xs focus:ring-2 focus:ring-sky-500 bg-white">
+                    <!-- Populat din JS -->
+                  </select>
+                </div>
+                <div class="flex justify-end">
+                  <button type="button" onclick="window.exportSelectedSingleCongregation()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-download"></i> Descarcă Congregația (.json)
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conținut Tab IMPORT -->
+      <div id="tabContentImport" class="hidden space-y-4">
+        <div class="bg-slate-50 border border-slate-200/90 rounded-xl p-4">
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">1. Selectează fișierul copie de rezervă (.json)</label>
+          <input type="file" id="backupFileInput" accept=".json,application/json" onchange="window.handleBackupFileSelect(event)" class="w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-800 file:text-white hover:file:bg-slate-700 cursor-pointer border border-slate-300 rounded-xl p-2 bg-white">
+          <p class="text-[11px] text-slate-400 mt-1">Poți încărca atât un fișier cu toate congregațiile, cât și un fișier al unei singure congregații.</p>
+        </div>
+
+        <!-- Zona de previzualizare și mod de import -->
+        <div id="importFilePreviewBox" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-3">
+          <div class="flex items-center gap-2 text-emerald-800 text-xs font-bold">
+            <i class="fa-solid fa-circle-check text-emerald-600 text-sm"></i>
+            <span id="importFileSummaryText">Fișier detectat cu succes</span>
+          </div>
+
+          <!-- Opțiuni mod de import -->
+          <div id="importModeOptionsContainer" class="space-y-2 pt-2 border-t border-emerald-200/60">
+            <!-- Renderizat din JS -->
+          </div>
+
+          <div class="pt-2 flex justify-end">
+            <button type="button" id="btnExecuteImport" onclick="window.executeBackupImport()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Confirmă și Încarcă în Aplicație
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5 pt-3 border-t border-slate-100 flex justify-end">
+        <button type="button" onclick="window.closeBackupModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-xs font-semibold transition">Închide</button>
+      </div>
     </div>
   </div>
 
@@ -618,8 +722,11 @@
         <!-- Renderizat din JS -->
       </div>
 
-      <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
-        <button onclick="closeCongregationModal()" class="bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-medium">Gata</button>
+      <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center gap-2">
+        <button type="button" onclick="window.openBackupModal()" class="text-xs bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 px-3 py-2 rounded-xl font-bold flex items-center gap-1.5 transition shadow-xs">
+          <i class="fa-solid fa-file-arrow-up text-sky-600"></i> Copie Rezervă (Import / Export)
+        </button>
+        <button onclick="closeCongregationModal()" class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-2 rounded-xl text-sm font-medium transition">Gata</button>
       </div>
     </div>
   </div>
@@ -636,6 +743,13 @@
       deleteDoc, 
       onSnapshot 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCWJzoehKkF4_SS2GVTKqIpoFCBpi0lWtc",
@@ -647,23 +761,36 @@
       measurementId: "G-TSGE08LGVF"
     };
 
-    // Inițializare instanță Firebase și Firestore
+    // Inițializare instanță Firebase, Firestore și Auth
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Email autorizat exclusiv pentru modul de editare
+    const AUTHORIZED_ADMIN_EMAIL = "valeriu.siminitchi@gmail.com";
 
     // Stare globală
     let calendar = null;
     let isAdmin = false;
-    const ADMIN_PIN = "66401";
     let currentSelectedEvent = null; // Evenimentul curent pentru modalul de detalii/editare/dublare
 
-    // Date congregații
-    const defaultCongs = [
-      { id: 'c1', name: 'Congregația Locală', short: 'Loc', people: ['Ion Popa', 'Andrei V.'] },
-      { id: 'c2', name: 'Congregația Vecină 1', short: 'Vec1', people: ['Vasile T.'] },
-      { id: 'c3', name: 'Congregația Vecină 2', short: 'Vec2', people: ['Gheorghe M.'] }
-    ];
-    let congregations = [...defaultCongs];
+    // Date congregații: încărcăm întâi din cache local pentru a preveni suprascrierea cu date de test
+    const loadCachedCongregations = () => {
+      try {
+        const stored = localStorage.getItem('paza_congregatii_cache');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) return parsed;
+        }
+      } catch (e) {
+        console.warn("Eroare la citirea congregațiilor din cache:", e);
+      }
+      return null;
+    };
+
+    const initialCongs = loadCachedCongregations();
+    // Păstrăm congregațiile salvate de utilizator; doar dacă nu există absolut niciun cache pornim cu lista goală
+    let congregations = initialCongs !== null ? initialCongs : [];
 
     // Returnează toate persoanele din toate congregațiile cu detalii congregație
     function getAllRegisteredPeople() {
@@ -683,9 +810,10 @@
       return list;
     }
 
-    // Salvare congregații în Firebase Firestore
+    // Salvare congregații în Firebase Firestore și actualizare cache local
     async function saveCongregations() {
       try {
+        localStorage.setItem('paza_congregatii_cache', JSON.stringify(congregations));
         await setDoc(doc(db, "setari", "congregatii"), { list: congregations });
       } catch (err) {
         console.error("Eroare la salvarea congregațiilor în Firebase:", err);
@@ -698,15 +826,20 @@
       onSnapshot(congDocRef, async (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
-          if (Array.isArray(data.list) && data.list.length > 0) {
+          if (Array.isArray(data.list)) {
+            // Folosim lista reală primită din Firestore și salvăm în cache local
+            // NU o suprascriem niciodată cu date de test!
             congregations = data.list;
-          } else {
-            congregations = [...defaultCongs];
-            await saveCongregations();
+            try {
+              localStorage.setItem('paza_congregatii_cache', JSON.stringify(congregations));
+            } catch(e) {}
           }
         } else {
-          congregations = [...defaultCongs];
-          await saveCongregations();
+          // Documentul nu există încă în Firebase.
+          // Dacă avem date salvate local de utilizator, le sincronizăm în Firebase fără să folosim date de test
+          if (congregations.length > 0) {
+            await saveCongregations();
+          }
         }
         
         if (!document.getElementById('congregationModal').classList.contains('hidden')) {
@@ -716,7 +849,9 @@
           calendar.render();
         }
       }, (error) => {
-        console.error("Eroare la ascultarea congregațiilor din Firebase:", error);
+        // Dacă nu se obține răspuns imediat sau rețeaua e lentă,
+        // păstrăm intacte datele existente în memorie/cache și NU suprascriem cu date de test!
+        console.warn("Notificare rețea/Firestore la congregații (se păstrează datele locale):", error);
       });
     }
 
@@ -1195,40 +1330,109 @@
       });
     }
 
-    function handleAdminButtonClick() {
-      if (isAdmin) {
-        isAdmin = false;
-        document.getElementById('adminBadge').classList.add('hidden');
-        document.getElementById('btnCongregations').classList.add('hidden');
-        const btnExp = document.getElementById('btnExportWeek');
-        if (btnExp) btnExp.classList.add('hidden');
-        document.getElementById('btnAdminText').innerText = "|";
-        calendar.setOption('editable', false); 
-        calendar.setOption('selectable', false);
+    function setAdminState(active, user = null) {
+      isAdmin = active;
+      const adminBadge = document.getElementById('adminBadge');
+      const btnCongregations = document.getElementById('btnCongregations');
+      const btnExp = document.getElementById('btnExportWeek');
+      const btnBackup = document.getElementById('btnBackupRestore');
+      const btnAdmin = document.getElementById('btnAdminAccess');
+      const btnAdminText = document.getElementById('btnAdminText');
+
+      if (active && user && (user.email || '').toLowerCase().trim() === AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
+        if (adminBadge) {
+          adminBadge.classList.remove('hidden');
+          adminBadge.innerHTML = `<i class="fa-solid fa-lock-open text-emerald-400"></i> <span class="hidden md:inline">Admin:</span> <span class="font-bold">${user.email}</span>`;
+          adminBadge.title = `Conectat ca ${user.email}`;
+        }
+        if (btnCongregations) btnCongregations.classList.remove('hidden');
+        if (btnExp) btnExp.classList.remove('hidden');
+        if (btnBackup) btnBackup.classList.remove('hidden');
+
+        if (btnAdmin) {
+          btnAdmin.title = `Deconectare (${user.email})`;
+          btnAdmin.className = "bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0";
+        }
+        if (btnAdminText) {
+          btnAdminText.innerHTML = `<i class="fa-solid fa-right-from-bracket text-base"></i>`;
+        }
+        if (calendar) {
+          calendar.setOption('editable', true); 
+          calendar.setOption('selectable', true);
+        }
       } else {
-        document.getElementById('pinInput').value = '';
-        document.getElementById('pinError').classList.add('hidden');
-        document.getElementById('pinModal').classList.remove('hidden');
-        document.getElementById('pinInput').focus();
+        if (adminBadge) adminBadge.classList.add('hidden');
+        if (btnCongregations) btnCongregations.classList.add('hidden');
+        if (btnExp) btnExp.classList.add('hidden');
+        if (btnBackup) btnBackup.classList.add('hidden');
+
+        if (btnAdmin) {
+          btnAdmin.title = `Autentificare Google (Admin: ${AUTHORIZED_ADMIN_EMAIL})`;
+          btnAdmin.className = "bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0";
+        }
+        if (btnAdminText) {
+          btnAdminText.innerHTML = `<i class="fa-brands fa-google text-white text-base"></i>`;
+        }
+        if (calendar) {
+          calendar.setOption('editable', false); 
+          calendar.setOption('selectable', false);
+        }
       }
     }
 
-    function closePinModal() { document.getElementById('pinModal').classList.add('hidden'); }
-    function verifyPin(e) {
-      e.preventDefault();
-      if (document.getElementById('pinInput').value === ADMIN_PIN) {
-        isAdmin = true; closePinModal();
-        document.getElementById('adminBadge').classList.remove('hidden');
-        document.getElementById('btnCongregations').classList.remove('hidden');
-        const btnExp = document.getElementById('btnExportWeek');
-        if (btnExp) btnExp.classList.remove('hidden');
-        document.getElementById('btnAdminText').innerText = "Ieșire";
-        calendar.setOption('editable', true); 
-        calendar.setOption('selectable', true);
+    async function handleAdminButtonClick() {
+      const btn = document.getElementById('btnAdminAccess');
+      if (isAdmin) {
+        // Deconectare administrator
+        try {
+          if (btn) btn.disabled = true;
+          await signOut(auth);
+          setAdminState(false, null);
+        } catch (err) {
+          console.error("Eroare la deconectare:", err);
+        } finally {
+          if (btn) btn.disabled = false;
+        }
       } else {
-        document.getElementById('pinError').classList.remove('hidden');
+        // Conectare prin Google
+        try {
+          if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-white"></i>`;
+          }
+          const provider = new GoogleAuthProvider();
+          provider.setCustomParameters({ prompt: 'select_account' });
+          const userCredential = await signInWithPopup(auth, provider);
+          const user = userCredential.user;
+          const userEmail = (user.email || '').toLowerCase().trim();
+
+          if (userEmail === AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
+            setAdminState(true, user);
+          } else {
+            alert(`Acces restricționat!\nContul Google (${user.email}) nu are permisiuni de editare.\nDoar ${AUTHORIZED_ADMIN_EMAIL} poate accesa modul de administrare.`);
+            await signOut(auth);
+            setAdminState(false, null);
+          }
+        } catch (err) {
+          if (err.code !== 'auth/popup-closed-by-user') {
+            console.error("Eroare la autentificarea Google:", err);
+            alert("A apărut o problemă la conectarea Google: " + (err.message || 'Nu s-a putut finaliza conectarea'));
+          }
+          setAdminState(false, null);
+        } finally {
+          if (btn) btn.disabled = false;
+        }
       }
     }
+
+    // Ascultare schimbare stare autentificare Firebase în fundal (menține sesiunea activă)
+    onAuthStateChanged(auth, (user) => {
+      if (user && (user.email || '').toLowerCase().trim() === AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
+        setAdminState(true, user);
+      } else {
+        setAdminState(false, null);
+      }
+    });
 
     /* ==== COMENZI PENTRU BARA DE CONTROL FIXATĂ A CALENDARULUI ==== */
     function customCalPrev() {
@@ -1919,7 +2123,24 @@
     function renderCongregationsManager() {
       const container = document.getElementById('congregationListContainer');
       container.innerHTML = '';
+
+      // Buton sus pentru deschidere modal copie de rezervă
+      const backupBtnTopHtml = `
+        <button type="button" onclick="window.openBackupModal()" class="w-full py-2 px-3 rounded-xl border border-sky-200 bg-sky-50/70 hover:bg-sky-100 text-sky-700 font-bold text-xs flex items-center justify-center gap-2 transition mb-2 shadow-xs">
+          <i class="fa-solid fa-box-archive text-sky-600"></i> Copie Rezervă (Exportă / Importă Congregații)
+        </button>
+      `;
+      container.insertAdjacentHTML('beforeend', backupBtnTopHtml);
       
+      if (congregations.length === 0) {
+        container.innerHTML += `
+          <div class="text-center py-6 text-slate-400 text-sm bg-slate-50 border border-dashed border-slate-200 rounded-xl p-4">
+            <i class="fa-solid fa-building-circle-exclamation text-2xl mb-2 text-slate-300 block"></i>
+            Nu există congregații configurate încă.
+          </div>
+        `;
+      }
+
       congregations.forEach(c => {
         let html = `
           <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
@@ -1928,22 +2149,30 @@
                 <h4 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i class="fa-solid fa-building-user text-amber-500"></i> ${c.name}</h4>
                 <p class="text-xs text-slate-500 mt-0.5">Expresie afișată: <span class="font-semibold text-slate-700">${c.short}</span></p>
               </div>
-              <button onclick="event.stopPropagation(); window.editCongregationDetails('${c.id}')" class="text-slate-400 hover:text-amber-600 p-2 rounded-lg" title="Editează Congregația">
-                <i class="fa-solid fa-pen-to-square"></i>
-              </button>
+              <div class="flex items-center gap-1">
+                <button onclick="event.stopPropagation(); window.exportSingleCongregationById('${c.id}')" class="text-slate-400 hover:text-sky-600 p-2 rounded-lg" title="Exportă această congregație cu persoanele ei (.json)">
+                  <i class="fa-solid fa-file-arrow-down"></i>
+                </button>
+                <button onclick="event.stopPropagation(); window.editCongregationDetails('${c.id}')" class="text-slate-400 hover:text-amber-600 p-2 rounded-lg" title="Editează Denumirea Congregației">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button onclick="event.stopPropagation(); window.deleteCongregation('${c.id}')" class="text-slate-400 hover:text-rose-500 p-2 rounded-lg" title="Șterge Congregația">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
             </div>
             <div id="acc-${c.id}" class="cong-accordion-content border-t border-slate-200 bg-white p-3">
               <div class="space-y-1.5 mb-3">
-                ${c.people.map((p, idx) => `
+                ${(c.people || []).map((p, idx) => `
                   <div class="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-lg border border-slate-100 text-sm">
                     <span class="font-medium">${p}</span>
                     <div class="flex gap-2">
-                      <button onclick="window.editPerson('${c.id}', ${idx})" class="text-slate-400 hover:text-blue-500"><i class="fa-solid fa-pen"></i></button>
-                      <button onclick="window.deletePerson('${c.id}', ${idx})" class="text-slate-400 hover:text-rose-500"><i class="fa-solid fa-trash"></i></button>
+                      <button onclick="window.editPerson('${c.id}', ${idx})" class="text-slate-400 hover:text-blue-500" title="Modifică nume"><i class="fa-solid fa-pen"></i></button>
+                      <button onclick="window.deletePerson('${c.id}', ${idx})" class="text-slate-400 hover:text-rose-500" title="Șterge persoană"><i class="fa-solid fa-trash"></i></button>
                     </div>
                   </div>
                 `).join('')}
-                ${c.people.length === 0 ? `<p class="text-xs text-slate-400 italic py-1">Nicio persoană adăugată.</p>` : ''}
+                ${(!c.people || c.people.length === 0) ? `<p class="text-xs text-slate-400 italic py-1">Nicio persoană adăugată.</p>` : ''}
               </div>
               <button onclick="window.addPerson('${c.id}')" class="text-xs font-semibold text-amber-600 hover:text-amber-700 flex items-center gap-1">
                 <i class="fa-solid fa-plus"></i> Adaugă Persoană
@@ -1953,11 +2182,46 @@
         `;
         container.insertAdjacentHTML('beforeend', html);
       });
+
+      // Buton la finalul listei pentru adăugarea unei noi congregații
+      const addCongBtnHtml = `
+        <button type="button" onclick="window.addCongregation()" class="w-full py-2.5 px-3 rounded-xl border border-dashed border-amber-300 bg-amber-50/40 hover:bg-amber-50 text-amber-700 font-bold text-xs flex items-center justify-center gap-2 transition mt-3">
+          <i class="fa-solid fa-plus"></i> Adaugă o Congregație Nouă
+        </button>
+      `;
+      container.insertAdjacentHTML('beforeend', addCongBtnHtml);
     }
 
     function toggleCongAccordion(id) {
       const el = document.getElementById('acc-' + id);
       if (el) el.classList.toggle('open');
+    }
+
+    async function addCongregation() {
+      const name = prompt("Introdu numele congregației:");
+      if (!name || name.trim() === '') return;
+      const short = prompt("Introdu expresia scurtă de afișat în calendar (ex: Loc, Vec1):", name.substring(0, 4));
+      const newId = 'c_' + Date.now();
+      congregations.push({
+        id: newId,
+        name: name.trim(),
+        short: (short && short.trim()) ? short.trim() : name.substring(0, 4),
+        people: []
+      });
+      await saveCongregations();
+      renderCongregationsManager();
+      const acc = document.getElementById('acc-' + newId);
+      if (acc) acc.classList.add('open');
+    }
+
+    async function deleteCongregation(congId) {
+      const cong = congregations.find(c => c.id === congId);
+      if (!cong) return;
+      if (confirm(`Sigur dorești să ștergi congregația "${cong.name}" și toate persoanele din ea?`)) {
+        congregations = congregations.filter(c => c.id !== congId);
+        await saveCongregations();
+        renderCongregationsManager();
+      }
     }
 
     async function editCongregationDetails(id) {
@@ -1978,6 +2242,7 @@
       let name = prompt("Introdu numele persoanei:");
       if (name && name.trim() !== '') {
         let cong = congregations.find(c => c.id === congId);
+        if (!cong.people) cong.people = [];
         cong.people.push(name.trim());
         await saveCongregations();
         renderCongregationsManager();
@@ -1987,7 +2252,8 @@
     }
 
     async function editPerson(congId, index) {
-      let cong = congregations.find(c => c.id === index);
+      let cong = congregations.find(c => c.id === congId);
+      if (!cong || !cong.people || !cong.people[index]) return;
       let newName = prompt("Modifică numele:", cong.people[index]);
       if (newName && newName.trim() !== '') {
         cong.people[index] = newName.trim();
@@ -2001,6 +2267,7 @@
     async function deletePerson(congId, index) {
       if (confirm("Sigur ștergi această persoană?")) {
         let cong = congregations.find(c => c.id === congId);
+        if (!cong || !cong.people) return;
         cong.people.splice(index, 1);
         await saveCongregations();
         renderCongregationsManager();
@@ -2015,6 +2282,324 @@
     }
     function closeCongregationModal() { document.getElementById('congregationModal').classList.add('hidden'); }
 
+    /* ==== SISTEM COPIE DE REZERVĂ: EXPORT & IMPORT CONGREGAȚII ȘI PERSOANE ==== */
+    let pendingImportData = null;
+
+    function downloadJsonFile(filename, dataObj) {
+      const jsonStr = JSON.stringify(dataObj, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function openBackupModal(preselectedCongId = '') {
+      populateBackupCongSelect(preselectedCongId);
+      updateBackupAllStats();
+      switchBackupTab('export');
+      const previewBox = document.getElementById('importFilePreviewBox');
+      if (previewBox) previewBox.classList.add('hidden');
+      const fileInput = document.getElementById('backupFileInput');
+      if (fileInput) fileInput.value = '';
+      pendingImportData = null;
+      document.getElementById('backupModal').classList.remove('hidden');
+    }
+
+    function closeBackupModal() {
+      document.getElementById('backupModal').classList.add('hidden');
+    }
+
+    function switchBackupTab(tab) {
+      const tabBtnExp = document.getElementById('tabBtnExport');
+      const tabBtnImp = document.getElementById('tabBtnImport');
+      const contentExp = document.getElementById('tabContentExport');
+      const contentImp = document.getElementById('tabContentImport');
+
+      if (tab === 'export') {
+        if (tabBtnExp) tabBtnExp.className = "flex-1 py-2 text-center text-sm font-bold border-b-2 border-amber-600 text-amber-600 transition flex items-center justify-center gap-1.5";
+        if (tabBtnImp) tabBtnImp.className = "flex-1 py-2 text-center text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition flex items-center justify-center gap-1.5";
+        if (contentExp) contentExp.classList.remove('hidden');
+        if (contentImp) contentImp.classList.add('hidden');
+        populateBackupCongSelect();
+        updateBackupAllStats();
+      } else {
+        if (tabBtnImp) tabBtnImp.className = "flex-1 py-2 text-center text-sm font-bold border-b-2 border-amber-600 text-amber-600 transition flex items-center justify-center gap-1.5";
+        if (tabBtnExp) tabBtnExp.className = "flex-1 py-2 text-center text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition flex items-center justify-center gap-1.5";
+        if (contentImp) contentImp.classList.remove('hidden');
+        if (contentExp) contentExp.classList.add('hidden');
+      }
+    }
+
+    function updateBackupAllStats() {
+      const statsElem = document.getElementById('exportAllStats');
+      if (!statsElem) return;
+      const totalP = getAllRegisteredPeople().length;
+      statsElem.innerText = `${congregations.length} congregații • ${totalP} voluntari`;
+    }
+
+    function populateBackupCongSelect(selectedId = '') {
+      const select = document.getElementById('exportSingleCongSelect');
+      if (!select) return;
+      select.innerHTML = '';
+      if (!congregations || congregations.length === 0) {
+        select.innerHTML = '<option value="">-- Nicio congregație disponibilă --</option>';
+        return;
+      }
+      congregations.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        const numP = (c.people || []).length;
+        opt.textContent = `${c.name} (${c.short}) — ${numP} persoane`;
+        if (selectedId && c.id === selectedId) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
+    function exportAllCongregations() {
+      if (!congregations || congregations.length === 0) {
+        alert("Nu există congregații configurate pentru a genera o copie de rezervă.");
+        return;
+      }
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0];
+      const payload = {
+        version: 1,
+        type: "all_congregations",
+        exportDate: now.toISOString(),
+        exportedBy: AUTHORIZED_ADMIN_EMAIL,
+        totalCongregations: congregations.length,
+        totalPeople: getAllRegisteredPeople().length,
+        congregations: congregations
+      };
+      downloadJsonFile(`copie_rezerva_toate_congregatiile_${dateStr}.json`, payload);
+    }
+
+    function exportSingleCongregationById(congId) {
+      const cong = congregations.find(c => c.id === congId);
+      if (!cong) {
+        alert("Congregația selectată nu a fost găsită.");
+        return;
+      }
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0];
+      const safeName = (cong.name || 'congregatie').replace(/[^a-zA-Z0-9_\u00C0-\u017F]/g, '_');
+      const payload = {
+        version: 1,
+        type: "single_congregation",
+        exportDate: now.toISOString(),
+        exportedBy: AUTHORIZED_ADMIN_EMAIL,
+        congregation: cong
+      };
+      downloadJsonFile(`copie_rezerva_${safeName}_${dateStr}.json`, payload);
+    }
+
+    function exportSelectedSingleCongregation() {
+      const select = document.getElementById('exportSingleCongSelect');
+      const congId = select ? select.value : '';
+      if (!congId) {
+        alert("Te rog să alegi o congregație din listă pentru export.");
+        return;
+      }
+      exportSingleCongregationById(congId);
+    }
+
+    function handleBackupFileSelect(event) {
+      const file = event.target.files ? event.target.files[0] : null;
+      const previewBox = document.getElementById('importFilePreviewBox');
+      const summaryText = document.getElementById('importFileSummaryText');
+      const optionsContainer = document.getElementById('importModeOptionsContainer');
+
+      if (!file) {
+        if (previewBox) previewBox.classList.add('hidden');
+        pendingImportData = null;
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          pendingImportData = parsed;
+
+          let isSingle = false;
+          let singleCong = null;
+          let allCongsList = null;
+
+          if (parsed.type === 'single_congregation' && parsed.congregation) {
+            isSingle = true;
+            singleCong = parsed.congregation;
+          } else if (parsed.name && Array.isArray(parsed.people)) {
+            isSingle = true;
+            singleCong = parsed;
+          } else if (parsed.type === 'all_congregations' && Array.isArray(parsed.congregations)) {
+            isSingle = false;
+            allCongsList = parsed.congregations;
+          } else if (Array.isArray(parsed)) {
+            isSingle = false;
+            allCongsList = parsed;
+          } else {
+            throw new Error("Fișierul JSON nu conține o structură validă de congregații sau persoane.");
+          }
+
+          if (previewBox) previewBox.classList.remove('hidden');
+
+          if (isSingle) {
+            const numP = (singleCong.people || []).length;
+            if (summaryText) summaryText.innerHTML = `Detectat: Congregația <strong>"${singleCong.name || 'Fără nume'}"</strong> (${numP} persoane)`;
+            if (optionsContainer) {
+              optionsContainer.innerHTML = `
+                <label class="block text-xs font-bold text-slate-700 mb-1">Alege cum vrei să imporți această congregație:</label>
+                <div class="space-y-1.5 text-xs text-slate-700">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="importSingleMode" value="update" checked class="text-emerald-600 focus:ring-emerald-500">
+                    <span>Actualizează congregația dacă există deja cu același nume/ID (sau adaug-o dacă lipsește)</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="importSingleMode" value="new" class="text-emerald-600 focus:ring-emerald-500">
+                    <span>Adaugă ca o congregație nouă separată</span>
+                  </label>
+                </div>
+              `;
+            }
+          } else {
+            const totalP = allCongsList.reduce((acc, c) => acc + ((c.people || []).length), 0);
+            if (summaryText) summaryText.innerHTML = `Detectat: <strong>${allCongsList.length} congregații</strong> cu un total de <strong>${totalP} persoane</strong>`;
+            if (optionsContainer) {
+              optionsContainer.innerHTML = `
+                <label class="block text-xs font-bold text-slate-700 mb-1">Alege modul de import pentru toate congregațiile:</label>
+                <div class="space-y-1.5 text-xs text-slate-700">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="importAllMode" value="merge" checked class="text-emerald-600 focus:ring-emerald-500">
+                    <span>Fuzionează / Adaugă (păstrează congregațiile actuale și adaugă elementele noi din fișier)</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="importAllMode" value="replace" class="text-emerald-600 focus:ring-emerald-500">
+                    <span class="text-rose-600 font-semibold">Înlocuiește complet congregațiile actuale cu cele din fișier</span>
+                  </label>
+                </div>
+              `;
+            }
+          }
+        } catch (err) {
+          console.error("Eroare analizare fișier copie rezervă:", err);
+          alert("Eroare: " + err.message);
+          if (previewBox) previewBox.classList.add('hidden');
+          pendingImportData = null;
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    async function executeBackupImport() {
+      if (!pendingImportData) {
+        alert("Selectează întâi un fișier JSON valid.");
+        return;
+      }
+
+      try {
+        let isSingle = false;
+        let singleCong = null;
+        let allCongsList = null;
+
+        if (pendingImportData.type === 'single_congregation' && pendingImportData.congregation) {
+          isSingle = true;
+          singleCong = pendingImportData.congregation;
+        } else if (pendingImportData.name && Array.isArray(pendingImportData.people)) {
+          isSingle = true;
+          singleCong = pendingImportData;
+        } else if (pendingImportData.type === 'all_congregations' && Array.isArray(pendingImportData.congregations)) {
+          isSingle = false;
+          allCongsList = pendingImportData.congregations;
+        } else if (Array.isArray(pendingImportData)) {
+          isSingle = false;
+          allCongsList = pendingImportData;
+        }
+
+        if (isSingle) {
+          const mode = document.querySelector('input[name="importSingleMode"]:checked')?.value || 'update';
+          const cleanPeople = Array.isArray(singleCong.people) ? singleCong.people.filter(p => typeof p === 'string' && p.trim()) : [];
+
+          if (mode === 'update') {
+            const existingIdx = congregations.findIndex(c => (c.id && c.id === singleCong.id) || (c.name && singleCong.name && c.name.toLowerCase().trim() === singleCong.name.toLowerCase().trim()));
+            if (existingIdx !== -1) {
+              const existing = congregations[existingIdx];
+              const mergedPeople = Array.from(new Set([...(existing.people || []), ...cleanPeople]));
+              congregations[existingIdx] = {
+                ...existing,
+                name: singleCong.name || existing.name,
+                short: singleCong.short || existing.short,
+                people: mergedPeople
+              };
+            } else {
+              congregations.push({
+                id: singleCong.id || ('c_' + Date.now()),
+                name: singleCong.name || 'Congregație importată',
+                short: singleCong.short || (singleCong.name || 'Loc').substring(0, 4),
+                people: cleanPeople
+              });
+            }
+          } else {
+            // New
+            congregations.push({
+              id: 'c_' + Date.now(),
+              name: singleCong.name || 'Congregație importată',
+              short: singleCong.short || (singleCong.name || 'Loc').substring(0, 4),
+              people: cleanPeople
+            });
+          }
+        } else {
+          const mode = document.querySelector('input[name="importAllMode"]:checked')?.value || 'merge';
+          if (mode === 'replace') {
+            if (!confirm("Atenție! Această acțiune va înlocui complet lista curentă de congregații cu cele din fișier. Continui?")) {
+              return;
+            }
+            congregations = allCongsList.map((c, i) => ({
+              id: c.id || ('c_' + Date.now() + '_' + i),
+              name: c.name || `Congregația ${i + 1}`,
+              short: c.short || (c.name || 'Loc').substring(0, 4),
+              people: Array.isArray(c.people) ? c.people.filter(p => typeof p === 'string' && p.trim()) : []
+            }));
+          } else {
+            // Merge
+            allCongsList.forEach((incoming, i) => {
+              const incomingPeople = Array.isArray(incoming.people) ? incoming.people.filter(p => typeof p === 'string' && p.trim()) : [];
+              const existingIdx = congregations.findIndex(c => (c.id && c.id === incoming.id) || (c.name && incoming.name && c.name.toLowerCase().trim() === incoming.name.toLowerCase().trim()));
+              if (existingIdx !== -1) {
+                const existing = congregations[existingIdx];
+                const merged = Array.from(new Set([...(existing.people || []), ...incomingPeople]));
+                congregations[existingIdx] = {
+                  ...existing,
+                  short: incoming.short || existing.short,
+                  people: merged
+                };
+              } else {
+                congregations.push({
+                  id: incoming.id || ('c_' + Date.now() + '_' + i),
+                  name: incoming.name || `Congregația ${i + 1}`,
+                  short: incoming.short || (incoming.name || 'Loc').substring(0, 4),
+                  people: incomingPeople
+                });
+              }
+            });
+          }
+        }
+
+        await saveCongregations();
+        renderCongregationsManager();
+        if (calendar) calendar.render();
+        alert("Copie de rezervă importată cu succes!");
+        closeBackupModal();
+      } catch (err) {
+        console.error("Eroare la aplicarea importului:", err);
+        alert("A apărut o problemă: " + err.message);
+      }
+    }
+
     document.addEventListener('click', (e) => {
       if (!e.target.closest('#volunteerSlotsContainer')) {
         document.querySelectorAll('[id^="slotSuggestions_"]').forEach(el => el.classList.add('hidden'));
@@ -2027,10 +2612,16 @@
 
     // Mapare funcții pe obiectul window pentru apelare din markup
     window.handleAdminButtonClick = handleAdminButtonClick;
-    window.closePinModal = closePinModal;
-    window.verifyPin = verifyPin;
     window.openCongregationModal = openCongregationModal;
     window.closeCongregationModal = closeCongregationModal;
+    window.openBackupModal = openBackupModal;
+    window.closeBackupModal = closeBackupModal;
+    window.switchBackupTab = switchBackupTab;
+    window.exportAllCongregations = exportAllCongregations;
+    window.exportSingleCongregationById = exportSingleCongregationById;
+    window.exportSelectedSingleCongregation = exportSelectedSingleCongregation;
+    window.handleBackupFileSelect = handleBackupFileSelect;
+    window.executeBackupImport = executeBackupImport;
     window.openEventModal = openEventModal;
     window.closeEventModal = closeEventModal;
     window.openDetailsModal = openDetailsModal;
@@ -2047,6 +2638,8 @@
     window.deleteEvent = deleteEvent;
     window.toggleCongAccordion = toggleCongAccordion;
     window.editCongregationDetails = editCongregationDetails;
+    window.addCongregation = addCongregation;
+    window.deleteCongregation = deleteCongregation;
     window.addPerson = addPerson;
     window.editPerson = editPerson;
     window.deletePerson = deletePerson;
@@ -2125,7 +2718,7 @@
             <th style="background: ${isToday ? '#ea580c' : '#ffffff'}; color: ${isToday ? '#ffffff' : '#1e293b'}; border: 1px solid #cbd5e1; padding: 8px 4px; text-align: center; vertical-align: middle; box-sizing: border-box;">
               <div style="font-size: 14px; font-weight: 800; text-transform: capitalize; letter-spacing: -0.2px;">${capWeekday}</div>
               <div style="font-size: 12px; font-weight: 700; opacity: ${isToday ? '0.95' : '0.75'}; margin-top: 1px;">${dayNum}</div>
-              ${isToday ? `<span style="display: inline-block; margin-top: 3px; font-size: 10px; background: #ffffff; color: #ea580c; padding: 1px 7px; border-radius: 99px; font-weight: 800;">AZI</span>` : ''}
+              ${isToday ? `<div style="display: flex; justify-content: center; align-items: center; margin-top: 4px;"><span style="display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 18px; padding: 0 6px; font-size: 10px; font-weight: 800; line-height: 18px; background: #ffffff; color: #ea580c; border-radius: 9999px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">AZI</span></div>` : ''}
             </th>
           `;
         });
@@ -2262,7 +2855,7 @@
             cardsHtml += `
               <div style="position: absolute; top: ${topPx + 1}px; left: 3px; right: 3px; height: ${heightPx}px; background: ${cardBg}; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); padding: 3px 6px; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-start; z-index: 5;">
                 ${!hideHours ? `
-                  <div style="font-size: 11px; font-weight: 800; color: #ffffff; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.4); padding-bottom: 2px; margin-bottom: 3px; letter-spacing: -0.2px;">
+                  <div style="font-size: 11px; font-weight: 800; line-height: 1.25; color: #ffffff; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.4); padding-top: 1px; padding-bottom: 4px; margin-bottom: 4px; letter-spacing: -0.2px;">
                     ${sTime} - ${eTime}
                   </div>
                 ` : ''}
@@ -2304,14 +2897,14 @@
             
             <!-- 1. Sidebarul vertical stânga cu cele 3 ture colorate (lățime 30px peste înălțimea grilei) -->
             <div id="exportSidebarEl" style="position: absolute; left: 0; top: 45px; width: 30px; height: ${totalGridHeight}px; display: flex; flex-direction: column; z-index: 10; border-right: 1px solid rgba(255,255,255,0.3); overflow: hidden; box-sizing: border-box;">
-              <div style="height: 41.6667%; background: #2563eb; color: #ffffff; font-size: 10px; font-weight: 800; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.3);">
-                <span style="writing-mode: vertical-lr; transform: rotate(180deg); white-space: nowrap;">PAZĂ ACCES</span>
+              <div style="height: 41.6667%; background: #2563eb; color: #ffffff; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid rgba(255,255,255,0.3); overflow: hidden;">
+                <span style="display: block; white-space: nowrap; transform: rotate(-90deg); transform-origin: center center; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">PAZĂ ACCES</span>
               </div>
-              <div style="height: 16.6666%; background: #16a34a; color: #ffffff; font-size: 10px; font-weight: 800; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.3);">
-                <span style="writing-mode: vertical-lr; transform: rotate(180deg); white-space: nowrap;">PAZĂ SEARĂ</span>
+              <div style="height: 16.6666%; background: #16a34a; color: #ffffff; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid rgba(255,255,255,0.3); overflow: hidden;">
+                <span style="display: block; white-space: nowrap; transform: rotate(-90deg); transform-origin: center center; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">PAZĂ SEARĂ</span>
               </div>
-              <div style="height: 41.6667%; background: #dc2626; color: #ffffff; font-size: 10px; font-weight: 800; letter-spacing: 1px; display: flex; align-items: center; justify-content: center;">
-                <span style="writing-mode: vertical-lr; transform: rotate(180deg); white-space: nowrap;">PAZĂ NOAPTE</span>
+              <div style="height: 41.6667%; background: #dc2626; color: #ffffff; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+                <span style="display: block; white-space: nowrap; transform: rotate(-90deg); transform-origin: center center; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">PAZĂ NOAPTE</span>
               </div>
             </div>
 
@@ -2346,21 +2939,21 @@
 
           <!-- Indicii din josul paginii: intervale de ore, culori și denumiri -->
           <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #475569; border-top: 2px solid #e2e8f0; padding-top: 10px;">
-            <div style="display: flex; gap: 20px;">
-              <span style="display: flex; align-items: center; gap: 6px;">
-                <span style="display: inline-block; width: 14px; height: 14px; background: #2563eb; border-radius: 3px;"></span>
-                <strong style="color: #0f172a;">Pază de Acces</strong> (07:00 - 17:00)
-              </span>
-              <span style="display: flex; align-items: center; gap: 6px;">
-                <span style="display: inline-block; width: 14px; height: 14px; background: #16a34a; border-radius: 3px;"></span>
-                <strong style="color: #0f172a;">Pază de Seară</strong> (17:00 - 21:00)
-              </span>
-              <span style="display: flex; align-items: center; gap: 6px;">
-                <span style="display: inline-block; width: 14px; height: 14px; background: #dc2626; border-radius: 3px;"></span>
-                <strong style="color: #0f172a;">Pază de Noapte</strong> (21:00 - 07:00)
-              </span>
+            <div style="display: flex; gap: 24px; align-items: center;">
+              <div style="display: inline-flex; align-items: center; gap: 7px;">
+                <span style="display: block; width: 13px; height: 13px; background: #2563eb; border-radius: 3px; shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.15);"></span>
+                <span style="font-size: 12px; line-height: 1.2;"><strong style="color: #0f172a;">Pază de Acces</strong> (07:00 - 17:00)</span>
+              </div>
+              <div style="display: inline-flex; align-items: center; gap: 7px;">
+                <span style="display: block; width: 13px; height: 13px; background: #16a34a; border-radius: 3px; shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.15);"></span>
+                <span style="font-size: 12px; line-height: 1.2;"><strong style="color: #0f172a;">Pază de Seară</strong> (17:00 - 21:00)</span>
+              </div>
+              <div style="display: inline-flex; align-items: center; gap: 7px;">
+                <span style="display: block; width: 13px; height: 13px; background: #dc2626; border-radius: 3px; shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.15);"></span>
+                <span style="font-size: 12px; line-height: 1.2;"><strong style="color: #0f172a;">Pază de Noapte</strong> (21:00 - 07:00)</span>
+              </div>
             </div>
-            <div style="font-weight: 800; color: #0f172a;">
+            <div style="font-weight: 800; font-size: 13px; color: #0f172a;">
               Sala Regatului
             </div>
           </div>
