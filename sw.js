@@ -1,15 +1,15 @@
 // Service Worker pentru Grafic Pază Sala Regatului (PWA)
 const CACHE_NAME = 'grafic-paza-v1';
 const PRECACHE_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icon.svg',
-  '/favicon.png',
-  '/apple-touch-icon.png',
-  '/pwa-192x192.png',
-  '/pwa-512x512.png',
-  '/pwa-maskable-512x512.png'
+  './',
+  './index.html',
+  './manifest.json',
+  './icon.svg',
+  './favicon.png',
+  './apple-touch-icon.png',
+  './pwa-192x192.png',
+  './pwa-512x512.png',
+  './pwa-maskable-512x512.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -90,7 +90,7 @@ self.addEventListener('fetch', (event) => {
         return caches.match(req).then((cached) => {
           if (cached) return cached;
           if (req.mode === 'navigate') {
-            return caches.match('/');
+           return caches.match('./index.html');
           }
           return new Response('Offline', { status: 503, statusText: 'Offline' });
         });
