@@ -2,14 +2,26 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Grafic Pază Sala Regatului</title>
   
+  <!-- PWA & Mobile Web App Meta Tags -->
+  <meta name="theme-color" content="#0f172a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Grafic Pază">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.10/locales/ro.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.10/locales/ru.global.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
@@ -347,34 +359,54 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col transition-colors duration-200">
 
-  <header class="bg-slate-900 text-white shadow-md p-4 sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
-      <div class="flex items-center gap-3">
-        <i class="fa-solid fa-shield-halved text-amber-500 text-2xl"></i>
-        <div><h1 class="text-xl font-bold leading-tight">Grafic Pază</h1></div>
+  <header class="bg-slate-900 text-white shadow-md px-3 py-2.5 sm:px-4 sm:py-3 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 shrink-0">
+        <i class="fa-solid fa-shield-halved text-amber-500 text-xl sm:text-2xl"></i>
+        <div><h1 id="headerAppTitle" class="text-base sm:text-xl font-bold leading-tight truncate">Grafic Pază</h1></div>
       </div>
 
-      <div class="flex items-center gap-2 sm:gap-3">
-        <span id="adminBadge" class="hidden text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5">
-          <i class="fa-solid fa-lock-open"></i> Mod Editare
-        </span>
-        <button id="btnExportWeek" onclick="window.exportCurrentWeekA4()" class="hidden bg-emerald-700 hover:bg-emerald-600 text-white border border-emerald-600 px-3 py-1.5 rounded-lg text-sm font-semibold transition flex items-center gap-1.5 shadow-sm" title="Tipărește / Exportă Graficul A4 pentru săptămâna curentă (Azi + 6 zile)">
-          <i class="fa-solid fa-print text-emerald-200"></i> Exportă A4
-        </button>
-        <button id="btnCongregations" onclick="window.openCongregationModal()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium transition">
-          <i class="fa-solid fa-users text-amber-400"></i> Congregații
-        </button>
-        <button id="btnBackupRestore" onclick="window.openBackupModal()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-1.5 shadow-sm" title="Copie de Rezervă: Import & Export congregații și persoane">
-          <i class="fa-solid fa-file-arrow-up text-sky-400"></i> <span class="hidden sm:inline">Copie Rezervă</span>
+      <!-- Bara superioară cu butoane DOAR pictograme (icon-only pe telefon și PC pentru a nu ieși din lățimea ecranului) -->
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        
+        <!-- 1. Buton Limbă: RO / RU (comutare instantă română - rusă) -->
+        <button id="btnLangToggle" onclick="window.toggleLanguage()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-lg text-xs font-black transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0 select-none" title="Limbă: Română (click pentru Русский)">
+          RO
         </button>
 
-        <!-- Buton Schimbare Temă: Albă (Soare) -> Neagră (Lună) -> Sistem (Ecran) -->
+        <!-- 2. Buton Schimbare Temă: Albă (Soare) -> Neagră (Lună) -> Sistem (Ecran) -->
         <button id="btnThemeToggle" onclick="window.cycleTheme()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Schimbă tema: Albă / Neagră / Sistem">
           <i id="themeToggleIcon" class="fa-solid fa-sun"></i>
         </button>
 
-        <button id="btnAdminAccess" onclick="window.handleAdminButtonClick()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Autentificare Google (Admin: valeriu.siminitchi@gmail.com)">
-          <span id="btnAdminText"><i class="fa-brands fa-google text-white text-base"></i></span>
+        <!-- 3. Buton Instalare PWA (aplicație pe telefon cu scut oranj) -->
+        <button id="btnInstallPwa" onclick="window.promptPwaInstall()" class="hidden bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Instalează aplicația (PWA pe telefon / PC)">
+          <i class="fa-solid fa-download"></i>
+        </button>
+
+        <!-- 4. Buton Lacăt: comutare Regim Vizualizare (lacăt închis) vs Mod Editare (lacăt deschis) -->
+        <button id="btnLockToggle" onclick="window.toggleEditLock()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Regim Vizualizare (click pentru Mod Editare)">
+          <i id="lockToggleIcon" class="fa-solid fa-lock text-slate-300"></i>
+        </button>
+
+        <!-- 5. Buton Export A4 (doar în mod editare) - doar pictogramă fără text -->
+        <button id="btnExportWeek" onclick="window.exportCurrentWeekA4()" class="hidden bg-emerald-700 hover:bg-emerald-600 text-white border border-emerald-600 rounded-lg text-sm font-semibold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Tipărește / Exportă Graficul A4">
+          <i class="fa-solid fa-print text-emerald-200"></i>
+        </button>
+
+        <!-- 6. Buton Congregații (doar în mod editare) - doar pictogramă fără text -->
+        <button id="btnCongregations" onclick="window.openCongregationModal()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-sm font-medium transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Congregații și Persoane">
+          <i class="fa-solid fa-users text-amber-400"></i>
+        </button>
+
+        <!-- 7. Buton Copie Rezervă (doar în mod editare) - doar pictogramă fără text -->
+        <button id="btnBackupRestore" onclick="window.openBackupModal()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-sm font-medium transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Copie de Rezervă: Import & Export">
+          <i class="fa-solid fa-file-arrow-up text-sky-400"></i>
+        </button>
+
+        <!-- 8. Buton Conectare Google / Deconectare - doar pictogramă fără text -->
+        <button id="btnAdminAccess" onclick="window.handleAdminButtonClick()" class="bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Autentificare Google (Admin: valeriu.siminitchi@gmail.com)">
+          <i class="fa-brands fa-google text-white text-base"></i>
         </button>
       </div>
     </div>
@@ -392,7 +424,7 @@
           <button type="button" onclick="window.customCalNext()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 px-3 py-1.5 rounded-lg text-sm font-bold transition flex items-center justify-center shadow-sm">
             <i class="fa-solid fa-chevron-right"></i>
           </button>
-          <button type="button" onclick="window.customCalToday()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm">
+          <button type="button" id="btnCustomCalToday" onclick="window.customCalToday()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm">
             Azi
           </button>
         </div>
@@ -403,7 +435,7 @@
 
         <div class="text-xs font-semibold text-slate-500 hidden sm:flex items-center gap-1.5">
           <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-          <span>7 Zile</span>
+          <span id="calDurationBadgeText">7 Zile</span>
         </div>
       </div>
 
@@ -529,6 +561,26 @@
       <div class="mt-5 pt-3 border-t border-slate-100 flex justify-end">
         <button type="button" onclick="window.closeBackupModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-xs font-semibold transition">Închide</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal Ghid Instalare iOS Safari -->
+  <div id="iosInstallModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+          <i class="fa-solid fa-shield-halved text-xl"></i>
+        </div>
+        <div>
+          <h3 id="iosModalTitle" class="text-base font-bold text-slate-900">Instalare pe iPhone / iPad</h3>
+          <p class="text-xs text-slate-500">Adaugă aplicația pe ecranul principal</p>
+        </div>
+      </div>
+      <div class="space-y-2 text-xs text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+        <p id="iosStep1">1. Apasă butonul <i class="fa-solid fa-arrow-up-from-bracket text-sky-600 font-bold"></i> <strong>Partajează (Share)</strong> în bara Safari.</p>
+        <p id="iosStep2">2. Derulează și apasă <i class="fa-regular fa-square-plus text-amber-600 font-bold"></i> <strong>Adaugă pe ecranul principal</strong>.</p>
+      </div>
+      <button type="button" onclick="document.getElementById('iosInstallModal').classList.add('hidden')" class="mt-4 w-full bg-slate-900 hover:bg-slate-800 text-white py-2 rounded-xl text-xs font-bold transition">Închide</button>
     </div>
   </div>
 
@@ -934,14 +986,21 @@
     function renderShiftSidebar() {
       const timegridBody = document.querySelector('.fc-timegrid-body');
       if (!timegridBody) return;
-      if (document.getElementById('shiftSidebar')) return;
+      const existing = document.getElementById('shiftSidebar');
+      if (existing) existing.remove();
       timegridBody.style.position = 'relative';
       const sidebar = document.createElement('div');
       sidebar.id = 'shiftSidebar';
+      const tAccess = currentLang === 'RU' ? 'ОХРАНА ДОСТУПА' : 'PAZĂ ACCES';
+      const tEvening = currentLang === 'RU' ? 'ВЕЧЕРНЯЯ ОХРАНА' : 'PAZĂ SEARĂ';
+      const tNight = currentLang === 'RU' ? 'НОЧНАЯ ОХРАНА' : 'PAZĂ NOAPTE';
+      const tipAccess = currentLang === 'RU' ? 'Охрана Доступа (07:00 - 17:00)' : 'Pază de Acces (07:00 - 17:00)';
+      const tipEvening = currentLang === 'RU' ? 'Вечерняя Охрана (17:00 - 21:00)' : 'Pază de Seară (17:00 - 21:00)';
+      const tipNight = currentLang === 'RU' ? 'Ночная Охрана (21:00 - 07:00)' : 'Pază de Noapte (21:00 - 07:00)';
       sidebar.innerHTML = `
-        <div class="shift-section bg-blue-600 border-b border-white/20" style="height: 41.6667%;" title="Pază de Acces (07:00 - 17:00)"><span>PAZĂ ACCES</span></div>
-        <div class="shift-section bg-green-600 border-b border-white/20" style="height: 16.6666%;" title="Pază de Seară (17:00 - 21:00)"><span>PAZĂ SEARĂ</span></div>
-        <div class="shift-section bg-red-600" style="height: 41.6667%;" title="Pază de Noapte (21:00 - 07:00)"><span>PAZĂ NOAPTE</span></div>
+        <div class="shift-section bg-blue-600 border-b border-white/20" style="height: 41.6667%;" title="${tipAccess}"><span>${tAccess}</span></div>
+        <div class="shift-section bg-green-600 border-b border-white/20" style="height: 16.6666%;" title="${tipEvening}"><span>${tEvening}</span></div>
+        <div class="shift-section bg-red-600" style="height: 41.6667%;" title="${tipNight}"><span>${tNight}</span></div>
       `;
       timegridBody.prepend(sidebar);
     }
@@ -991,6 +1050,13 @@
       const isDark = document.documentElement.classList.contains('dark');
       const headerBgClass = isDark ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-100 border-slate-300 text-slate-500';
 
+      const tAccess = currentLang === 'RU' ? 'ОХРАНА ДОСТУПА' : 'PAZĂ ACCES';
+      const tEvening = currentLang === 'RU' ? 'ВЕЧЕРНЯЯ ОХРАНА' : 'PAZĂ SEARĂ';
+      const tNight = currentLang === 'RU' ? 'НОЧНАЯ ОХРАНА' : 'PAZĂ NOAPTE';
+      const tipAccess = currentLang === 'RU' ? 'Охрана Доступа (07:00 - 17:00)' : 'Pază de Acces (07:00 - 17:00)';
+      const tipEvening = currentLang === 'RU' ? 'Вечерняя Охрана (17:00 - 21:00)' : 'Pază de Seară (17:00 - 21:00)';
+      const tipNight = currentLang === 'RU' ? 'Ночная Охрана (21:00 - 07:00)' : 'Pază de Noapte (21:00 - 07:00)';
+
       overlay.innerHTML = `
         <div style="height: ${headerHeight}px; width: ${axisWidth}px;" class="${headerBgClass} border-b border-r flex items-center justify-center box-border shrink-0">
           <i class="fa-regular fa-clock text-xs"></i>
@@ -998,9 +1064,9 @@
         <div class="relative overflow-hidden" style="height: ${bodyHeight}px; width: ${axisWidth}px;">
           <!-- 1. Coloana cu secțiuni pază colorate (30px) -->
           <div class="absolute left-0 top-0 bottom-0 w-[30px] flex flex-col z-10 overflow-hidden select-none border-r border-white/20">
-            <div class="shift-section bg-blue-600 border-b border-white/20" style="height: 41.6667%;" title="Pază de Acces (07:00 - 17:00)"><span>PAZĂ ACCES</span></div>
-            <div class="shift-section bg-green-600 border-b border-white/20" style="height: 16.6666%;" title="Pază de Seară (17:00 - 21:00)"><span>PAZĂ SEARĂ</span></div>
-            <div class="shift-section bg-red-600" style="height: 41.6667%;" title="Pază de Noapte (21:00 - 07:00)"><span>PAZĂ NOAPTE</span></div>
+            <div class="shift-section bg-blue-600 border-b border-white/20" style="height: 41.6667%;" title="${tipAccess}"><span>${tAccess}</span></div>
+            <div class="shift-section bg-green-600 border-b border-white/20" style="height: 16.6666%;" title="${tipEvening}"><span>${tEvening}</span></div>
+            <div class="shift-section bg-red-600" style="height: 41.6667%;" title="${tipNight}"><span>${tNight}</span></div>
           </div>
           <!-- 2. A 2-a coloană cu celulele orelor fix ca în tabelul calendarului -->
           <div class="absolute left-[30px] right-0 top-0 bottom-0 flex flex-col overflow-hidden" id="frozenHoursContainer">
@@ -1123,13 +1189,29 @@
       return [];
     }
 
+    // Calculează data de ieri (ziua precedentă) pentru a afișa mereu: Ieri, Azi, și următoarele 5 zile (7 zile în total)
+    function getYesterdayDate() {
+      const d = new Date();
+      d.setDate(d.getDate() - 1);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+
     function initCalendar() {
       const calendarEl = document.getElementById('calendar');
       calendar = new FullCalendar.Calendar(calendarEl, {
-        locale: 'ro',
+        locale: currentLang === 'RU' ? 'ru' : 'ro',
         initialView: 'timeGridSevenDays',
-        views: { timeGridSevenDays: { type: 'timeGrid', duration: { days: 7 }, buttonText: '7 Zile' } },
-        validRange: { start: '2026-09-01', end: '2027-03-01' },
+        initialDate: getYesterdayDate(),
+        views: { 
+          timeGridSevenDays: { 
+            type: 'timeGrid', 
+            duration: { days: 7 }, 
+            dateAlignment: 'day',
+            buttonText: currentLang === 'RU' ? '7 Дней' : '7 Zile' 
+          } 
+        },
+        validRange: { start: '2025-01-01', end: '2030-01-01' },
         headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
         slotMinTime: '07:00:00', slotMaxTime: '31:00:00', slotDuration: '01:00:00', 
         slotLabelFormat: {
@@ -1205,7 +1287,7 @@
           } else {
             namesHtml = `
               <div class="fc-event-person-row ${isSuperCompact ? 'compact-row' : (allowWrap ? 'allow-wrap' : 'nowrap-row')}">
-                <span class="person-name-text">${arg.event.title || 'Tură Pază'}</span>
+                <span class="person-name-text">${arg.event.title || (currentLang === 'RU' ? 'Смена Охраны' : 'Tură Pază')}</span>
               </div>
             `;
           }
@@ -1330,64 +1412,212 @@
       });
     }
 
-    function setAdminState(active, user = null) {
-      isAdmin = active;
-      const adminBadge = document.getElementById('adminBadge');
+    /* ==== GESTIUNE LIMBĂ: RO (Română) / RU (Русский) ==== */
+    let currentLang = localStorage.getItem('app_language') || 'RO';
+
+    const I18N = {
+      RO: {
+        appTitle: "Grafic Pază",
+        docTitle: "Grafic Pază Sala Regatului",
+        today: "Azi",
+        sevenDays: "7 Zile",
+        shiftAccess: "PAZĂ ACCES",
+        shiftEvening: "PAZĂ SEARĂ",
+        shiftNight: "PAZĂ NOAPTE",
+        shiftAccessFull: "Pază de Acces",
+        shiftEveningFull: "Pază de Seară",
+        shiftNightFull: "Pază de Noapte",
+        defaultShiftTitle: "Tură Pază",
+        legendTitle: "Indicii intervale ore:",
+        legendAccess: "Pază de Acces (07:00 - 17:00)",
+        legendEvening: "Pază de Seară (17:00 - 21:00)",
+        legendNight: "Pază de Noapte (21:00 - 07:00)",
+        kingdomHall: "Sala Regatului",
+        exportWeek: "Săptămâna:",
+        exportGenerated: "Generat pe:",
+        exportAtHour: "la ora",
+        exportToday: "AZI",
+        exportBtnGenerating: "Generare imagine...",
+        exportBtnTitle: "Exportă A4",
+        lockViewTip: "Regim Vizualizare (click pentru Mod Editare)",
+        lockEditTip: "Mod Editare Activ (click pentru Regim Vizualizare)",
+        loginTip: "Autentificare Google (Admin: valeriu.siminitchi@gmail.com)",
+        logoutTip: "Deconectare",
+        pwaInstallTip: "Instalează Aplicația (PWA)",
+        themeTipLight: "Temă: Albă (click pentru Neagră)",
+        themeTipDark: "Temă: Neagră (click pentru Sistem)",
+        themeTipSys: "Temă: Sistem (click pentru Albă)",
+        detailsTitle: "Detalii Tură Pază",
+        detailsHours: "Interval de ore",
+        detailsVolunteers: "Voluntari Asignați",
+        detailsNoVolunteers: "Niciun voluntar specificat.",
+        detailsDuplicate: "Dublează",
+        detailsEdit: "Editează",
+        detailsClose: "Închide",
+        unspecifiedCong: "Nespecificată"
+      },
+      RU: {
+        appTitle: "График Охраны",
+        docTitle: "График Охраны Зала Царства",
+        today: "Сегодня",
+        sevenDays: "7 Дней",
+        shiftAccess: "ОХРАНА ДОСТУПА",
+        shiftEvening: "ВЕЧЕРНЯЯ ОХРАНА",
+        shiftNight: "НОЧНАЯ ОХРАНА",
+        shiftAccessFull: "Охрана Доступа",
+        shiftEveningFull: "Вечерняя Охрана",
+        shiftNightFull: "Ночная Охрана",
+        defaultShiftTitle: "Смена Охраны",
+        legendTitle: "Обозначение интервалов смен:",
+        legendAccess: "Охрана Доступа (07:00 - 17:00)",
+        legendEvening: "Вечерняя Охрана (17:00 - 21:00)",
+        legendNight: "Ночная Охрана (21:00 - 07:00)",
+        kingdomHall: "Зал Царства",
+        exportWeek: "Неделя:",
+        exportGenerated: "Сгенерировано:",
+        exportAtHour: "в",
+        exportToday: "СЕГОДНЯ",
+        exportBtnGenerating: "Создание изображения...",
+        exportBtnTitle: "Экспорт А4",
+        lockViewTip: "Режим Просмотра (клик для Режима Редактирования)",
+        lockEditTip: "Режим Редактирования Активен (клик для Режима Просмотра)",
+        loginTip: "Вход через Google (Администратор: valeriu.siminitchi@gmail.com)",
+        logoutTip: "Выйти из аккаунта",
+        pwaInstallTip: "Установить Приложение (PWA)",
+        themeTipLight: "Тема: Светлая (клик для Тёмной)",
+        themeTipDark: "Тема: Тёмная (клик для Системной)",
+        themeTipSys: "Тема: Системная (клик для Светлой)",
+        detailsTitle: "Детали Смены Охраны",
+        detailsHours: "Время смены",
+        detailsVolunteers: "Назначенные Братья",
+        detailsNoVolunteers: "Добровольцы не назначены.",
+        detailsDuplicate: "Дублировать",
+        detailsEdit: "Редактировать",
+        detailsClose: "Закрыть",
+        unspecifiedCong: "Не указано"
+      }
+    };
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      const t = I18N[lang] || I18N.RO;
+
+      const btnLang = document.getElementById('btnLangToggle');
+      if (btnLang) {
+        btnLang.innerText = lang;
+        btnLang.title = lang === 'RO' ? "Limbă: Română (click pentru Русский)" : "Язык: Русский (клик для Română)";
+      }
+
+      document.title = t.docTitle;
+      const headerTitle = document.getElementById('headerAppTitle');
+      if (headerTitle) headerTitle.innerText = t.appTitle;
+
+      const btnToday = document.getElementById('btnCustomCalToday');
+      if (btnToday) btnToday.innerText = t.today;
+      const badgeDuration = document.getElementById('calDurationBadgeText');
+      if (badgeDuration) badgeDuration.innerText = t.sevenDays;
+
+      if (calendar) {
+        calendar.setOption('locale', lang === 'RU' ? 'ru' : 'ro');
+      }
+
+      renderShiftSidebar();
+      buildFrozenColumn();
+      updateAuthUI();
+    }
+
+    function toggleLanguage() {
+      const newLang = currentLang === 'RO' ? 'RU' : 'RO';
+      localStorage.setItem('app_language', newLang);
+      applyLanguage(newLang);
+    }
+
+    /* ==== GESTIUNE SESIUNE GOOGLE & MOD EDITARE / VIZUALIZARE (LACĂT) ==== */
+    let currentAuthUser = null;
+    let isEditMode = false; // La deschiderea sitului: mereu în contul utilizatorului și la regim vizualizare (lacăt închis)!
+
+    function updateAuthUI() {
+      const t = I18N[currentLang] || I18N.RO;
+      const btnLock = document.getElementById('btnLockToggle');
+      const btnAdmin = document.getElementById('btnAdminAccess');
       const btnCongregations = document.getElementById('btnCongregations');
       const btnExp = document.getElementById('btnExportWeek');
       const btnBackup = document.getElementById('btnBackupRestore');
-      const btnAdmin = document.getElementById('btnAdminAccess');
-      const btnAdminText = document.getElementById('btnAdminText');
 
-      if (active && user && (user.email || '').toLowerCase().trim() === AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
-        if (adminBadge) {
-          adminBadge.classList.remove('hidden');
-          adminBadge.innerHTML = `<i class="fa-solid fa-lock-open text-emerald-400"></i> <span class="hidden md:inline">Admin:</span> <span class="font-bold">${user.email}</span>`;
-          adminBadge.title = `Conectat ca ${user.email}`;
+      // 1. Buton Conectare Google / Deconectare
+      if (currentAuthUser) {
+        if (btnAdmin) {
+          btnAdmin.disabled = false;
+          btnAdmin.title = `${t.logoutTip} (${currentAuthUser.email})`;
+          btnAdmin.className = "bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0";
+          btnAdmin.innerHTML = `<i class="fa-solid fa-right-from-bracket text-base"></i>`;
         }
+
+        // 2. Buton Lacăt (comutare între Regim Vizualizare și Mod Editare)
+        if (btnLock) {
+          btnLock.classList.remove('hidden');
+          if (isEditMode) {
+            btnLock.className = "bg-emerald-950/80 hover:bg-emerald-900 text-emerald-400 border border-emerald-500/50 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0";
+            btnLock.innerHTML = `<i class="fa-solid fa-lock-open text-emerald-400"></i>`;
+            btnLock.title = t.lockEditTip;
+          } else {
+            btnLock.className = "bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0";
+            btnLock.innerHTML = `<i class="fa-solid fa-lock text-slate-300"></i>`;
+            btnLock.title = `${t.lockViewTip} — ${currentAuthUser.email}`;
+          }
+        }
+      } else {
+        if (btnAdmin) {
+          btnAdmin.disabled = false;
+          btnAdmin.title = t.loginTip;
+          btnAdmin.className = "bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0";
+          btnAdmin.innerHTML = `<i class="fa-brands fa-google text-white text-base"></i>`;
+        }
+        if (btnLock) {
+          btnLock.classList.add('hidden');
+        }
+      }
+
+      // 3. Butoanele de administrare apar DOAR când Modul Editare este activat (lacăt deschis)
+      isAdmin = !!(currentAuthUser && isEditMode);
+
+      if (isAdmin) {
         if (btnCongregations) btnCongregations.classList.remove('hidden');
         if (btnExp) btnExp.classList.remove('hidden');
         if (btnBackup) btnBackup.classList.remove('hidden');
-
-        if (btnAdmin) {
-          btnAdmin.title = `Deconectare (${user.email})`;
-          btnAdmin.className = "bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0";
-        }
-        if (btnAdminText) {
-          btnAdminText.innerHTML = `<i class="fa-solid fa-right-from-bracket text-base"></i>`;
-        }
         if (calendar) {
-          calendar.setOption('editable', true); 
+          calendar.setOption('editable', true);
           calendar.setOption('selectable', true);
         }
       } else {
-        if (adminBadge) adminBadge.classList.add('hidden');
         if (btnCongregations) btnCongregations.classList.add('hidden');
         if (btnExp) btnExp.classList.add('hidden');
         if (btnBackup) btnBackup.classList.add('hidden');
-
-        if (btnAdmin) {
-          btnAdmin.title = `Autentificare Google (Admin: ${AUTHORIZED_ADMIN_EMAIL})`;
-          btnAdmin.className = "bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0";
-        }
-        if (btnAdminText) {
-          btnAdminText.innerHTML = `<i class="fa-brands fa-google text-white text-base"></i>`;
-        }
         if (calendar) {
-          calendar.setOption('editable', false); 
+          calendar.setOption('editable', false);
           calendar.setOption('selectable', false);
         }
       }
     }
 
+    function toggleEditLock() {
+      if (!currentAuthUser) return;
+      isEditMode = !isEditMode;
+      isAdmin = isEditMode;
+      updateAuthUI();
+    }
+
     async function handleAdminButtonClick() {
       const btn = document.getElementById('btnAdminAccess');
-      if (isAdmin) {
+      if (currentAuthUser) {
         // Deconectare administrator
         try {
           if (btn) btn.disabled = true;
           await signOut(auth);
-          setAdminState(false, null);
+          currentAuthUser = null;
+          isEditMode = false;
+          isAdmin = false;
+          updateAuthUI();
         } catch (err) {
           console.error("Eroare la deconectare:", err);
         } finally {
@@ -1407,32 +1637,98 @@
           const userEmail = (user.email || '').toLowerCase().trim();
 
           if (userEmail === AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
-            setAdminState(true, user);
+            currentAuthUser = user;
+            // Conform cerinței: la conectare/deschidere începe mereu în Regim Vizualizare (lacăt închis)
+            isEditMode = false;
+            isAdmin = false;
+            updateAuthUI();
           } else {
-            alert(`Acces restricționat!\nContul Google (${user.email}) nu are permisiuni de editare.\nDoar ${AUTHORIZED_ADMIN_EMAIL} poate accesa modul de administrare.`);
+            alert(currentLang === 'RU'
+              ? `Доступ ограничен!\nАккаунт Google (${user.email}) не имеет прав администратора.\nТолько ${AUTHORIZED_ADMIN_EMAIL} имеет доступ к редактированию.`
+              : `Acces restricționat!\nContul Google (${user.email}) nu are permisiuni de editare.\nDoar ${AUTHORIZED_ADMIN_EMAIL} poate accesa modul de administrare.`);
             await signOut(auth);
-            setAdminState(false, null);
+            currentAuthUser = null;
+            isEditMode = false;
+            isAdmin = false;
+            updateAuthUI();
           }
         } catch (err) {
           if (err.code !== 'auth/popup-closed-by-user') {
             console.error("Eroare la autentificarea Google:", err);
             alert("A apărut o problemă la conectarea Google: " + (err.message || 'Nu s-a putut finaliza conectarea'));
           }
-          setAdminState(false, null);
+          updateAuthUI();
         } finally {
           if (btn) btn.disabled = false;
         }
       }
     }
 
-    // Ascultare schimbare stare autentificare Firebase în fundal (menține sesiunea activă)
+    // Ascultare sesiune Google Firebase în fundal (menține sesiunea utilizatorului, dar pornește mereu în Regim Vizualizare)
     onAuthStateChanged(auth, (user) => {
       if (user && (user.email || '').toLowerCase().trim() === AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
-        setAdminState(true, user);
+        currentAuthUser = user;
+        isEditMode = false; // Întotdeauna pornește în Regim Vizualizare la încărcare
+        isAdmin = false;
+        updateAuthUI();
       } else {
-        setAdminState(false, null);
+        currentAuthUser = null;
+        isEditMode = false;
+        isAdmin = false;
+        updateAuthUI();
       }
     });
+
+    /* ==== SUPORT PWA (INSTALARE APLICAȚIE PE TELEFON / PC) ==== */
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btn = document.getElementById('btnInstallPwa');
+      if (btn) btn.classList.remove('hidden');
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredPrompt = null;
+      const btn = document.getElementById('btnInstallPwa');
+      if (btn) btn.classList.add('hidden');
+    });
+
+    async function promptPwaInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          const btn = document.getElementById('btnInstallPwa');
+          if (btn) btn.classList.add('hidden');
+        }
+        deferredPrompt = null;
+      } else {
+        const isIOS = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+        if (isIOS) {
+          document.getElementById('iosInstallModal')?.classList.remove('hidden');
+        } else {
+          alert(currentLang === 'RU' 
+            ? "Для установки приложения откройте меню браузера и нажмите 'Установить приложение' или 'Добавить на главный экран'."
+            : "Pentru a instala aplicația, accesați meniul browserului și alegeți 'Instalează aplicația' sau 'Adaugă pe ecranul principal'.");
+        }
+      }
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => {
+          console.warn('Înregistrare Service Worker:', err);
+        });
+      });
+    }
+
+    // Afișăm butonul PWA dacă nu rulează deja în mod standalone instalat
+    const isStandaloneApp = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (!isStandaloneApp) {
+      const btnPwa = document.getElementById('btnInstallPwa');
+      if (btnPwa) btnPwa.classList.remove('hidden');
+    }
 
     /* ==== COMENZI PENTRU BARA DE CONTROL FIXATĂ A CALENDARULUI ==== */
     function customCalPrev() {
@@ -1442,14 +1738,17 @@
       if (calendar) calendar.next();
     }
     function customCalToday() {
-      if (calendar) calendar.today();
+      if (calendar) calendar.gotoDate(getYesterdayDate());
     }
 
     /* ==== MODAL DETALII TURĂ (LA CLICK PE TURĂ) ==== */
     function openDetailsModal(event) {
       const modal = document.getElementById('viewDetailsModal');
-      const startStr = event.start ? event.start.toLocaleTimeString('ro-RO', {hour: '2-digit', minute:'2-digit'}) : '';
-      const endStr = event.end ? event.end.toLocaleTimeString('ro-RO', {hour: '2-digit', minute:'2-digit'}) : '';
+      const t = I18N[currentLang] || I18N.RO;
+      const localeCode = currentLang === 'RU' ? 'ru-RU' : 'ro-RO';
+
+      const startStr = event.start ? event.start.toLocaleTimeString(localeCode, {hour: '2-digit', minute:'2-digit'}) : '';
+      const endStr = event.end ? event.end.toLocaleTimeString(localeCode, {hour: '2-digit', minute:'2-digit'}) : '';
       
       const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
       let dateDisplayText = '';
@@ -1463,29 +1762,33 @@
 
         if (!sameDay) {
           // Tura se încheie în ziua următoare (ex: 21:00 Luni până 07:00 Marți)
-          const startWeekday = event.start.toLocaleDateString('ro-RO', { weekday: 'long', day: 'numeric', month: 'long' });
-          const endWeekday = event.end.toLocaleDateString('ro-RO', { weekday: 'long', day: 'numeric', month: 'long' });
+          const startWeekday = event.start.toLocaleDateString(localeCode, { weekday: 'long', day: 'numeric', month: 'long' });
+          const endWeekday = event.end.toLocaleDateString(localeCode, { weekday: 'long', day: 'numeric', month: 'long' });
           const capStart = startWeekday.charAt(0).toUpperCase() + startWeekday.slice(1);
           const capEnd = endWeekday.charAt(0).toUpperCase() + endWeekday.slice(1);
           dateDisplayText = `${capStart}  —  ${capEnd}`;
         } else {
-          const dateFormatted = event.start.toLocaleDateString('ro-RO', dateOptions);
+          const dateFormatted = event.start.toLocaleDateString(localeCode, dateOptions);
           dateDisplayText = dateFormatted.charAt(0).toUpperCase() + dateFormatted.slice(1);
         }
       } else if (event.start) {
-        const dateFormatted = event.start.toLocaleDateString('ro-RO', dateOptions);
+        const dateFormatted = event.start.toLocaleDateString(localeCode, dateOptions);
         dateDisplayText = dateFormatted.charAt(0).toUpperCase() + dateFormatted.slice(1);
       }
 
       document.getElementById('viewModalTimeRange').innerText = `${startStr} - ${endStr}`;
       document.getElementById('viewModalDate').innerText = dateDisplayText;
 
+      // Actualizăm textele dinamice din modal conform limbii active
+      const titleEl = modal.querySelector('h3');
+      if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-calendar-check text-amber-500"></i> ${t.detailsTitle}`;
+
       const volunteers = getVolunteersFromEvent(event);
       const listContainer = document.getElementById('viewModalVolunteersList');
       listContainer.innerHTML = '';
 
       if (volunteers.length === 0) {
-        listContainer.innerHTML = `<div class="text-sm text-slate-400 italic">Niciun voluntar specificat.</div>`;
+        listContainer.innerHTML = `<div class="text-sm text-slate-400 italic">${t.detailsNoVolunteers}</div>`;
       } else {
         volunteers.forEach((v, index) => {
           let congName = v.congregationName;
@@ -1493,7 +1796,7 @@
             const cong = congregations.find(c => c.id === v.congregationId);
             if (cong) congName = cong.name;
           }
-          if (!congName) congName = "Nespecificată";
+          if (!congName) congName = t.unspecifiedCong;
 
           const itemHtml = `
             <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
@@ -1518,6 +1821,9 @@
       // Butoanele Editează și Dublează sunt vizibile doar în modul editare (admin)
       const btnEdit = document.getElementById('btnEditFromDetails');
       const btnDuplicate = document.getElementById('btnDuplicateFromDetails');
+      if (btnDuplicate) btnDuplicate.innerHTML = `<i class="fa-solid fa-copy"></i> ${t.detailsDuplicate}`;
+      if (btnEdit) btnEdit.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> ${t.detailsEdit}`;
+
       if (isAdmin) {
         btnEdit.classList.remove('hidden');
         btnDuplicate.classList.remove('hidden');
@@ -2658,22 +2964,25 @@
 
       try {
         const today = new Date();
-        const startDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+        const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1, 0, 0, 0);
 
-        // Generăm cele 7 zile (Azi + 6 zile)
+        // Generăm cele 7 zile conform cerinței: ziua precedentă (ieri), ziua curentă (azi) și următoarele 5 zile
         const days = [];
         for (let i = 0; i < 7; i++) {
-          const d = new Date(startDay);
-          d.setDate(startDay.getDate() + i);
+          const d = new Date(yesterday);
+          d.setDate(yesterday.getDate() + i);
           days.push(d);
         }
+
+        const t = I18N[currentLang] || I18N.RO;
+        const localeCode = currentLang === 'RU' ? 'ru-RU' : 'ro-RO';
 
         // Preluăm toate evenimentele existente din calendar
         const allEvents = calendar.getEvents();
 
         // Titlul săptămânii curente exportate
-        const startStr = days[0].toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
-        const endStr = days[6].toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
+        const startStr = days[0].toLocaleDateString(localeCode, { day: 'numeric', month: 'long', year: 'numeric' });
+        const endStr = days[6].toLocaleDateString(localeCode, { day: 'numeric', month: 'long', year: 'numeric' });
         
         // Preluăm textul săptămânii afișat în calendar
         const customTitleElem = document.getElementById('customCalTitle');
@@ -2709,16 +3018,17 @@
         `;
 
         days.forEach((dayObj, idx) => {
-          const isToday = idx === 0;
-          const weekday = dayObj.toLocaleDateString('ro-RO', { weekday: 'long' });
-          const dayNum = dayObj.toLocaleDateString('ro-RO', { day: 'numeric', month: 'numeric' });
+          const isToday = (idx === 1); // Index 0 este ziua precedentă, Index 1 este ziua curentă (AZI)!
+          const weekday = dayObj.toLocaleDateString(localeCode, { weekday: 'long' });
+          const dayNum = dayObj.toLocaleDateString(localeCode, { day: 'numeric', month: 'numeric' });
           const capWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+          const todayBadge = t.exportToday;
 
           headerThs += `
             <th style="background: ${isToday ? '#ea580c' : '#ffffff'}; color: ${isToday ? '#ffffff' : '#1e293b'}; border: 1px solid #cbd5e1; padding: 8px 4px; text-align: center; vertical-align: middle; box-sizing: border-box;">
               <div style="font-size: 14px; font-weight: 800; text-transform: capitalize; letter-spacing: -0.2px;">${capWeekday}</div>
               <div style="font-size: 12px; font-weight: 700; opacity: ${isToday ? '0.95' : '0.75'}; margin-top: 1px;">${dayNum}</div>
-              ${isToday ? `<div style="display: flex; justify-content: center; align-items: center; margin-top: 4px;"><span style="display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 18px; padding: 0 6px; font-size: 10px; font-weight: 800; line-height: 18px; background: #ffffff; color: #ea580c; border-radius: 9999px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">AZI</span></div>` : ''}
+              ${isToday ? `<div style="display: flex; justify-content: center; align-items: center; margin-top: 4px;"><span style="display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 18px; padding: 0 6px; font-size: 10px; font-weight: 800; line-height: 18px; background: #ffffff; color: #ea580c; border-radius: 9999px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">${todayBadge}</span></div>` : ''}
             </th>
           `;
         });
@@ -2879,15 +3189,15 @@
           <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #0f172a; padding-bottom: 10px; margin-bottom: 14px;">
             <div>
               <h2 style="font-size: 24px; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-shield-halved" style="color: #f59e0b; font-size: 22px;"></i> Grafic Pază Sala Regatului
+                <i class="fa-solid fa-shield-halved" style="color: #f59e0b; font-size: 22px;"></i> ${t.docTitle}
               </h2>
               <div style="font-size: 15px; font-weight: 800; color: #d97706; margin-top: 4px;">
-                Săptămâna: ${weekHeadingText}
+                ${t.exportWeek} ${weekHeadingText}
               </div>
             </div>
             <div style="text-align: right;">
               <span style="font-size: 12px; color: #475569; font-weight: 700;">
-                Generat pe: ${new Date().toLocaleDateString('ro-RO')} la ora ${new Date().toLocaleTimeString('ro-RO', {hour:'2-digit', minute:'2-digit'})}
+                ${t.exportGenerated} ${new Date().toLocaleDateString(localeCode)} ${t.exportAtHour} ${new Date().toLocaleTimeString(localeCode, {hour:'2-digit', minute:'2-digit'})}
               </span>
             </div>
           </div>
@@ -2898,13 +3208,13 @@
             <!-- 1. Sidebarul vertical stânga cu cele 3 ture colorate (lățime 30px peste înălțimea grilei) -->
             <div id="exportSidebarEl" style="position: absolute; left: 0; top: 45px; width: 30px; height: ${totalGridHeight}px; display: flex; flex-direction: column; z-index: 10; border-right: 1px solid rgba(255,255,255,0.3); overflow: hidden; box-sizing: border-box;">
               <div style="height: 41.6667%; background: #2563eb; color: #ffffff; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid rgba(255,255,255,0.3); overflow: hidden;">
-                <span style="display: block; white-space: nowrap; transform: rotate(-90deg); transform-origin: center center; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">PAZĂ ACCES</span>
+                <span style="display: block; white-space: nowrap; transform: rotate(-90deg); transform-origin: center center; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">${t.shiftAccess}</span>
               </div>
               <div style="height: 16.6666%; background: #16a34a; color: #ffffff; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid rgba(255,255,255,0.3); overflow: hidden;">
-                <span style="display: block; white-space: nowrap; transform: rotate(-90deg); transform-origin: center center; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">PAZĂ SEARĂ</span>
+                <span style="display: block; white-space: nowrap; transform: rotate(-90deg); transform-origin: center center; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">${t.shiftEvening}</span>
               </div>
               <div style="height: 41.6667%; background: #dc2626; color: #ffffff; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
-                <span style="display: block; white-space: nowrap; transform: rotate(-90deg); transform-origin: center center; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">PAZĂ NOAPTE</span>
+                <span style="display: block; white-space: nowrap; transform: rotate(-90deg); transform-origin: center center; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">${t.shiftNight}</span>
               </div>
             </div>
 
@@ -2942,19 +3252,19 @@
             <div style="display: flex; gap: 24px; align-items: center;">
               <div style="display: inline-flex; align-items: center; gap: 7px;">
                 <span style="display: block; width: 13px; height: 13px; background: #2563eb; border-radius: 3px; shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.15);"></span>
-                <span style="font-size: 12px; line-height: 1.2;"><strong style="color: #0f172a;">Pază de Acces</strong> (07:00 - 17:00)</span>
+                <span style="font-size: 12px; line-height: 1.2;"><strong style="color: #0f172a;">${t.shiftAccessFull}</strong> (07:00 - 17:00)</span>
               </div>
               <div style="display: inline-flex; align-items: center; gap: 7px;">
                 <span style="display: block; width: 13px; height: 13px; background: #16a34a; border-radius: 3px; shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.15);"></span>
-                <span style="font-size: 12px; line-height: 1.2;"><strong style="color: #0f172a;">Pază de Seară</strong> (17:00 - 21:00)</span>
+                <span style="font-size: 12px; line-height: 1.2;"><strong style="color: #0f172a;">${t.shiftEveningFull}</strong> (17:00 - 21:00)</span>
               </div>
               <div style="display: inline-flex; align-items: center; gap: 7px;">
                 <span style="display: block; width: 13px; height: 13px; background: #dc2626; border-radius: 3px; shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.15);"></span>
-                <span style="font-size: 12px; line-height: 1.2;"><strong style="color: #0f172a;">Pază de Noapte</strong> (21:00 - 07:00)</span>
+                <span style="font-size: 12px; line-height: 1.2;"><strong style="color: #0f172a;">${t.shiftNightFull}</strong> (21:00 - 07:00)</span>
               </div>
             </div>
             <div style="font-weight: 800; font-size: 13px; color: #0f172a;">
-              Sala Regatului
+              ${t.kingdomHall}
             </div>
           </div>
         `;
@@ -3015,6 +3325,9 @@
     window.customCalNext = customCalNext;
     window.customCalToday = customCalToday;
     window.cycleTheme = cycleTheme;
+    window.toggleLanguage = toggleLanguage;
+    window.toggleEditLock = toggleEditLock;
+    window.promptPwaInstall = promptPwaInstall;
     window.exportCurrentWeekA4 = exportCurrentWeekA4;
     window.handleSlotInput = handleSlotInput;
     window.selectSuggestedPerson = selectSuggestedPerson;
@@ -3027,6 +3340,7 @@
     // Inițializare la pornire
     document.addEventListener('DOMContentLoaded', function() {
       applyTheme(currentThemeMode, false);
+      applyLanguage(currentLang);
       initCalendar();
     });
   </script>
