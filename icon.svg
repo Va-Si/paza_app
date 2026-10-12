@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb923c" />
+      <stop offset="50%" stop-color="#f97316" />
+      <stop offset="100%" stop-color="#c2410c" />
+    </linearGradient>
+    <linearGradient id="innerShieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fed7aa" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#ea580c" stop-opacity="0.3" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.45" />
+    </filter>
+  </defs>
+
+  <!-- Background rounded squircle with safe padding for PWA -->
+  <rect width="512" height="512" rx="108" fill="url(#bgGrad)" />
+
+  <!-- Shield Base with Shadow -->
+  <g filter="url(#shadow)">
+    <!-- Outer Shield Border -->
+    <path d="M 256 64
+             C 336 64, 400 96, 420 128
+             C 420 280, 360 384, 256 448
+             C 152 384, 92 280, 92 128
+             C 112 96, 176 64, 256 64 Z"
+          fill="url(#shieldGrad)" />
+
+    <!-- Inner Shield Accent -->
+    <path d="M 256 92
+             C 320 92, 372 118, 388 144
+             C 388 268, 340 354, 256 412
+             C 172 354, 124 268, 124 144
+             C 140 118, 192 92, 256 92 Z"
+          fill="#9a3412" fill-opacity="0.35" />
+
+    <!-- Left Halved Lighter Side -->
+    <path d="M 256 92
+             C 256 92, 192 92, 124 144
+             C 124 268, 172 354, 256 412 Z"
+          fill="#ffedd5" fill-opacity="0.22" />
+
+    <!-- Central Emblem Checkmark / Security V Emblem -->
+    <path d="M 224 276 
+             L 184 236 
+             C 178 230, 168 230, 162 236 
+             C 156 242, 156 252, 162 258 
+             L 212 308 
+             C 218 314, 230 314, 236 308 
+             L 348 196 
+             C 354 190, 354 180, 348 174 
+             C 342 168, 332 168, 326 174 
+             Z"
+          fill="#ffffff" />
+  </g>
+</svg>
