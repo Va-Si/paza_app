@@ -221,8 +221,21 @@
       display: flex; align-items: center; justify-content: center;
       color: white; font-size: 11px; font-weight: 800;
       letter-spacing: 1px; text-transform: uppercase;
+      overflow: hidden; box-sizing: border-box; padding: 1px;
     }
     .shift-section span { writing-mode: vertical-lr; transform: rotate(180deg); white-space: nowrap; }
+    .shift-section span.multiline-shift {
+      writing-mode: vertical-lr;
+      transform: rotate(180deg);
+      white-space: normal;
+      text-align: center;
+      line-height: 1.05;
+      font-size: 8px;
+      letter-spacing: 0.2px;
+      display: inline-block;
+      max-height: 100%;
+      word-break: break-word;
+    }
 
     /* Stiluri extra pentru modalul de congregații */
     .cong-accordion-content {
@@ -359,15 +372,15 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col transition-colors duration-200">
 
-  <header class="bg-slate-900 text-white shadow-md px-3 py-2.5 sm:px-4 sm:py-3 sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+  <header class="bg-slate-900 text-white shadow-md px-3 py-2 sm:px-4 sm:py-3 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-2 shrink-0">
         <i class="fa-solid fa-shield-halved text-amber-500 text-xl sm:text-2xl"></i>
         <div><h1 id="headerAppTitle" class="text-base sm:text-xl font-bold leading-tight truncate">Grafic Pază</h1></div>
       </div>
 
-      <!-- Bara superioară cu butoane DOAR pictograme (icon-only pe telefon și PC pentru a nu ieși din lățimea ecranului) -->
-      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+      <!-- Bara superioară cu butoane DOAR pictograme (cu flex-wrap pentru ca pe telefon butoanele care nu încap să treacă la rândul de jos) -->
+      <div id="headerButtonsBar" class="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
         
         <!-- 1. Buton Limbă: RO / RU (comutare instantă română - rusă) -->
         <button id="btnLangToggle" onclick="window.toggleLanguage()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-lg text-xs font-black transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0 select-none" title="Limbă: Română (click pentru Русский)">
@@ -488,13 +501,22 @@
               <i class="fa-solid fa-layer-group text-base"></i>
             </div>
             <div class="flex-grow">
-              <h4 class="text-sm font-bold text-slate-800">Toate Congregațiile</h4>
-              <p class="text-xs text-slate-500 mt-0.5">Descarcă o copie completă cu toate congregațiile și toți voluntarii aferenți.</p>
+              <h4 id="exportAllTitle" class="text-sm font-bold text-slate-800">Toate Congregațiile</h4>
+              <p id="exportAllDesc" class="text-xs text-slate-500 mt-0.5">Descarcă o copie completă cu toate congregațiile și toți voluntarii aferenți.</p>
+              
+              <!-- Bifă pentru exportul turelor tuturor vestitorilor -->
+              <div class="mt-2.5 pt-2 border-t border-slate-200/80">
+                <label class="flex items-center gap-2 cursor-pointer select-none text-xs font-semibold text-slate-700 hover:text-amber-800 transition">
+                  <input type="checkbox" id="chkExportAllShifts" class="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-slate-300">
+                  <span id="chkExportAllShiftsLabel" class="flex items-center gap-1.5"><i class="fa-regular fa-calendar-check text-amber-600"></i> Exportă și turele fiecărui vestitor (toate din calendar)</span>
+                </label>
+              </div>
+
               <div class="mt-3 flex items-center justify-between flex-wrap gap-2">
                 <span id="exportAllStats" class="text-xs font-semibold text-slate-600 bg-white px-2.5 py-1 rounded-lg border border-slate-200">
                   <!-- Populat din JS -->
                 </span>
-                <button type="button" onclick="window.exportAllCongregations()" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                <button type="button" id="btnExportAllAction" onclick="window.exportAllCongregations()" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                   <i class="fa-solid fa-download"></i> Descarcă Toate (.json)
                 </button>
               </div>
@@ -509,18 +531,27 @@
               <i class="fa-solid fa-building text-base"></i>
             </div>
             <div class="flex-grow">
-              <h4 class="text-sm font-bold text-slate-800">O Congregație Separat</h4>
-              <p class="text-xs text-slate-500 mt-0.5">Alege o congregație specifică pentru a-i descărca doar persoanele și configurarea proprie.</p>
+              <h4 id="exportSingleTitle" class="text-sm font-bold text-slate-800">O Congregație Separat</h4>
+              <p id="exportSingleDesc" class="text-xs text-slate-500 mt-0.5">Alege o congregație specifică pentru a-i descărca doar persoanele și configurarea proprie.</p>
               
               <div class="mt-3 space-y-2.5">
                 <div>
-                  <label class="block text-[11px] font-bold text-slate-600 mb-1">Alege congregația:</label>
+                  <label id="exportSingleSelectLabel" class="block text-[11px] font-bold text-slate-600 mb-1">Alege congregația:</label>
                   <select id="exportSingleCongSelect" class="w-full border border-slate-300 rounded-lg p-2 text-xs focus:ring-2 focus:ring-sky-500 bg-white">
                     <!-- Populat din JS -->
                   </select>
                 </div>
+
+                <!-- Bifă pentru exportul turelor vestitorilor din congregația selectată -->
+                <div class="pt-1">
+                  <label class="flex items-center gap-2 cursor-pointer select-none text-xs font-semibold text-slate-700 hover:text-sky-800 transition">
+                    <input type="checkbox" id="chkExportSingleShifts" class="w-4 h-4 rounded text-sky-600 focus:ring-sky-500 border-slate-300">
+                    <span id="chkExportSingleShiftsLabel" class="flex items-center gap-1.5"><i class="fa-regular fa-calendar-check text-sky-600"></i> Exportă și turele fiecărui vestitor din această congregație</span>
+                  </label>
+                </div>
+
                 <div class="flex justify-end">
-                  <button type="button" onclick="window.exportSelectedSingleCongregation()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                  <button type="button" id="btnExportSingleAction" onclick="window.exportSelectedSingleCongregation()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                     <i class="fa-solid fa-download"></i> Descarcă Congregația (.json)
                   </button>
                 </div>
@@ -641,12 +672,13 @@
           </div>
         </div>
 
-        <!-- Butoane Acțiuni Modal Editare -->
-        <div class="flex gap-3 pt-4 border-t border-slate-100">
+        <!-- Butoane Acțiuni Modal Editare (cu flex-wrap pentru a nu ieși din lățimea paginii pe telefon) -->
+        <div class="flex flex-wrap gap-2 pt-4 border-t border-slate-100 items-center justify-between">
           <button type="button" id="btnDeleteEvent" onclick="deleteEvent()" class="hidden bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-2 rounded-lg text-sm font-medium transition">Șterge</button>
-          <div class="flex-grow"></div>
-          <button type="button" onclick="closeEventModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition">Anulează</button>
-          <button type="submit" class="bg-amber-600 hover:bg-amber-500 text-white px-5 py-2 rounded-lg text-sm font-medium shadow-sm transition">Salvează</button>
+          <div class="flex gap-2 ml-auto">
+            <button type="button" onclick="closeEventModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition">Anulează</button>
+            <button type="submit" class="bg-amber-600 hover:bg-amber-500 text-white px-5 py-2 rounded-lg text-sm font-medium shadow-sm transition">Salvează</button>
+          </div>
         </div>
       </form>
     </div>
@@ -656,7 +688,7 @@
   <div id="viewDetailsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
       <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
-        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+        <h3 id="viewDetailsModalTitle" class="text-lg font-bold text-slate-900 flex items-center gap-2">
           <i class="fa-solid fa-calendar-check text-amber-500"></i> Detalii Tură Pază
         </h3>
         <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -664,8 +696,8 @@
 
       <!-- Ore și Interval -->
       <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 mb-4">
-        <div class="text-xs font-semibold text-slate-500 mb-1 flex items-center gap-1.5">
-          <i class="fa-regular fa-clock text-amber-600"></i> Interval de ore
+        <div id="viewModalHoursLabel" class="text-xs font-semibold text-slate-500 mb-1 flex items-center gap-1.5">
+          <i class="fa-regular fa-clock text-amber-600"></i> <span id="viewModalHoursLabelText">Interval de ore</span>
         </div>
         <div id="viewModalTimeRange" class="text-base font-bold text-slate-800">
           <!-- Populat din JS -->
@@ -677,8 +709,8 @@
 
       <!-- Lista Voluntarilor și Congregațiile lor -->
       <div class="mb-5">
-        <div class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-          <i class="fa-solid fa-users-viewfinder text-slate-500"></i> Voluntari Asignați
+        <div id="viewModalVolunteersLabel" class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <i class="fa-solid fa-users-viewfinder text-slate-500"></i> <span id="viewModalVolunteersLabelText">Voluntari înscriși</span>
         </div>
         <div id="viewModalVolunteersList" class="space-y-2.5">
           <!-- Renderizat din JS -->
@@ -774,10 +806,7 @@
         <!-- Renderizat din JS -->
       </div>
 
-      <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center gap-2">
-        <button type="button" onclick="window.openBackupModal()" class="text-xs bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 px-3 py-2 rounded-xl font-bold flex items-center gap-1.5 transition shadow-xs">
-          <i class="fa-solid fa-file-arrow-up text-sky-600"></i> Copie Rezervă (Import / Export)
-        </button>
+      <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end items-center">
         <button onclick="closeCongregationModal()" class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-2 rounded-xl text-sm font-medium transition">Gata</button>
       </div>
     </div>
@@ -992,14 +1021,15 @@
       const sidebar = document.createElement('div');
       sidebar.id = 'shiftSidebar';
       const tAccess = currentLang === 'RU' ? 'ОХРАНА ДОСТУПА' : 'PAZĂ ACCES';
-      const tEvening = currentLang === 'RU' ? 'ВЕЧЕРНЯЯ ОХРАНА' : 'PAZĂ SEARĂ';
+      const tEvening = currentLang === 'RU' ? 'ВЕЧЕРНЯЯ<br>ОХРАНА' : 'PAZĂ SEARĂ';
       const tNight = currentLang === 'RU' ? 'НОЧНАЯ ОХРАНА' : 'PAZĂ NOAPTE';
+      const isRuEvening = currentLang === 'RU';
       const tipAccess = currentLang === 'RU' ? 'Охрана Доступа (07:00 - 17:00)' : 'Pază de Acces (07:00 - 17:00)';
       const tipEvening = currentLang === 'RU' ? 'Вечерняя Охрана (17:00 - 21:00)' : 'Pază de Seară (17:00 - 21:00)';
       const tipNight = currentLang === 'RU' ? 'Ночная Охрана (21:00 - 07:00)' : 'Pază de Noapte (21:00 - 07:00)';
       sidebar.innerHTML = `
         <div class="shift-section bg-blue-600 border-b border-white/20" style="height: 41.6667%;" title="${tipAccess}"><span>${tAccess}</span></div>
-        <div class="shift-section bg-green-600 border-b border-white/20" style="height: 16.6666%;" title="${tipEvening}"><span>${tEvening}</span></div>
+        <div class="shift-section bg-green-600 border-b border-white/20" style="height: 16.6666%;" title="${tipEvening}"><span class="${isRuEvening ? 'multiline-shift' : ''}">${tEvening}</span></div>
         <div class="shift-section bg-red-600" style="height: 41.6667%;" title="${tipNight}"><span>${tNight}</span></div>
       `;
       timegridBody.prepend(sidebar);
@@ -1051,8 +1081,9 @@
       const headerBgClass = isDark ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-100 border-slate-300 text-slate-500';
 
       const tAccess = currentLang === 'RU' ? 'ОХРАНА ДОСТУПА' : 'PAZĂ ACCES';
-      const tEvening = currentLang === 'RU' ? 'ВЕЧЕРНЯЯ ОХРАНА' : 'PAZĂ SEARĂ';
+      const tEvening = currentLang === 'RU' ? 'ВЕЧЕРНЯЯ<br>ОХРАНА' : 'PAZĂ SEARĂ';
       const tNight = currentLang === 'RU' ? 'НОЧНАЯ ОХРАНА' : 'PAZĂ NOAPTE';
+      const isRuEvening = currentLang === 'RU';
       const tipAccess = currentLang === 'RU' ? 'Охрана Доступа (07:00 - 17:00)' : 'Pază de Acces (07:00 - 17:00)';
       const tipEvening = currentLang === 'RU' ? 'Вечерняя Охрана (17:00 - 21:00)' : 'Pază de Seară (17:00 - 21:00)';
       const tipNight = currentLang === 'RU' ? 'Ночная Охрана (21:00 - 07:00)' : 'Pază de Noapte (21:00 - 07:00)';
@@ -1065,7 +1096,7 @@
           <!-- 1. Coloana cu secțiuni pază colorate (30px) -->
           <div class="absolute left-0 top-0 bottom-0 w-[30px] flex flex-col z-10 overflow-hidden select-none border-r border-white/20">
             <div class="shift-section bg-blue-600 border-b border-white/20" style="height: 41.6667%;" title="${tipAccess}"><span>${tAccess}</span></div>
-            <div class="shift-section bg-green-600 border-b border-white/20" style="height: 16.6666%;" title="${tipEvening}"><span>${tEvening}</span></div>
+            <div class="shift-section bg-green-600 border-b border-white/20" style="height: 16.6666%;" title="${tipEvening}"><span class="${isRuEvening ? 'multiline-shift' : ''}">${tEvening}</span></div>
             <div class="shift-section bg-red-600" style="height: 41.6667%;" title="${tipNight}"><span>${tNight}</span></div>
           </div>
           <!-- 2. A 2-a coloană cu celulele orelor fix ca în tabelul calendarului -->
@@ -1449,12 +1480,26 @@
         themeTipSys: "Temă: Sistem (click pentru Albă)",
         detailsTitle: "Detalii Tură Pază",
         detailsHours: "Interval de ore",
-        detailsVolunteers: "Voluntari Asignați",
-        detailsNoVolunteers: "Niciun voluntar specificat.",
+        detailsVolunteers: "Voluntari înscriși",
+        detailsNoVolunteers: "Niciun voluntar înscris.",
         detailsDuplicate: "Dublează",
         detailsEdit: "Editează",
         detailsClose: "Închide",
-        unspecifiedCong: "Nespecificată"
+        unspecifiedCong: "Nespecificată",
+        backupTitle: "Copie de Rezervă",
+        backupSubtitle: "Exportă și importă congregațiile și persoanele salvate",
+        backupTabExport: "Exportă (Salvare)",
+        backupTabImport: "Importă (Restaurare)",
+        backupAllTitle: "Toate Congregațiile",
+        backupAllDesc: "Descarcă o copie completă cu toate congregațiile și toți voluntarii aferenți.",
+        backupAllBtn: "Descarcă Toate (.json)",
+        backupSingleTitle: "O Congregație Separat",
+        backupSingleDesc: "Alege o congregație specifică pentru a-i descărca doar persoanele și configurarea proprie.",
+        backupSingleBtn: "Descarcă Congregația (.json)",
+        backupChooseCong: "Alege congregația:",
+        chkExportAllShiftsText: "Exportă și turele fiecărui vestitor (toate din calendar)",
+        chkExportSingleShiftsText: "Exportă și turele fiecărui vestitor din această congregație",
+        backupClose: "Închide"
       },
       RU: {
         appTitle: "График Охраны",
@@ -1488,13 +1533,27 @@
         themeTipDark: "Тема: Тёмная (клик для Системной)",
         themeTipSys: "Тема: Системная (клик для Светлой)",
         detailsTitle: "Детали Смены Охраны",
-        detailsHours: "Время смены",
-        detailsVolunteers: "Назначенные Братья",
-        detailsNoVolunteers: "Добровольцы не назначены.",
+        detailsHours: "Интервал времени",
+        detailsVolunteers: "Записанные добровольцы",
+        detailsNoVolunteers: "Нет записанных добровольцев.",
         detailsDuplicate: "Дублировать",
         detailsEdit: "Редактировать",
         detailsClose: "Закрыть",
-        unspecifiedCong: "Не указано"
+        unspecifiedCong: "Не указано",
+        backupTitle: "Резервная Копия",
+        backupSubtitle: "Экспорт и импорт сохранённых собраний и возвещателей",
+        backupTabExport: "Экспорт (Сохранить)",
+        backupTabImport: "Импорт (Восстановить)",
+        backupAllTitle: "Все Собрания",
+        backupAllDesc: "Скачать полную копию всех собраний и всех назначенных возвещателей.",
+        backupAllBtn: "Скачать Всё (.json)",
+        backupSingleTitle: "Отдельное Собрание",
+        backupSingleDesc: "Выберите конкретное собрание для скачивания только его возвещателей и настроек.",
+        backupSingleBtn: "Скачать Собрание (.json)",
+        backupChooseCong: "Выберите собрание:",
+        chkExportAllShiftsText: "Экспортировать также смены каждого возвещателя (все из календаря)",
+        chkExportSingleShiftsText: "Экспортировать также смены каждого возвещателя из этого собрания",
+        backupClose: "Закрыть"
       }
     };
 
@@ -1516,6 +1575,32 @@
       if (btnToday) btnToday.innerText = t.today;
       const badgeDuration = document.getElementById('calDurationBadgeText');
       if (badgeDuration) badgeDuration.innerText = t.sevenDays;
+
+      const hoursLabelText = document.getElementById('viewModalHoursLabelText');
+      if (hoursLabelText) hoursLabelText.innerText = t.detailsHours;
+      const volLabelText = document.getElementById('viewModalVolunteersLabelText');
+      if (volLabelText) volLabelText.innerText = t.detailsVolunteers;
+      const detailsTitleEl = document.getElementById('viewDetailsModalTitle');
+      if (detailsTitleEl) detailsTitleEl.innerHTML = `<i class="fa-solid fa-calendar-check text-amber-500"></i> ${t.detailsTitle}`;
+
+      const chkAllLabel = document.getElementById('chkExportAllShiftsLabel');
+      if (chkAllLabel) chkAllLabel.innerHTML = `<i class="fa-regular fa-calendar-check text-amber-600"></i> ${t.chkExportAllShiftsText}`;
+      const chkSingleLabel = document.getElementById('chkExportSingleShiftsLabel');
+      if (chkSingleLabel) chkSingleLabel.innerHTML = `<i class="fa-regular fa-calendar-check text-sky-600"></i> ${t.chkExportSingleShiftsText}`;
+      const exportAllTitle = document.getElementById('exportAllTitle');
+      if (exportAllTitle) exportAllTitle.innerText = t.backupAllTitle;
+      const exportAllDesc = document.getElementById('exportAllDesc');
+      if (exportAllDesc) exportAllDesc.innerText = t.backupAllDesc;
+      const btnExportAll = document.getElementById('btnExportAllAction');
+      if (btnExportAll) btnExportAll.innerHTML = `<i class="fa-solid fa-download"></i> ${t.backupAllBtn}`;
+      const exportSingleTitle = document.getElementById('exportSingleTitle');
+      if (exportSingleTitle) exportSingleTitle.innerText = t.backupSingleTitle;
+      const exportSingleDesc = document.getElementById('exportSingleDesc');
+      if (exportSingleDesc) exportSingleDesc.innerText = t.backupSingleDesc;
+      const exportSingleLabel = document.getElementById('exportSingleSelectLabel');
+      if (exportSingleLabel) exportSingleLabel.innerText = t.backupChooseCong;
+      const btnExportSingle = document.getElementById('btnExportSingleAction');
+      if (btnExportSingle) btnExportSingle.innerHTML = `<i class="fa-solid fa-download"></i> ${t.backupSingleBtn}`;
 
       if (calendar) {
         calendar.setOption('locale', lang === 'RU' ? 'ru' : 'ro');
@@ -1780,8 +1865,14 @@
       document.getElementById('viewModalDate').innerText = dateDisplayText;
 
       // Actualizăm textele dinamice din modal conform limbii active
-      const titleEl = modal.querySelector('h3');
+      const titleEl = document.getElementById('viewDetailsModalTitle') || modal.querySelector('h3');
       if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-calendar-check text-amber-500"></i> ${t.detailsTitle}`;
+
+      const hoursLabelText = document.getElementById('viewModalHoursLabelText');
+      if (hoursLabelText) hoursLabelText.innerText = t.detailsHours;
+
+      const volLabelText = document.getElementById('viewModalVolunteersLabelText');
+      if (volLabelText) volLabelText.innerText = t.detailsVolunteers;
 
       const volunteers = getVolunteersFromEvent(event);
       const listContainer = document.getElementById('viewModalVolunteersList');
@@ -2429,14 +2520,6 @@
     function renderCongregationsManager() {
       const container = document.getElementById('congregationListContainer');
       container.innerHTML = '';
-
-      // Buton sus pentru deschidere modal copie de rezervă
-      const backupBtnTopHtml = `
-        <button type="button" onclick="window.openBackupModal()" class="w-full py-2 px-3 rounded-xl border border-sky-200 bg-sky-50/70 hover:bg-sky-100 text-sky-700 font-bold text-xs flex items-center justify-center gap-2 transition mb-2 shadow-xs">
-          <i class="fa-solid fa-box-archive text-sky-600"></i> Copie Rezervă (Exportă / Importă Congregații)
-        </button>
-      `;
-      container.insertAdjacentHTML('beforeend', backupBtnTopHtml);
       
       if (congregations.length === 0) {
         container.innerHTML += `
@@ -2456,9 +2539,6 @@
                 <p class="text-xs text-slate-500 mt-0.5">Expresie afișată: <span class="font-semibold text-slate-700">${c.short}</span></p>
               </div>
               <div class="flex items-center gap-1">
-                <button onclick="event.stopPropagation(); window.exportSingleCongregationById('${c.id}')" class="text-slate-400 hover:text-sky-600 p-2 rounded-lg" title="Exportă această congregație cu persoanele ei (.json)">
-                  <i class="fa-solid fa-file-arrow-down"></i>
-                </button>
                 <button onclick="event.stopPropagation(); window.editCongregationDetails('${c.id}')" class="text-slate-400 hover:text-amber-600 p-2 rounded-lg" title="Editează Denumirea Congregației">
                   <i class="fa-solid fa-pen-to-square"></i>
                 </button>
@@ -2608,6 +2688,7 @@
       populateBackupCongSelect(preselectedCongId);
       updateBackupAllStats();
       switchBackupTab('export');
+      applyLanguage(currentLang);
       const previewBox = document.getElementById('importFilePreviewBox');
       if (previewBox) previewBox.classList.add('hidden');
       const fileInput = document.getElementById('backupFileInput');
@@ -2645,7 +2726,11 @@
       const statsElem = document.getElementById('exportAllStats');
       if (!statsElem) return;
       const totalP = getAllRegisteredPeople().length;
-      statsElem.innerText = `${congregations.length} congregații • ${totalP} voluntari`;
+      if (currentLang === 'RU') {
+        statsElem.innerText = `${congregations.length} собраний • ${totalP} возвещателей`;
+      } else {
+        statsElem.innerText = `${congregations.length} congregații • ${totalP} voluntari`;
+      }
     }
 
     function populateBackupCongSelect(selectedId = '') {
@@ -2668,19 +2753,47 @@
 
     function exportAllCongregations() {
       if (!congregations || congregations.length === 0) {
-        alert("Nu există congregații configurate pentru a genera o copie de rezervă.");
+        alert(currentLang === 'RU' 
+          ? "Нет настроенных собраний для создания резервной копии." 
+          : "Nu există congregații configurate pentru a genera o copie de rezervă.");
         return;
       }
       const now = new Date();
       const dateStr = now.toISOString().split('T')[0];
+      const includeShifts = document.getElementById('chkExportAllShifts')?.checked || false;
+      
+      let allShifts = [];
+      if (includeShifts && calendar) {
+        allShifts = calendar.getEvents().map(ev => {
+          const vols = getVolunteersFromEvent(ev);
+          const color = ev.backgroundColor || '#2563eb';
+          return {
+            id: ev.id,
+            title: ev.title,
+            start: ev.start ? ev.start.toISOString() : '',
+            end: ev.end ? ev.end.toISOString() : (ev.start ? ev.start.toISOString() : ''),
+            backgroundColor: color,
+            borderColor: ev.borderColor || color,
+            volunteers: vols,
+            extendedProps: {
+              volunteers: vols,
+              congregationId: ev.extendedProps?.congregationId || (vols[0]?.congregationId || '')
+            }
+          };
+        });
+      }
+
       const payload = {
-        version: 1,
+        version: 2,
         type: "all_congregations",
         exportDate: now.toISOString(),
         exportedBy: AUTHORIZED_ADMIN_EMAIL,
         totalCongregations: congregations.length,
         totalPeople: getAllRegisteredPeople().length,
-        congregations: congregations
+        includeShifts: includeShifts,
+        totalShifts: allShifts.length,
+        congregations: congregations,
+        events: allShifts
       };
       downloadJsonFile(`copie_rezerva_toate_congregatiile_${dateStr}.json`, payload);
     }
@@ -2688,18 +2801,54 @@
     function exportSingleCongregationById(congId) {
       const cong = congregations.find(c => c.id === congId);
       if (!cong) {
-        alert("Congregația selectată nu a fost găsită.");
+        alert(currentLang === 'RU' 
+          ? "Выбранное собрание не найдено." 
+          : "Congregația selectată nu a fost găsită.");
         return;
       }
       const now = new Date();
       const dateStr = now.toISOString().split('T')[0];
       const safeName = (cong.name || 'congregatie').replace(/[^a-zA-Z0-9_\u00C0-\u017F]/g, '_');
+      const includeShifts = document.getElementById('chkExportSingleShifts')?.checked || false;
+
+      let congShifts = [];
+      if (includeShifts && calendar) {
+        congShifts = calendar.getEvents().filter(ev => {
+          const vols = getVolunteersFromEvent(ev);
+          if (ev.extendedProps?.congregationId === congId) return true;
+          return vols.some(v => 
+            v.congregationId === congId ||
+            (cong.name && v.congregationName === cong.name) ||
+            (Array.isArray(cong.people) && cong.people.includes(v.name))
+          );
+        }).map(ev => {
+          const vols = getVolunteersFromEvent(ev);
+          const color = ev.backgroundColor || '#2563eb';
+          return {
+            id: ev.id,
+            title: ev.title,
+            start: ev.start ? ev.start.toISOString() : '',
+            end: ev.end ? ev.end.toISOString() : (ev.start ? ev.start.toISOString() : ''),
+            backgroundColor: color,
+            borderColor: ev.borderColor || color,
+            volunteers: vols,
+            extendedProps: {
+              volunteers: vols,
+              congregationId: ev.extendedProps?.congregationId || (vols[0]?.congregationId || '')
+            }
+          };
+        });
+      }
+
       const payload = {
-        version: 1,
+        version: 2,
         type: "single_congregation",
         exportDate: now.toISOString(),
         exportedBy: AUTHORIZED_ADMIN_EMAIL,
-        congregation: cong
+        includeShifts: includeShifts,
+        totalShifts: congShifts.length,
+        congregation: cong,
+        events: congShifts
       };
       downloadJsonFile(`copie_rezerva_${safeName}_${dateStr}.json`, payload);
     }
@@ -2708,7 +2857,9 @@
       const select = document.getElementById('exportSingleCongSelect');
       const congId = select ? select.value : '';
       if (!congId) {
-        alert("Te rog să alegi o congregație din listă pentru export.");
+        alert(currentLang === 'RU' 
+          ? "Пожалуйста, выберите собрание из списка для экспорта." 
+          : "Te rog să alegi o congregație din listă pentru export.");
         return;
       }
       exportSingleCongregationById(congId);
@@ -2749,14 +2900,30 @@
             isSingle = false;
             allCongsList = parsed;
           } else {
-            throw new Error("Fișierul JSON nu conține o structură validă de congregații sau persoane.");
+            throw new Error(currentLang === 'RU' 
+              ? "JSON файл не содержит допустимой структуры собраний или возвещателей."
+              : "Fișierul JSON nu conține o structură validă de congregații sau persoane.");
           }
 
           if (previewBox) previewBox.classList.remove('hidden');
 
+          const shiftsCount = Array.isArray(parsed.events) ? parsed.events.length : 0;
+          const shiftsInfoHtml = shiftsCount > 0 
+            ? `<div class="mt-1 text-[11px] text-emerald-700 font-semibold flex items-center gap-1.5"><i class="fa-regular fa-calendar-check"></i> Fișierul include și <strong>${shiftsCount} ture de pază</strong> programate.</div>`
+            : '';
+
+          const shiftsCheckboxHtml = shiftsCount > 0 ? `
+            <div class="pt-2 border-t border-emerald-300/70">
+              <label class="flex items-center gap-2 cursor-pointer font-bold text-xs text-emerald-900 select-none">
+                <input type="checkbox" id="chkImportShiftsToCalendar" checked class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-emerald-300">
+                <span>Restaurează și cele ${shiftsCount} ture de pază în calendar</span>
+              </label>
+            </div>
+          ` : '';
+
           if (isSingle) {
             const numP = (singleCong.people || []).length;
-            if (summaryText) summaryText.innerHTML = `Detectat: Congregația <strong>"${singleCong.name || 'Fără nume'}"</strong> (${numP} persoane)`;
+            if (summaryText) summaryText.innerHTML = `Detectat: Congregația <strong>"${singleCong.name || 'Fără nume'}"</strong> (${numP} persoane)${shiftsInfoHtml}`;
             if (optionsContainer) {
               optionsContainer.innerHTML = `
                 <label class="block text-xs font-bold text-slate-700 mb-1">Alege cum vrei să imporți această congregație:</label>
@@ -2770,11 +2937,12 @@
                     <span>Adaugă ca o congregație nouă separată</span>
                   </label>
                 </div>
+                ${shiftsCheckboxHtml}
               `;
             }
           } else {
             const totalP = allCongsList.reduce((acc, c) => acc + ((c.people || []).length), 0);
-            if (summaryText) summaryText.innerHTML = `Detectat: <strong>${allCongsList.length} congregații</strong> cu un total de <strong>${totalP} persoane</strong>`;
+            if (summaryText) summaryText.innerHTML = `Detectat: <strong>${allCongsList.length} congregații</strong> cu un total de <strong>${totalP} persoane</strong>${shiftsInfoHtml}`;
             if (optionsContainer) {
               optionsContainer.innerHTML = `
                 <label class="block text-xs font-bold text-slate-700 mb-1">Alege modul de import pentru toate congregațiile:</label>
@@ -2788,6 +2956,7 @@
                     <span class="text-rose-600 font-semibold">Înlocuiește complet congregațiile actuale cu cele din fișier</span>
                   </label>
                 </div>
+                ${shiftsCheckboxHtml}
               `;
             }
           }
@@ -2803,7 +2972,7 @@
 
     async function executeBackupImport() {
       if (!pendingImportData) {
-        alert("Selectează întâi un fișier JSON valid.");
+        alert(currentLang === 'RU' ? "Сначала выберите действительный JSON-файл." : "Selectează întâi un fișier JSON valid.");
         return;
       }
 
@@ -2895,10 +3064,22 @@
           }
         }
 
+        // Salvare congregații în Firestore și cache
         await saveCongregations();
         renderCongregationsManager();
+
+        // Dacă fișierul include și ture de pază și utilizatorul a bifat importul lor
+        const importShiftsChecked = document.getElementById('chkImportShiftsToCalendar')?.checked;
+        if (importShiftsChecked && Array.isArray(pendingImportData.events) && pendingImportData.events.length > 0) {
+          for (const evItem of pendingImportData.events) {
+            if (evItem && evItem.id) {
+              await saveEventToFirebase(evItem);
+            }
+          }
+        }
+
         if (calendar) calendar.render();
-        alert("Copie de rezervă importată cu succes!");
+        alert(currentLang === 'RU' ? "Резервная копия успешно импортирована!" : "Copie de rezervă importată cu succes!");
         closeBackupModal();
       } catch (err) {
         console.error("Eroare la aplicarea importului:", err);
@@ -3210,8 +3391,8 @@
               <div style="height: 41.6667%; background: #2563eb; color: #ffffff; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid rgba(255,255,255,0.3); overflow: hidden;">
                 <span style="display: block; white-space: nowrap; transform: rotate(-90deg); transform-origin: center center; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">${t.shiftAccess}</span>
               </div>
-              <div style="height: 16.6666%; background: #16a34a; color: #ffffff; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid rgba(255,255,255,0.3); overflow: hidden;">
-                <span style="display: block; white-space: nowrap; transform: rotate(-90deg); transform-origin: center center; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">${t.shiftEvening}</span>
+              <div style="height: 16.6666%; background: #16a34a; color: #ffffff; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid rgba(255,255,255,0.3); overflow: hidden; box-sizing: border-box; padding: 2px;">
+                <span style="display: block; ${currentLang === 'RU' ? 'transform: rotate(-90deg); transform-origin: center center; text-align: center; line-height: 1.05; font-size: 8px; letter-spacing: 0.2px; white-space: normal;' : 'white-space: nowrap; transform: rotate(-90deg); transform-origin: center center; font-size: 10px; letter-spacing: 1.5px;'} font-weight: 800; text-transform: uppercase;">${currentLang === 'RU' ? 'ВЕЧЕРНЯЯ<br>ОХРАНА' : 'PAZĂ SEARĂ'}</span>
               </div>
               <div style="height: 41.6667%; background: #dc2626; color: #ffffff; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
                 <span style="display: block; white-space: nowrap; transform: rotate(-90deg); transform-origin: center center; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">${t.shiftNight}</span>
