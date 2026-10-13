@@ -817,7 +817,10 @@
     // 1. Configurare și inițializare Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
-      getFirestore, 
+      getFirestore,
+      initializeFirestore,
+      persistentLocalCache,
+      persistentMultipleTabManager,
       collection, 
       doc, 
       setDoc, 
@@ -842,9 +845,18 @@
       measurementId: "G-TSGE08LGVF"
     };
 
-    // Inițializare instanță Firebase, Firestore și Auth
+    // Inițializare instanță Firebase, Firestore cu Cache Local Persistent (IndexedDB pentru viteză instantă) și Auth
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    let db;
+    try {
+      db = initializeFirestore(app, {
+        localCache: persistentLocalCache({
+          tabManager: persistentMultipleTabManager()
+        })
+      });
+    } catch (e) {
+      db = getFirestore(app);
+    }
     const auth = getAuth(app);
 
     // Email autorizat exclusiv pentru modul de editare
@@ -937,78 +949,170 @@
     }
 
     // Ascultare în timp real a turelor (evenimentelor) din colecția 'ture_paza'
+    let isInitialEventsLoad = true;
+
     function listenToEvents() {
       const eventsColRef = collection(db, "ture_paza");
       onSnapshot(eventsColRef, (snapshot) => {
         if (!calendar) return;
 
-        const serverEventIds = new Set();
-        
-        snapshot.forEach((docItem) => {
-          const evtData = docItem.data();
-          serverEventIds.add(evtData.id);
+        const applyChanges = () => {
+          if (isInitialEventsLoad) {
+            isInitialEventsLoad = false;
+            snapshot.forEach((docItem) => {
+              const evtData = docItem.data();
+              if (!evtData || !evtData.id) return;
 
-          // Culoare actualizata automat dacă era oranj vechi (#ea580c) la verde (#16a34a)
-          let bgColor = evtData.backgroundColor;
-          let bdColor = evtData.borderColor;
-          if (bgColor === '#ea580c') {
-            bgColor = '#16a34a';
-            bdColor = '#16a34a';
-          }
+              let bgColor = evtData.backgroundColor;
+              let bdColor = evtData.borderColor;
+              if (bgColor === '#ea580c') {
+                bgColor = '#16a34a';
+                bdColor = '#16a34a';
+              }
 
-          const existingEvent = calendar.getEventById(evtData.id);
-          if (existingEvent) {
-            existingEvent.setProp('title', evtData.title);
-            existingEvent.setStart(evtData.start);
-            existingEvent.setEnd(evtData.end);
-            existingEvent.setProp('backgroundColor', bgColor);
-            existingEvent.setProp('borderColor', bdColor);
-            existingEvent.setExtendedProp('volunteers', evtData.volunteers || []);
-            existingEvent.setExtendedProp('congregationId', evtData.extendedProps?.congregationId || '');
-          } else {
-            calendar.addEvent({
-              id: evtData.id,
-              title: evtData.title,
-              start: evtData.start,
-              end: evtData.end,
-              backgroundColor: bgColor,
-              borderColor: bdColor,
-              extendedProps: {
-                volunteers: evtData.volunteers || [],
-                congregationId: evtData.extendedProps?.congregationId || ''
+              const existingEvent = calendar.getEventById(evtData.id);
+              if (!existingEvent) {
+                calendar.addEvent({
+                  id: evtData.id,
+                  title: evtData.title || '',
+                  start: evtData.start,
+                  end: evtData.end,
+                  backgroundColor: bgColor,
+                  borderColor: bdColor,
+                  extendedProps: {
+                    volunteers: evtData.volunteers || [],
+                    congregationId: evtData.extendedProps?.congregationId || ''
+                  }
+                });
               }
             });
+            return;
           }
-        });
 
-        // Curățare evenimente șterse
-        calendar.getEvents().forEach((localEvt) => {
-          if (!serverEventIds.has(localEvt.id)) {
-            localEvt.remove();
+          // La actualizări, procesăm strict doar documentele modificate (fără rescrierea întregului calendar)
+          snapshot.docChanges().forEach((change) => {
+            const evtData = change.doc.data();
+            if (!evtData || !evtData.id) return;
+
+            let bgColor = evtData.backgroundColor;
+            let bdColor = evtData.borderColor;
+            if (bgColor === '#ea580c') {
+              bgColor = '#16a34a';
+              bdColor = '#16a34a';
+            }
+
+            if (change.type === 'removed') {
+              const localEvt = calendar.getEventById(evtData.id);
+              if (localEvt) localEvt.remove();
+            } else if (change.type === 'added') {
+              const localEvt = calendar.getEventById(evtData.id);
+              if (!localEvt) {
+                calendar.addEvent({
+                  id: evtData.id,
+                  title: evtData.title || '',
+                  start: evtData.start,
+                  end: evtData.end,
+                  backgroundColor: bgColor,
+                  borderColor: bdColor,
+                  extendedProps: {
+                    volunteers: evtData.volunteers || [],
+                    congregationId: evtData.extendedProps?.congregationId || ''
+                  }
+                });
+              }
+            } else if (change.type === 'modified') {
+              const localEvt = calendar.getEventById(evtData.id);
+              if (localEvt) {
+                const curStartMs = localEvt.start ? localEvt.start.getTime() : 0;
+                const newStartMs = evtData.start ? new Date(evtData.start).getTime() : 0;
+                const curEndMs = localEvt.end ? localEvt.end.getTime() : 0;
+                const newEndMs = evtData.end ? new Date(evtData.end).getTime() : 0;
+
+                // Nu reseta poziția în calendar dacă este identică (ex: imediat după drag & drop / resize)
+                if (curStartMs !== newStartMs && newStartMs > 0) {
+                  localEvt.setStart(evtData.start);
+                }
+                if (curEndMs !== newEndMs && newEndMs > 0) {
+                  localEvt.setEnd(evtData.end);
+                }
+                if (localEvt.title !== evtData.title) {
+                  localEvt.setProp('title', evtData.title);
+                }
+                if (localEvt.backgroundColor !== bgColor) {
+                  localEvt.setProp('backgroundColor', bgColor);
+                  localEvt.setProp('borderColor', bdColor);
+                }
+                localEvt.setExtendedProp('volunteers', evtData.volunteers || []);
+                localEvt.setExtendedProp('congregationId', evtData.extendedProps?.congregationId || '');
+              }
+            }
+          });
+        };
+
+        if (typeof calendar.pauseRendering === 'function') {
+          calendar.pauseRendering();
+          try {
+            applyChanges();
+          } finally {
+            if (typeof calendar.resumeRendering === 'function') calendar.resumeRendering();
           }
-        });
+        } else {
+          applyChanges();
+        }
       }, (error) => {
         console.error("Eroare la ascultarea turelor din Firebase:", error);
       });
     }
 
-    // Salvare tură în Firebase Firestore
+    // Aplică imediat modificarea local în instanța calendarului pentru viteză instantă (0ms)
+    function applyEventLocally(eventData) {
+      if (!calendar) return;
+      const existing = calendar.getEventById(eventData.id);
+      if (existing) {
+        existing.setProp('title', eventData.title);
+        existing.setStart(eventData.start);
+        existing.setEnd(eventData.end);
+        existing.setProp('backgroundColor', eventData.backgroundColor);
+        existing.setProp('borderColor', eventData.borderColor);
+        existing.setExtendedProp('volunteers', eventData.volunteers || []);
+        existing.setExtendedProp('congregationId', eventData.extendedProps?.congregationId || '');
+      } else {
+        calendar.addEvent({
+          id: eventData.id,
+          title: eventData.title,
+          start: eventData.start,
+          end: eventData.end,
+          backgroundColor: eventData.backgroundColor,
+          borderColor: eventData.borderColor,
+          extendedProps: {
+            volunteers: eventData.volunteers || [],
+            congregationId: eventData.extendedProps?.congregationId || ''
+          }
+        });
+      }
+    }
+
+    // Salvare tură în Firebase Firestore (asincron în fundal, fără blocare UI)
     async function saveEventToFirebase(eventData) {
       try {
         await setDoc(doc(db, "ture_paza", eventData.id), eventData);
       } catch (err) {
         console.error("Eroare la salvarea turei în Firebase:", err);
-        alert("Eroare la sincronizarea cu baza de date Firebase.");
+        alert(currentLang === 'RU' 
+          ? "Ошибка синхронизации с базой данных Firebase." 
+          : "Eroare la sincronizarea cu baza de date Firebase.");
       }
     }
 
-    // Ștergere tură din Firebase Firestore
+    // Ștergere tură din Firebase Firestore (asincron în fundal, fără blocare UI)
     async function deleteEventFromFirebase(id) {
       try {
         await deleteDoc(doc(db, "ture_paza", id));
       } catch (err) {
         console.error("Eroare la ștergerea turei din Firebase:", err);
-        alert("Eroare la ștergerea din baza de date Firebase.");
+        alert(currentLang === 'RU' 
+          ? "Ошибка удаления из базы данных Firebase." 
+          : "Eroare la ștergerea din baza de date Firebase.");
       }
     }
 
@@ -2465,11 +2569,16 @@
       const formattedTitle = finalVolunteers.map((v, i) => `${i + 1}. ${v.name}`).join('\n');
       const selectedColor = document.querySelector('input[name="eventColor"]:checked').value;
 
+      const startVal = document.getElementById('eventStart').value;
+      const endVal = document.getElementById('eventEnd').value;
+      const startIso = startVal ? new Date(startVal).toISOString() : '';
+      const endIso = endVal ? new Date(endVal).toISOString() : '';
+
       const eventData = {
         id: id,
         title: formattedTitle,
-        start: document.getElementById('eventStart').value,
-        end: document.getElementById('eventEnd').value,
+        start: startIso,
+        end: endIso,
         backgroundColor: selectedColor,
         borderColor: selectedColor,
         volunteers: finalVolunteers,
@@ -2480,21 +2589,31 @@
       };
       
       closeEventModal();
-      await saveEventToFirebase(eventData);
+      // 1. Aplicare instantanee locală în calendar (0 milisecunde, ecranul nu se blochează deloc)
+      applyEventLocally(eventData);
+      // 2. Salvare asincronă în fundal în Firebase
+      saveEventToFirebase(eventData);
     }
 
     async function deleteEvent() {
       const id = document.getElementById('eventId').value;
       if (!id) return;
-      if (confirm("Sigur dorești să ștergi această tură?")) {
+      const confirmMsg = currentLang === 'RU' 
+        ? "Вы уверены, что хотите удалить эту смену?" 
+        : "Sigur dorești să ștergi această tură?";
+      if (confirm(confirmMsg)) {
         closeEventModal();
-        await deleteEventFromFirebase(id);
+        // Ștergere instantanee locală din calendar
+        const localEvt = calendar ? calendar.getEventById(id) : null;
+        if (localEvt) localEvt.remove();
+        // Ștergere asincronă în fundal din Firebase
+        deleteEventFromFirebase(id);
       }
     }
 
-    async function updateEventDates(event) {
+    function updateEventDates(event) {
       const volunteers = getVolunteersFromEvent(event);
-      await saveEventToFirebase({
+      const eventData = {
         id: event.id,
         title: event.title,
         start: event.start.toISOString(),
@@ -2506,7 +2625,9 @@
           volunteers: volunteers,
           congregationId: event.extendedProps?.congregationId || ''
         }
-      });
+      };
+      // Salvare asincronă în fundal fără blocare UI la mutare (drag & drop / resize)
+      saveEventToFirebase(eventData);
     }
 
     function formatDateForInput(date) {
@@ -3176,6 +3297,9 @@
         const hourRowHeight = 36; // px per oră exact
         const axisWidthPx = 95; // lățimea fixă a coloanei din stânga cu orele
         const totalGridHeight = totalHours * hourRowHeight;
+        const hShiftAccess = 10 * hourRowHeight; // 360px (07:00 - 17:00)
+        const hShiftEvening = 4 * hourRowHeight; // 144px (17:00 - 21:00)
+        const hShiftNight = 10 * hourRowHeight; // 360px (21:00 - 07:00)
 
         // Container temporar de randare
         const exportContainer = document.createElement('div');
@@ -3193,7 +3317,7 @@
 
         // 1. Antetul tabelului: Coloana stângă (95px) + 7 Coloane cu zile (restul lățimii împărțit egal)
         let headerThs = `
-          <th style="width: ${axisWidthPx}px; min-width: ${axisWidthPx}px; max-width: ${axisWidthPx}px; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 10px 4px; text-align: center; vertical-align: middle; box-sizing: border-box;">
+          <th align="center" style="width: ${axisWidthPx}px; min-width: ${axisWidthPx}px; max-width: ${axisWidthPx}px; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 10px 4px; text-align: center; vertical-align: middle; box-sizing: border-box;">
             <i class="fa-regular fa-clock" style="font-size: 15px; color: #64748b;"></i>
           </th>
         `;
@@ -3206,10 +3330,14 @@
           const todayBadge = t.exportToday;
 
           headerThs += `
-            <th style="background: ${isToday ? '#ea580c' : '#ffffff'}; color: ${isToday ? '#ffffff' : '#1e293b'}; border: 1px solid #cbd5e1; padding: 8px 4px; text-align: center; vertical-align: middle; box-sizing: border-box;">
-              <div style="font-size: 14px; font-weight: 800; text-transform: capitalize; letter-spacing: -0.2px;">${capWeekday}</div>
-              <div style="font-size: 12px; font-weight: 700; opacity: ${isToday ? '0.95' : '0.75'}; margin-top: 1px;">${dayNum}</div>
-              ${isToday ? `<div style="display: flex; justify-content: center; align-items: center; margin-top: 4px;"><span style="display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 18px; padding: 0 6px; font-size: 10px; font-weight: 800; line-height: 18px; background: #ffffff; color: #ea580c; border-radius: 9999px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">${todayBadge}</span></div>` : ''}
+            <th align="center" style="background: ${isToday ? '#ea580c' : '#ffffff'}; color: ${isToday ? '#ffffff' : '#1e293b'}; border: 1px solid #cbd5e1; padding: 6px 2px; text-align: center; vertical-align: middle; box-sizing: border-box;">
+              <div style="width: 100%; text-align: center; margin: 0 auto; font-size: 14px; font-weight: 800; text-transform: capitalize; letter-spacing: -0.2px;">${capWeekday}</div>
+              <div style="width: 100%; text-align: center; margin: 2px auto 0 auto; font-size: 12px; font-weight: 700; opacity: ${isToday ? '0.95' : '0.75'};">${dayNum}</div>
+              ${isToday ? `
+                <div style="width: 100%; text-align: center; margin: 4px auto 0 auto; line-height: 1;">
+                  <span style="display: inline-block; margin: 0 auto; text-align: center; min-width: 38px; height: 18px; line-height: 18px; padding: 0 8px; font-size: 10px; font-weight: 900; background: #ffffff; color: #ea580c; border-radius: 9999px; box-shadow: 0 1px 2px rgba(0,0,0,0.15); vertical-align: middle;">${todayBadge}</span>
+                </div>
+              ` : ''}
             </th>
           `;
         });
@@ -3386,17 +3514,37 @@
           <!-- Tabel Calendar cu Grilă Identică Aplicației -->
           <div style="position: relative; width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #ffffff;">
             
-            <!-- 1. Sidebarul vertical stânga cu cele 3 ture colorate (lățime 30px peste înălțimea grilei) -->
+            <!-- 1. Sidebarul vertical stânga cu cele 3 ture colorate (lățime 30px peste înălțimea grilei, aliniere SVG matematic centrată) -->
             <div id="exportSidebarEl" style="position: absolute; left: 0; top: 45px; width: 30px; height: ${totalGridHeight}px; display: flex; flex-direction: column; z-index: 10; border-right: 1px solid rgba(255,255,255,0.3); overflow: hidden; box-sizing: border-box;">
-              <div style="height: 41.6667%; background: #2563eb; color: #ffffff; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid rgba(255,255,255,0.3); overflow: hidden;">
-                <span style="display: block; white-space: nowrap; transform: rotate(-90deg); transform-origin: center center; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">${t.shiftAccess}</span>
+              
+              <!-- Tura 1: Acces (Albastru) - centrat perfect pe mijloc -->
+              <div style="height: ${hShiftAccess}px; width: 30px; background: #2563eb; border-bottom: 1px solid rgba(255,255,255,0.3); position: relative; overflow: hidden; box-sizing: border-box;">
+                <svg width="30" height="${hShiftAccess}" viewBox="0 0 30 ${hShiftAccess}" style="display: block; width: 30px; height: ${hShiftAccess}px;">
+                  <text x="15" y="${hShiftAccess / 2}" transform="rotate(-90 15 ${hShiftAccess / 2})" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="11" font-weight="900" letter-spacing="1.5" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">${t.shiftAccess}</text>
+                </svg>
               </div>
-              <div style="height: 16.6666%; background: #16a34a; color: #ffffff; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid rgba(255,255,255,0.3); overflow: hidden; box-sizing: border-box; padding: 2px;">
-                <span style="display: block; ${currentLang === 'RU' ? 'transform: rotate(-90deg); transform-origin: center center; text-align: center; line-height: 1.05; font-size: 8px; letter-spacing: 0.2px; white-space: normal;' : 'white-space: nowrap; transform: rotate(-90deg); transform-origin: center center; font-size: 10px; letter-spacing: 1.5px;'} font-weight: 800; text-transform: uppercase;">${currentLang === 'RU' ? 'ВЕЧЕРНЯЯ<br>ОХРАНА' : 'PAZĂ SEARĂ'}</span>
+
+              <!-- Tura 2: Seară (Verde) - centrat perfect pe mijloc (în rusă pe 2 rânduri aliniate pe centru) -->
+              <div style="height: ${hShiftEvening}px; width: 30px; background: #16a34a; border-bottom: 1px solid rgba(255,255,255,0.3); position: relative; overflow: hidden; box-sizing: border-box;">
+                <svg width="30" height="${hShiftEvening}" viewBox="0 0 30 ${hShiftEvening}" style="display: block; width: 30px; height: ${hShiftEvening}px;">
+                  ${currentLang === 'RU' ? `
+                    <g transform="rotate(-90 15 ${hShiftEvening / 2})">
+                      <text x="15" y="${(hShiftEvening / 2) - 6}" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="8.5" font-weight="900" letter-spacing="0.4" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">ВЕЧЕРНЯЯ</text>
+                      <text x="15" y="${(hShiftEvening / 2) + 6}" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="8.5" font-weight="900" letter-spacing="0.4" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">ОХРАНА</text>
+                    </g>
+                  ` : `
+                    <text x="15" y="${hShiftEvening / 2}" transform="rotate(-90 15 ${hShiftEvening / 2})" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="11" font-weight="900" letter-spacing="1.5" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">PAZĂ SEARĂ</text>
+                  `}
+                </svg>
               </div>
-              <div style="height: 41.6667%; background: #dc2626; color: #ffffff; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
-                <span style="display: block; white-space: nowrap; transform: rotate(-90deg); transform-origin: center center; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">${t.shiftNight}</span>
+
+              <!-- Tura 3: Noapte (Roșu) - centrat perfect pe mijloc -->
+              <div style="height: ${hShiftNight}px; width: 30px; background: #dc2626; position: relative; overflow: hidden; box-sizing: border-box;">
+                <svg width="30" height="${hShiftNight}" viewBox="0 0 30 ${hShiftNight}" style="display: block; width: 30px; height: ${hShiftNight}px;">
+                  <text x="15" y="${hShiftNight / 2}" transform="rotate(-90 15 ${hShiftNight / 2})" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="11" font-weight="900" letter-spacing="1.5" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">${t.shiftNight}</text>
+                </svg>
               </div>
+
             </div>
 
             <!-- Structură tabel cu colgroup pentru a garanta lățimea exactă a coloanei din stânga și împărțirea egală a celor 7 zile -->
@@ -3428,25 +3576,29 @@
 
           </div>
 
-          <!-- Indicii din josul paginii: intervale de ore, culori și denumiri -->
-          <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #475569; border-top: 2px solid #e2e8f0; padding-top: 10px;">
-            <div style="display: flex; gap: 24px; align-items: center;">
-              <div style="display: inline-flex; align-items: center; gap: 7px;">
-                <span style="display: block; width: 13px; height: 13px; background: #2563eb; border-radius: 3px; shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.15);"></span>
-                <span style="font-size: 12px; line-height: 1.2;"><strong style="color: #0f172a;">${t.shiftAccessFull}</strong> (07:00 - 17:00)</span>
-              </div>
-              <div style="display: inline-flex; align-items: center; gap: 7px;">
-                <span style="display: block; width: 13px; height: 13px; background: #16a34a; border-radius: 3px; shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.15);"></span>
-                <span style="font-size: 12px; line-height: 1.2;"><strong style="color: #0f172a;">${t.shiftEveningFull}</strong> (17:00 - 21:00)</span>
-              </div>
-              <div style="display: inline-flex; align-items: center; gap: 7px;">
-                <span style="display: block; width: 13px; height: 13px; background: #dc2626; border-radius: 3px; shrink: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.15);"></span>
-                <span style="font-size: 12px; line-height: 1.2;"><strong style="color: #0f172a;">${t.shiftNightFull}</strong> (21:00 - 07:00)</span>
-              </div>
-            </div>
-            <div style="font-weight: 800; font-size: 13px; color: #0f172a;">
-              ${t.kingdomHall}
-            </div>
+          <!-- Indicii din josul paginii: intervale de ore, culori și denumiri cu pătrățele aliniate pe centru cu textul -->
+          <div style="margin-top: 14px; width: 100%; border-top: 2px solid #e2e8f0; padding-top: 10px;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="text-align: left; vertical-align: middle; padding: 0;">
+                  <div style="display: inline-block; vertical-align: middle; margin-right: 24px; white-space: nowrap;">
+                    <span style="display: inline-block; vertical-align: middle; width: 14px; height: 14px; background: #2563eb; border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.15); margin-right: 8px;"></span>
+                    <span style="display: inline-block; vertical-align: middle; font-size: 12px; line-height: 14px; color: #475569;"><strong style="color: #0f172a;">${t.shiftAccessFull}</strong> (07:00 - 17:00)</span>
+                  </div>
+                  <div style="display: inline-block; vertical-align: middle; margin-right: 24px; white-space: nowrap;">
+                    <span style="display: inline-block; vertical-align: middle; width: 14px; height: 14px; background: #16a34a; border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.15); margin-right: 8px;"></span>
+                    <span style="display: inline-block; vertical-align: middle; font-size: 12px; line-height: 14px; color: #475569;"><strong style="color: #0f172a;">${t.shiftEveningFull}</strong> (17:00 - 21:00)</span>
+                  </div>
+                  <div style="display: inline-block; vertical-align: middle; white-space: nowrap;">
+                    <span style="display: inline-block; vertical-align: middle; width: 14px; height: 14px; background: #dc2626; border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.15); margin-right: 8px;"></span>
+                    <span style="display: inline-block; vertical-align: middle; font-size: 12px; line-height: 14px; color: #475569;"><strong style="color: #0f172a;">${t.shiftNightFull}</strong> (21:00 - 07:00)</span>
+                  </div>
+                </td>
+                <td style="text-align: right; vertical-align: middle; padding: 0; white-space: nowrap;">
+                  <span style="font-weight: 800; font-size: 13px; color: #0f172a; vertical-align: middle;">${t.kingdomHall}</span>
+                </td>
+              </tr>
+            </table>
           </div>
         `;
 
