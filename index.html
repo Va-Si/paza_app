@@ -2593,7 +2593,29 @@
       applyEventLocally(eventData);
       // 2. Salvare asincronă în fundal în Firebase
       saveEventToFirebase(eventData);
+      // ==========================================
+      // AICI PUI CODUL TĂU PENTRU TELEGRAM BOT:
+      // ==========================================
+      const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw2gbXD4KYHK82XzCsMo9eTsOs_9YsNvCzxZpr3MG_v2BXBlCTMvA28XfjvTGLOn5AG/exec";
+
+      finalVolunteers.forEach(voluntarObj => {
+        const voluntar = voluntarObj.name;
+        const colegi = finalVolunteers.filter(v => v.name !== voluntar).map(v => v.name).join(', ');
+        
+        fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nume: voluntar,
+            start: eventData.start,
+            end: eventData.end,
+            colegi: colegi ? colegi : 'Niciunul'
+          })
+        }).catch(err => console.error("Eroare trimitere Telegram:", err));
+      });
     }
+
 
     async function deleteEvent() {
       const id = document.getElementById('eventId').value;
