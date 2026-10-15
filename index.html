@@ -2660,7 +2660,7 @@
 
     /* ==== MODAL CONGREGAȚII & PERSOANE ==== */
 
-   function renderCongregationsManager() {
+    function renderCongregationsManager() {
       const container = document.getElementById('congregationListContainer');
       container.innerHTML = '';
       
@@ -2674,10 +2674,6 @@
       }
 
       congregations.forEach(c => {
-        // Creăm o listă temporară sortată alfabetic DOAR pentru afișare pe ecran
-        const peopleWithIndex = c.people ? c.people.map((p, idx) => ({ name: p, originalIndex: idx })) : [];
-        peopleWithIndex.sort((a, b) => a.name.localeCompare(b.name, 'ro'));
-
         let html = `
           <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
             <div class="p-3.5 flex justify-between items-center cursor-pointer hover:bg-slate-100 transition" onclick="window.toggleCongAccordion('${c.id}')">
@@ -2696,12 +2692,12 @@
             </div>
             <div id="acc-${c.id}" class="cong-accordion-content border-t border-slate-200 bg-white p-3">
               <div class="space-y-1.5 mb-3">
-                ${peopleWithIndex.map((item) => `
+                ${(c.people || []).map((p, idx) => `
                   <div class="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-lg border border-slate-100 text-sm">
-                    <span class="font-medium">${item.name}</span>
+                    <span class="font-medium">${p}</span>
                     <div class="flex gap-2">
-                      <button onclick="window.editPerson('${c.id}',${item.originalIndex})" class="text-slate-400 hover:text-blue-500" title="Modifică nume"><i class="fa-solid fa-pen"></i></button>
-                      <button onclick="window.deletePerson('${c.id}',${item.originalIndex})" class="text-slate-400 hover:text-rose-500" title="Șterge persoană"><i class="fa-solid fa-trash"></i></button>
+                      <button onclick="window.editPerson('${c.id}', ${idx})" class="text-slate-400 hover:text-blue-500" title="Modifică nume"><i class="fa-solid fa-pen"></i></button>
+                      <button onclick="window.deletePerson('${c.id}', ${idx})" class="text-slate-400 hover:text-rose-500" title="Șterge persoană"><i class="fa-solid fa-trash"></i></button>
                     </div>
                   </div>
                 `).join('')}
@@ -2776,8 +2772,8 @@
       if (name && name.trim() !== '') {
         let cong = congregations.find(c => c.id === congId);
         if (!cong.people) cong.people = [];
-        cong.people.push(name.trim()); // Se adaugă la sfârșit, fără sortare globală
-        await saveCongregations(); // În Firebase se adaugă doar elementul nou
+        cong.people.push(name.trim());
+        await saveCongregations();
         renderCongregationsManager();
         const acc = document.getElementById('acc-' + congId);
         if (acc) acc.classList.add('open');
@@ -2789,8 +2785,8 @@
       if (!cong || !cong.people || !cong.people[index]) return;
       let newName = prompt("Modifică numele:", cong.people[index]);
       if (newName && newName.trim() !== '') {
-        cong.people[index] = newName.trim(); // Se modifică strict poziția respectivă
-        await saveCongregations(); // În Firebase se actualizează doar acea valoare
+        cong.people[index] = newName.trim();
+        await saveCongregations();
         renderCongregationsManager();
         const acc = document.getElementById('acc-' + congId);
         if (acc) acc.classList.add('open');
