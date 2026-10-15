@@ -2787,14 +2787,63 @@
       }
     }
 
-    async function editPerson(congId, index) {
+   async function editPerson(congId, index) {
       let cong = congregations.find(c => c.id === congId);
       if (!cong || !cong.people || !cong.people[index]) return;
-      let newName = prompt("Modifică numele:", cong.people[index]);
+      
+      let oldName = cong.people[index]; // 1. Reținem numele vechi ca să știm ce să căutăm în calendar
+      let newName = prompt("Modifică numele:", oldName);
+      
       if (newName && newName.trim() !== '') {
-        cong.people[index] = newName.trim();
-        cong.people.sort((a, b) => a.localeCompare(b, 'ro')); // <--- Sortează alfabetic după modificare
-        await saveCongregations();
+        newName = newName.trim();
+        cong.people[index] = newName; // Actualizăm numele pe poziție
+        
+        // 2. Sortăm alfabetic array-ul (astfel se va salva ordonat și în baza de date)
+        cong.people.sort((a, b) => a.localeCompare(b, 'ro'));
+        
+        await saveCongregations(); // Salvăm în Firebase
+        
+        // 3. Căutăm și actualizăm automat persoana în toate turele din calendar și Firebase
+        if (calendar) {
+          const allEvents = calendar.getEvents();
+          
+          for (const ev of allEvents) {
+            let volunteers = getVolunteersFromEvent(ev);
+            let hasChanged = false;
+            
+            // Verificăm dacă persoana cu oldName se află în această tură
+            volunteers = volunteers.map(v => {
+              if (v.name.toLowerCase() === oldName.toLowerCase()) {
+                hasChanged = true;
+                return { ...v, name: newName }; // Înlocuim cu noul nume
+              }
+              return v;
+            });
+            
+            // Dacă am găsit persoana în această tură, o actualizăm
+            if (hasChanged) {
+              const formattedTitle = volunteers.map((v, i) => `${i + 1}. ${v.name}`).join('\n');
+              const eventData = {
+                id: ev.id,
+                title: formattedTitle,
+                start: ev.start ? ev.start.toISOString() : '',
+                end: ev.end ? ev.end.toISOString() : (ev.start ? ev.start.toISOString() : ''),
+                backgroundColor: ev.backgroundColor || '#2563eb',
+                borderColor: ev.borderColor || ev.backgroundColor || '#2563eb',
+                volunteers: volunteers,
+                extendedProps: {
+                  volunteers: volunteers,
+                  congregationId: ev.extendedProps?.congregationId || ''
+                }
+              };
+              
+              // Actualizăm instantaneu local și trimitem în Firebase
+              applyEventLocally(eventData);
+              saveEventToFirebase(eventData);
+            }
+          }
+        }
+        
         renderCongregationsManager();
         const acc = document.getElementById('acc-' + congId);
         if (acc) acc.classList.add('open');
