@@ -2674,6 +2674,9 @@
       }
 
       congregations.forEach(c => {
+        // Sortăm alfabetic o copie a listei de persoane pentru afișare corectă
+        const sortedPeople = c.people ? [...c.people].sort((a, b) => a.localeCompare(b, 'ro')) : [];
+        
         let html = `
           <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
             <div class="p-3.5 flex justify-between items-center cursor-pointer hover:bg-slate-100 transition" onclick="window.toggleCongAccordion('${c.id}')">
@@ -2692,15 +2695,18 @@
             </div>
             <div id="acc-${c.id}" class="cong-accordion-content border-t border-slate-200 bg-white p-3">
               <div class="space-y-1.5 mb-3">
-                ${(c.people || []).map((p, idx) => `
+                ${sortedPeople.map((p) => {
+                  const realIdx = c.people.indexOf(p); // Găsim indexul real în array-ul original
+                  return `
                   <div class="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-lg border border-slate-100 text-sm">
                     <span class="font-medium">${p}</span>
                     <div class="flex gap-2">
-                      <button onclick="window.editPerson('${c.id}', ${idx})" class="text-slate-400 hover:text-blue-500" title="Modifică nume"><i class="fa-solid fa-pen"></i></button>
-                      <button onclick="window.deletePerson('${c.id}', ${idx})" class="text-slate-400 hover:text-rose-500" title="Șterge persoană"><i class="fa-solid fa-trash"></i></button>
+                      <button onclick="window.editPerson('${c.id}',${realIdx})" class="text-slate-400 hover:text-blue-500" title="Modifică nume"><i class="fa-solid fa-pen"></i></button>
+                      <button onclick="window.deletePerson('${c.id}',${realIdx})" class="text-slate-400 hover:text-rose-500" title="Șterge persoană"><i class="fa-solid fa-trash"></i></button>
                     </div>
                   </div>
-                `).join('')}
+                `;
+                }).join('')}
                 ${(!c.people || c.people.length === 0) ? `<p class="text-xs text-slate-400 italic py-1">Nicio persoană adăugată.</p>` : ''}
               </div>
               <button onclick="window.addPerson('${c.id}')" class="text-xs font-semibold text-amber-600 hover:text-amber-700 flex items-center gap-1">
@@ -2773,6 +2779,7 @@
         let cong = congregations.find(c => c.id === congId);
         if (!cong.people) cong.people = [];
         cong.people.push(name.trim());
+        cong.people.sort((a, b) => a.localeCompare(b, 'ro')); // <--- Sortează alfabetic
         await saveCongregations();
         renderCongregationsManager();
         const acc = document.getElementById('acc-' + congId);
@@ -2786,6 +2793,7 @@
       let newName = prompt("Modifică numele:", cong.people[index]);
       if (newName && newName.trim() !== '') {
         cong.people[index] = newName.trim();
+        cong.people.sort((a, b) => a.localeCompare(b, 'ro')); // <--- Sortează alfabetic după modificare
         await saveCongregations();
         renderCongregationsManager();
         const acc = document.getElementById('acc-' + congId);
