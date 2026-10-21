@@ -56,7 +56,7 @@ async function proceseazaTurePentruUtilizator(userTelegramId, token) {
   "Vîhodeț Natalia": { chatId: "-1004441991904", lang: "ro" },
   "Carp Felicia": { chatId: "-1004441991904", lang: "ro" },
   "Puls Marina": { chatId: "-1004441991904", lang: "ro" },
-  "Apostol Mariana": { chatId: "-1004441991904", lang: "ro" },
+  "Apostol Mariana": { chatId: "450542519", lang: "ro" },
   "Pleșca Erica": { chatId: "-1004441991904", lang: "ro" },
   "Gorbuleac Veaceslav": { chatId: "-1004441991904", lang: "ro" },
   "Chirtoacă Nelea": { chatId: "-1004441991904", lang: "ro" },
