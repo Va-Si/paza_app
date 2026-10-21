@@ -811,6 +811,40 @@
       </div>
     </div>
   </div>
+  
+  <!-- Modal personalizat pentru Adăugare / Editare Persoană (Telegram & Limbă) -->
+  <div id="personModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      <h3 id="personModalTitle" class="text-base font-bold text-slate-800 mb-4">Adaugă Persoană Nouă</h3>
+      <input type="hidden" id="modalCongId">
+      <input type="hidden" id="modalPersonIndex" value="-1">
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Nume și Prenume:</label>
+          <input type="text" id="modalPersonName" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white" placeholder="ex: Siminițchi Valeriu">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">ID Telegram (numeric):</label>
+          <input type="text" id="modalPersonChatId" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white" placeholder="ex: 632767613">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Limba preferată:</label>
+          <select id="modalPersonLang" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white">
+            <option value="ro">Română (ro)</option>
+            <option value="ru">Русский (ru)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 mt-6 pt-3 border-t border-slate-100">
+        <button type="button" onclick="closePersonModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition">Anulează</button>
+        <button type="button" onclick="savePersonModalData()" class="px-4 py-2 rounded-xl bg-amber-600 text-white text-xs font-bold hover:bg-amber-700 transition">Salvează</button>
+      </div>
+    </div>
+  </div>
+
+  
 
   <!-- SCRIPT LOGICĂ CU INTEGRARE FIREBASE FIRESTORE -->
   <script type="module">
@@ -2658,7 +2692,7 @@
       return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
     }
 
-    /* ==== MODAL CONGREGAȚII & PERSOANE ==== */
+   /* ==== MODAL CONGREGAȚII & PERSOANE ==== */
 
     function renderCongregationsManager() {
       const container = document.getElementById('congregationListContainer');
@@ -2674,8 +2708,12 @@
       }
 
       congregations.forEach(c => {
-        // Sortăm alfabetic o copie a listei de persoane pentru afișare corectă
-        const sortedPeople = c.people ? [...c.people].sort((a, b) => a.localeCompare(b, 'ro')) : [];
+        // Sortăm alfabetic o copie a listei de persoane pentru afișare corectă (suportă și formatul vechi, și obiectele noi)
+        const sortedPeople = c.people ? [...c.people].sort((a, b) => {
+          const nameA = typeof a === 'object' ? a.name : a;
+          const nameB = typeof b === 'object' ? b.name : b;
+          return nameA.localeCompare(nameB, 'ro');
+        }) : [];
         
         let html = `
           <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
@@ -2695,21 +2733,42 @@
             </div>
             <div id="acc-${c.id}" class="cong-accordion-content border-t border-slate-200 bg-white p-3">
               <div class="space-y-1.5 mb-3">
-                ${sortedPeople.map((p) => {
-                  const realIdx = c.people.indexOf(p); // Găsim indexul real în array-ul original
+                ${sortedPeople.map((person) => {
+                  const realIdx = c.people.indexOf(person); // Găsim indexul real în array-ul original
+                  
+                  // Extragem datele fie în format obiect, fie text simplu (retrocompatibilitate)
+                  const pName = typeof person === 'object' ? person.name : person;
+                  const pChatId = typeof person === 'object' ? person.chatId : '';
+                  const pLang = typeof person === 'object' ? (person.lang || 'ro') : 'ro';
+
+                  // Construim eticheta vizuală pentru Telegram
+                  let telegramBadge = '';
+                  if (pChatId && pChatId.trim() !== '') {
+                    telegramBadge = `<span class="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-md font-mono font-semibold flex items-center gap-1">
+                      <i class="fa-brands fa-telegram"></i> ${pChatId} (${pLang.toUpperCase()})
+                    </span>`;
+                  } else {
+                    telegramBadge = `<span class="text-[10px] bg-amber-50 text-amber-600 border border-amber-200 px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
+                      <i class="fa-solid fa-triangle-exclamation"></i> Fără ID Telegram
+                    </span>`;
+                  }
+
                   return `
-                  <div class="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-lg border border-slate-100 text-sm">
-                    <span class="font-medium">${p}</span>
-                    <div class="flex gap-2">
-                      <button onclick="window.editPerson('${c.id}',${realIdx})" class="text-slate-400 hover:text-blue-500" title="Modifică nume"><i class="fa-solid fa-pen"></i></button>
-                      <button onclick="window.deletePerson('${c.id}',${realIdx})" class="text-slate-400 hover:text-rose-500" title="Șterge persoană"><i class="fa-solid fa-trash"></i></button>
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-50 px-3 py-2 rounded-xl border border-slate-100 text-sm gap-2">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                      <span class="font-bold text-slate-800">${pName}</span>
+                      <div>${telegramBadge}</div>
+                    </div>
+                    <div class="flex items-center gap-1 self-end sm:self-auto">
+                      <button onclick="window.openEditPersonModal('${c.id}',${realIdx})" class="p-1.5 text-slate-400 hover:text-amber-600 transition text-xs" title="Modifică persoana"><i class="fa-solid fa-pen"></i></button>
+                      <button onclick="window.deletePerson('${c.id}',${realIdx})" class="p-1.5 text-slate-400 hover:text-rose-500 transition text-xs" title="Șterge persoana"><i class="fa-solid fa-trash"></i></button>
                     </div>
                   </div>
                 `;
                 }).join('')}
                 ${(!c.people || c.people.length === 0) ? `<p class="text-xs text-slate-400 italic py-1">Nicio persoană adăugată.</p>` : ''}
               </div>
-              <button onclick="window.addPerson('${c.id}')" class="text-xs font-semibold text-amber-600 hover:text-amber-700 flex items-center gap-1">
+              <button onclick="window.openAddPersonModal('${c.id}')" class="text-xs font-semibold text-amber-600 hover:text-amber-700 flex items-center gap-1">
                 <i class="fa-solid fa-plus"></i> Adaugă Persoană
               </button>
             </div>
@@ -2717,6 +2776,7 @@
         `;
         container.insertAdjacentHTML('beforeend', html);
       });
+    }
 
       // Buton la finalul listei pentru adăugarea unei noi congregații
       const addCongBtnHtml = `
@@ -2773,81 +2833,108 @@
       }
     }
 
-    async function addPerson(congId) {
-      let name = prompt("Introdu numele persoanei:");
-      if (name && name.trim() !== '') {
-        let cong = congregations.find(c => c.id === congId);
-        if (!cong.people) cong.people = [];
-        cong.people.push(name.trim());
-        cong.people.sort((a, b) => a.localeCompare(b, 'ro')); // <--- Sortează alfabetic
-        await saveCongregations();
-        renderCongregationsManager();
-        const acc = document.getElementById('acc-' + congId);
-        if (acc) acc.classList.add('open');
-      }
+    // --- FUNCȚII PENTRU MODALUL NOU DE PERSOANE ---
+    function openAddPersonModal(congId) {
+      document.getElementById('modalCongId').value = congId;
+      document.getElementById('modalPersonIndex').value = "-1";
+      document.getElementById('personModalTitle').innerText = "Adaugă Persoană Nouă";
+      document.getElementById('modalPersonName').value = "";
+      document.getElementById('modalPersonChatId').value = "";
+      document.getElementById('modalPersonLang').value = "ro";
+      document.getElementById('personModal').classList.remove('hidden');
     }
 
-   async function editPerson(congId, index) {
-      let cong = congregations.find(c => c.id === congId);
+    function openEditPersonModal(congId, index) {
+      const cong = congregations.find(c => c.id === congId);
       if (!cong || !cong.people || !cong.people[index]) return;
       
-      let oldName = cong.people[index]; // 1. Reținem numele vechi ca să știm ce să căutăm în calendar
-      let newName = prompt("Modifică numele:", oldName);
-      
-      if (newName && newName.trim() !== '') {
-        newName = newName.trim();
-        cong.people[index] = newName; // Actualizăm numele pe poziție
-        
-        // 2. Sortăm alfabetic array-ul (astfel se va salva ordonat și în baza de date)
-        cong.people.sort((a, b) => a.localeCompare(b, 'ro'));
-        
-        await saveCongregations(); // Salvăm în Firebase
-        
-        // 3. Căutăm și actualizăm automat persoana în toate turele din calendar și Firebase
-        if (calendar) {
-          const allEvents = calendar.getEvents();
-          
-          for (const ev of allEvents) {
-            let volunteers = getVolunteersFromEvent(ev);
-            let hasChanged = false;
-            
-            // Verificăm dacă persoana cu oldName se află în această tură
-            volunteers = volunteers.map(v => {
-              if (v.name.toLowerCase() === oldName.toLowerCase()) {
-                hasChanged = true;
-                return { ...v, name: newName }; // Înlocuim cu noul nume
-              }
-              return v;
-            });
-            
-            // Dacă am găsit persoana în această tură, o actualizăm
-            if (hasChanged) {
-              const formattedTitle = volunteers.map((v, i) => `${i + 1}. ${v.name}`).join('\n');
-              const eventData = {
-                id: ev.id,
-                title: formattedTitle,
-                start: ev.start ? ev.start.toISOString() : '',
-                end: ev.end ? ev.end.toISOString() : (ev.start ? ev.start.toISOString() : ''),
-                backgroundColor: ev.backgroundColor || '#2563eb',
-                borderColor: ev.borderColor || ev.backgroundColor || '#2563eb',
-                volunteers: volunteers,
-                extendedProps: {
-                  volunteers: volunteers,
-                  congregationId: ev.extendedProps?.congregationId || ''
-                }
-              };
-              
-              // Actualizăm instantaneu local și trimitem în Firebase
-              applyEventLocally(eventData);
-              saveEventToFirebase(eventData);
+      const person = cong.people[index];
+      const pName = typeof person === 'object' ? person.name : person;
+      const pChatId = typeof person === 'object' ? (person.chatId || '') : '';
+      const pLang = typeof person === 'object' ? (person.lang || 'ro') : 'ro';
+
+      document.getElementById('modalCongId').value = congId;
+      document.getElementById('modalPersonIndex').value = index;
+      document.getElementById('personModalTitle').innerText = "Modifică Persoana";
+      document.getElementById('modalPersonName').value = pName;
+      document.getElementById('modalPersonChatId').value = pChatId;
+      document.getElementById('modalPersonLang').value = pLang;
+      document.getElementById('personModal').classList.remove('hidden');
+    }
+
+    function closePersonModal() {
+      document.getElementById('personModal').classList.add('hidden');
+    }
+
+    async function savePersonModalData() {
+      const congId = document.getElementById('modalCongId').value;
+      const index = parseInt(document.getElementById('modalPersonIndex').value, 10);
+      const name = document.getElementById('modalPersonName').value.trim();
+      const chatId = document.getElementById('modalPersonChatId').value.trim();
+      const lang = document.getElementById('modalPersonLang').value;
+
+      if (!name) {
+        alert("Te rog să introduci numele persoanei.");
+        return;
+      }
+
+      const cong = congregations.find(c => c.id === congId);
+      if (!cong) return;
+      if (!cong.people) cong.people = [];
+
+      let oldName = null;
+      if (index >= 0) {
+        const existingP = cong.people[index];
+        oldName = typeof existingP === 'object' ? existingP.name : existingP;
+        cong.people[index] = { name, chatId, lang };
+      } else {
+        cong.people.push({ name, chatId, lang });
+      }
+
+      // Sortare alfabetică după nume
+      cong.people.sort((a, b) => {
+        const nameA = typeof a === 'object' ? a.name : a;
+        const nameB = typeof b === 'object' ? b.name : b;
+        return nameA.localeCompare(nameB, 'ro');
+      });
+
+      await saveCongregations();
+
+      // Actualizare automată în calendar dacă s-a schimbat numele
+      if (index >= 0 && oldName && oldName !== name && calendar) {
+        const allEvents = calendar.getEvents();
+        for (const ev of allEvents) {
+          let volunteers = getVolunteersFromEvent(ev);
+          let hasChanged = false;
+          volunteers = volunteers.map(v => {
+            if (v.name.toLowerCase() === oldName.toLowerCase()) {
+              hasChanged = true;
+              return { ...v, name: name };
             }
+            return v;
+          });
+          if (hasChanged) {
+            const formattedTitle = volunteers.map((v, i) => `${i + 1}. ${v.name}`).join('\n');
+            const eventData = {
+              id: ev.id,
+              title: formattedTitle,
+              start: ev.start ? ev.start.toISOString() : '',
+              end: ev.end ? ev.end.toISOString() : (ev.start ? ev.start.toISOString() : ''),
+              backgroundColor: ev.backgroundColor || '#2563eb',
+              borderColor: ev.borderColor || ev.backgroundColor || '#2563eb',
+              volunteers: volunteers,
+              extendedProps: { volunteers, congregationId: ev.extendedProps?.congregationId || '' }
+            };
+            applyEventLocally(eventData);
+            saveEventToFirebase(eventData);
           }
         }
-        
-        renderCongregationsManager();
-        const acc = document.getElementById('acc-' + congId);
-        if (acc) acc.classList.add('open');
       }
+
+      closePersonModal();
+      renderCongregationsManager();
+      const acc = document.getElementById('acc-' + congId);
+      if (acc) acc.classList.add('open');
     }
 
     async function deletePerson(congId, index) {
@@ -3197,7 +3284,13 @@
 
         if (isSingle) {
           const mode = document.querySelector('input[name="importSingleMode"]:checked')?.value || 'update';
-          const cleanPeople = Array.isArray(singleCong.people) ? singleCong.people.filter(p => typeof p === 'string' && p.trim()) : [];
+          // Păstrăm obiectele care conțin nume, chatId și lang
+          const cleanPeople = Array.isArray(singleCong.people) ? singleCong.people.map(p => {
+            if (typeof p === 'string' && p.trim()) return { name: p.trim(), chatId: '', lang: 'ro' };
+            if (p && p.name) return { name: p.name.trim(), chatId: p.chatId || '', lang: p.lang || 'ro' };
+            return null;
+          }).filter(Boolean) : [];
+          // ... restul codului de import rămâne compatibil
 
           if (mode === 'update') {
             const existingIdx = congregations.findIndex(c => (c.id && c.id === singleCong.id) || (c.name && singleCong.name && c.name.toLowerCase().trim() === singleCong.name.toLowerCase().trim()));
@@ -3332,6 +3425,10 @@
     window.deletePerson = deletePerson;
     window.addVolunteerSlot = addVolunteerSlot;
     window.removeVolunteerSlot = removeVolunteerSlot;
+    window.openAddPersonModal = openAddPersonModal;
+    window.openEditPersonModal = openEditPersonModal;
+    window.closePersonModal = closePersonModal;
+    window.savePersonModalData = savePersonModalData;
     /* ==== EXPORTARE / TIPĂRIRE GRAFIC SĂPTĂMÂNAL IDENTIC CU TABELUL CALENDAR (AZI + 6 ZILE) ==== */
     async function exportCurrentWeekA4() {
       if (!calendar) return;
