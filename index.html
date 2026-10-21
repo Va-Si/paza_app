@@ -379,46 +379,46 @@
         <div><h1 id="headerAppTitle" class="text-base sm:text-xl font-bold leading-tight truncate">Grafic Pază</h1></div>
       </div>
 
-      <!-- Bara superioară cu butoane DOAR pictograme (cu flex-wrap pentru ca pe telefon butoanele care nu încap să treacă la rândul de jos) -->
+      <!-- Bara superioară cu butoane DOAR pictograme -->
       <div id="headerButtonsBar" class="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
         
-        <!-- 1. Buton Limbă: RO / RU (comutare instantă română - rusă) -->
+        <!-- 1. Buton Limbă: RO / RU -->
         <button id="btnLangToggle" onclick="window.toggleLanguage()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-lg text-xs font-black transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0 select-none" title="Limbă: Română (click pentru Русский)">
           RO
         </button>
 
-        <!-- 2. Buton Schimbare Temă: Albă (Soare) -> Neagră (Lună) -> Sistem (Ecran) -->
+        <!-- 2. Buton Schimbare Temă -->
         <button id="btnThemeToggle" onclick="window.cycleTheme()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Schimbă tema: Albă / Neagră / Sistem">
           <i id="themeToggleIcon" class="fa-solid fa-sun"></i>
         </button>
 
-        <!-- 3. Buton Instalare PWA (aplicație pe telefon cu scut oranj) -->
+        <!-- 3. Buton Instalare PWA -->
         <button id="btnInstallPwa" onclick="window.promptPwaInstall()" class="hidden bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Instalează aplicația (PWA pe telefon / PC)">
           <i class="fa-solid fa-download"></i>
         </button>
 
-        <!-- 4. Buton Lacăt: comutare Regim Vizualizare (lacăt închis) vs Mod Editare (lacăt deschis) -->
+        <!-- 4. Buton Lacăt -->
         <button id="btnLockToggle" onclick="window.toggleEditLock()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Regim Vizualizare (click pentru Mod Editare)">
           <i id="lockToggleIcon" class="fa-solid fa-lock text-slate-300"></i>
         </button>
 
-        <!-- 5. Buton Export A4 (doar în mod editare) - doar pictogramă fără text -->
+        <!-- 5. Buton Export A4 -->
         <button id="btnExportWeek" onclick="window.exportCurrentWeekA4()" class="hidden bg-emerald-700 hover:bg-emerald-600 text-white border border-emerald-600 rounded-lg text-sm font-semibold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Tipărește / Exportă Graficul A4">
           <i class="fa-solid fa-print text-emerald-200"></i>
         </button>
 
-        <!-- 6. Buton Congregații (doar în mod editare) - doar pictogramă fără text -->
+        <!-- 6. Buton Congregații -->
         <button id="btnCongregations" onclick="window.openCongregationModal()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-sm font-medium transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Congregații și Persoane">
           <i class="fa-solid fa-users text-amber-400"></i>
         </button>
 
-        <!-- 7. Buton Copie Rezervă (doar în mod editare) - doar pictogramă fără text -->
+        <!-- 7. Buton Copie Rezervă -->
         <button id="btnBackupRestore" onclick="window.openBackupModal()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-sm font-medium transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Copie de Rezervă: Import & Export">
           <i class="fa-solid fa-file-arrow-up text-sky-400"></i>
         </button>
 
-        <!-- 8. Buton Conectare Google / Deconectare - doar pictogramă fără text -->
-        <button id="btnAdminAccess" onclick="window.handleAdminButtonClick()" class="bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Autentificare Google (Admin: valeriu.siminitchi@gmail.com)">
+        <!-- 8. Buton Conectare Google -->
+        <button id="btnAdminAccess" onclick="window.handleAdminButtonClick()" class="bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0" title="Autentificare Google">
           <i class="fa-brands fa-google text-white text-base"></i>
         </button>
       </div>
@@ -428,7 +428,7 @@
   <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 md:p-6">
       
-      <!-- BARA DE CONTROL FIXATĂ PE TOATĂ LĂȚIMEA ECRANULUI (NU GLISEAZĂ ORIZONTAL) -->
+      <!-- BARA DE CONTROL FIXATĂ -->
       <div class="calendar-fixed-controls flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2">
           <button type="button" onclick="window.customCalPrev()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 px-3 py-1.5 rounded-lg text-sm font-bold transition flex items-center justify-center shadow-sm">
@@ -443,7 +443,6 @@
         </div>
 
         <div id="customCalTitle" class="text-sm md:text-base font-extrabold text-slate-800 tracking-tight text-center flex-grow md:flex-grow-0">
-          <!-- Populat dinamic în JS cu intervalul săptămânii -->
         </div>
 
         <div class="text-xs font-semibold text-slate-500 hidden sm:flex items-center gap-1.5">
@@ -452,24 +451,18 @@
         </div>
       </div>
 
-      <!-- Container exterior cu suport pentru coloana înghețată la glisare orizontală -->
+      <!-- Container exterior -->
       <div class="calendar-outer-container relative overflow-hidden rounded-xl">
-        
-        <!-- Coloana Înghețată: apare doar când utilizatorul glisează orizontal spre alte zile și dispare când revine la stânga -->
-        <div id="frozenAxisOverlay" class="hidden absolute left-0 top-0 bottom-0 w-[95px] z-30 pointer-events-none shadow-2xl border-r-2 border-slate-300 overflow-hidden bg-white">
-          <!-- Populat dinamic în JS cu antetul, sidebarul colorat și orele corespunzătoare -->
-        </div>
-
+        <div id="frozenAxisOverlay" class="hidden absolute left-0 top-0 bottom-0 w-[95px] z-30 pointer-events-none shadow-2xl border-r-2 border-slate-300 overflow-hidden bg-white"></div>
         <div class="calendar-wrapper">
           <div id="calendar"></div>
         </div>
-
       </div>
 
     </div>
   </main>
 
-  <!-- Modal Copie de Rezervă: Import & Export Congregații și Persoane -->
+  <!-- Modal Copie de Rezervă -->
   <div id="backupModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
@@ -482,7 +475,6 @@
         <button onclick="window.closeBackupModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
 
-      <!-- Taburi: Exportă vs Importă -->
       <div class="flex border-b border-slate-200 mb-4">
         <button type="button" id="tabBtnExport" onclick="window.switchBackupTab('export')" class="flex-1 py-2 text-center text-sm font-bold border-b-2 border-amber-600 text-amber-600 transition flex items-center justify-center gap-1.5">
           <i class="fa-solid fa-file-export"></i> Exportă (Salvare)
@@ -492,9 +484,7 @@
         </button>
       </div>
 
-      <!-- Conținut Tab EXPORT -->
       <div id="tabContentExport" class="space-y-4">
-        <!-- Opțiunea 1: Toate Congregațiile -->
         <div class="bg-slate-50 border border-slate-200/90 rounded-xl p-4 transition hover:border-amber-300">
           <div class="flex items-start gap-3">
             <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
@@ -504,7 +494,6 @@
               <h4 id="exportAllTitle" class="text-sm font-bold text-slate-800">Toate Congregațiile</h4>
               <p id="exportAllDesc" class="text-xs text-slate-500 mt-0.5">Descarcă o copie completă cu toate congregațiile și toți voluntarii aferenți.</p>
               
-              <!-- Bifă pentru exportul turelor tuturor vestitorilor -->
               <div class="mt-2.5 pt-2 border-t border-slate-200/80">
                 <label class="flex items-center gap-2 cursor-pointer select-none text-xs font-semibold text-slate-700 hover:text-amber-800 transition">
                   <input type="checkbox" id="chkExportAllShifts" class="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-slate-300">
@@ -513,9 +502,7 @@
               </div>
 
               <div class="mt-3 flex items-center justify-between flex-wrap gap-2">
-                <span id="exportAllStats" class="text-xs font-semibold text-slate-600 bg-white px-2.5 py-1 rounded-lg border border-slate-200">
-                  <!-- Populat din JS -->
-                </span>
+                <span id="exportAllStats" class="text-xs font-semibold text-slate-600 bg-white px-2.5 py-1 rounded-lg border border-slate-200"></span>
                 <button type="button" id="btnExportAllAction" onclick="window.exportAllCongregations()" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                   <i class="fa-solid fa-download"></i> Descarcă Toate (.json)
                 </button>
@@ -524,7 +511,6 @@
           </div>
         </div>
 
-        <!-- Opțiunea 2: O singură Congregație anume -->
         <div class="bg-slate-50 border border-slate-200/90 rounded-xl p-4 transition hover:border-sky-300">
           <div class="flex items-start gap-3">
             <div class="w-9 h-9 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center shrink-0 mt-0.5">
@@ -537,12 +523,9 @@
               <div class="mt-3 space-y-2.5">
                 <div>
                   <label id="exportSingleSelectLabel" class="block text-[11px] font-bold text-slate-600 mb-1">Alege congregația:</label>
-                  <select id="exportSingleCongSelect" class="w-full border border-slate-300 rounded-lg p-2 text-xs focus:ring-2 focus:ring-sky-500 bg-white">
-                    <!-- Populat din JS -->
-                  </select>
+                  <select id="exportSingleCongSelect" class="w-full border border-slate-300 rounded-lg p-2 text-xs focus:ring-2 focus:ring-sky-500 bg-white"></select>
                 </div>
 
-                <!-- Bifă pentru exportul turelor vestitorilor din congregația selectată -->
                 <div class="pt-1">
                   <label class="flex items-center gap-2 cursor-pointer select-none text-xs font-semibold text-slate-700 hover:text-sky-800 transition">
                     <input type="checkbox" id="chkExportSingleShifts" class="w-4 h-4 rounded text-sky-600 focus:ring-sky-500 border-slate-300">
@@ -561,7 +544,6 @@
         </div>
       </div>
 
-      <!-- Conținut Tab IMPORT -->
       <div id="tabContentImport" class="hidden space-y-4">
         <div class="bg-slate-50 border border-slate-200/90 rounded-xl p-4">
           <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">1. Selectează fișierul copie de rezervă (.json)</label>
@@ -569,17 +551,13 @@
           <p class="text-[11px] text-slate-400 mt-1">Poți încărca atât un fișier cu toate congregațiile, cât și un fișier al unei singure congregații.</p>
         </div>
 
-        <!-- Zona de previzualizare și mod de import -->
         <div id="importFilePreviewBox" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-3">
           <div class="flex items-center gap-2 text-emerald-800 text-xs font-bold">
             <i class="fa-solid fa-circle-check text-emerald-600 text-sm"></i>
             <span id="importFileSummaryText">Fișier detectat cu succes</span>
           </div>
 
-          <!-- Opțiuni mod de import -->
-          <div id="importModeOptionsContainer" class="space-y-2 pt-2 border-t border-emerald-200/60">
-            <!-- Renderizat din JS -->
-          </div>
+          <div id="importModeOptionsContainer" class="space-y-2 pt-2 border-t border-emerald-200/60"></div>
 
           <div class="pt-2 flex justify-end">
             <button type="button" id="btnExecuteImport" onclick="window.executeBackupImport()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
@@ -626,27 +604,23 @@
       <form onsubmit="saveEvent(event)" class="space-y-4">
         <input type="hidden" id="eventId">
 
-        <!-- Secțiune dinamică voluntari: 1. Nume, 2. Nume, 3. Nume -->
         <div>
           <div class="flex justify-between items-center mb-2">
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Voluntari în Tură</label>
             <span class="text-[11px] text-slate-400">Scrie litere sau apasă + pt. alegere manuală</span>
           </div>
           
-          <div id="volunteerSlotsContainer" class="space-y-3">
-            <!-- Renderizat dinamic: slot 1, 2, opțional 3 -->
-          </div>
+          <div id="volunteerSlotsContainer" class="space-y-3"></div>
 
           <button type="button" id="btnAddVolunteerSlot" onclick="window.addVolunteerSlot()" class="mt-3 text-xs font-semibold text-amber-600 hover:text-amber-700 flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-amber-50 border border-dashed border-amber-300 w-full justify-center transition">
             <i class="fa-solid fa-user-plus"></i> <span id="btnAddSlotText">Adaugă persoana a 3-a</span>
           </button>
         </div>
 
-        <!-- Interval Orar cu buton vizual de alegere din calendar -->
         <div class="pt-2">
           <div class="flex justify-between items-center mb-1.5">
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Interval Orar</label>
-            <button type="button" onclick="window.openVisualCalendarPicker()" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition shadow-xs" title="Alege data vizual dintr-un calendar lunar complet">
+            <button type="button" onclick="window.openVisualCalendarPicker()" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition shadow-xs">
               <i class="fa-regular fa-calendar-days text-amber-600"></i> Alege din Calendar
             </button>
           </div>
@@ -662,7 +636,6 @@
           </div>
         </div>
 
-        <!-- Culoare Tură (Acces = Albastru, Seară = Verde, Noapte = Roșu) -->
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">Culoare Tură</label>
           <div class="flex gap-4 pt-1">
@@ -672,7 +645,6 @@
           </div>
         </div>
 
-        <!-- Butoane Acțiuni Modal Editare (cu flex-wrap pentru a nu ieși din lățimea paginii pe telefon) -->
         <div class="flex flex-wrap gap-2 pt-4 border-t border-slate-100 items-center justify-between">
           <button type="button" id="btnDeleteEvent" onclick="deleteEvent()" class="hidden bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-2 rounded-lg text-sm font-medium transition">Șterge</button>
           <div class="flex gap-2 ml-auto">
@@ -684,7 +656,7 @@
     </div>
   </div>
 
-  <!-- Modal Detalii Tură (cu butoanele Dublează și Editează) -->
+  <!-- Modal Detalii Tură -->
   <div id="viewDetailsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
       <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
@@ -694,37 +666,26 @@
         <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
 
-      <!-- Ore și Interval -->
       <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 mb-4">
         <div id="viewModalHoursLabel" class="text-xs font-semibold text-slate-500 mb-1 flex items-center gap-1.5">
           <i class="fa-regular fa-clock text-amber-600"></i> <span id="viewModalHoursLabelText">Interval de ore</span>
         </div>
-        <div id="viewModalTimeRange" class="text-base font-bold text-slate-800">
-          <!-- Populat din JS -->
-        </div>
-        <div id="viewModalDate" class="text-xs text-slate-500 mt-0.5">
-          <!-- Populat din JS -->
-        </div>
+        <div id="viewModalTimeRange" class="text-base font-bold text-slate-800"></div>
+        <div id="viewModalDate" class="text-xs text-slate-500 mt-0.5"></div>
       </div>
 
-      <!-- Lista Voluntarilor și Congregațiile lor -->
       <div class="mb-5">
         <div id="viewModalVolunteersLabel" class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
           <i class="fa-solid fa-users-viewfinder text-slate-500"></i> <span id="viewModalVolunteersLabelText">Voluntari înscriși</span>
         </div>
-        <div id="viewModalVolunteersList" class="space-y-2.5">
-          <!-- Renderizat din JS -->
-        </div>
+        <div id="viewModalVolunteersList" class="space-y-2.5"></div>
       </div>
 
-      <!-- Butoane Acțiuni: Dublează, Editează, Închide -->
       <div class="flex gap-2 pt-3 border-t border-slate-100 justify-end items-center flex-wrap">
-        <!-- Buton Dublează (albastru cu iconiță) -->
         <button type="button" id="btnDuplicateFromDetails" onclick="duplicateFromDetails()" class="hidden bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-lg text-sm font-medium transition flex items-center gap-1.5 shadow-sm">
           <i class="fa-solid fa-copy"></i> Dublează
         </button>
 
-        <!-- Buton Editează (cu aceeași iconiță și textul Editează) -->
         <button type="button" id="btnEditFromDetails" onclick="editFromDetails()" class="hidden bg-amber-600 hover:bg-amber-500 text-white px-3.5 py-2 rounded-lg text-sm font-medium transition flex items-center gap-1.5 shadow-sm">
           <i class="fa-solid fa-pen-to-square"></i> Editează
         </button>
@@ -734,7 +695,7 @@
     </div>
   </div>
 
-  <!-- Modal Selector Calendar Vizual (cu zilele săptămânii Luni - Duminică clar vizibile și opțiuni rapide de tură) -->
+  <!-- Modal Selector Calendar Vizual -->
   <div id="visualCalendarModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-100">
       <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
@@ -744,7 +705,6 @@
         <button onclick="closeVisualCalendarPicker()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
 
-      <!-- Navigare Lună / An -->
       <div class="flex justify-between items-center mb-3 px-1">
         <button type="button" onclick="window.prevVisualMonth()" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-600 transition">
           <i class="fa-solid fa-chevron-left"></i>
@@ -755,7 +715,6 @@
         </button>
       </div>
 
-      <!-- Zilele săptămânii: Lun, Mar, Mie, Joi, Vin, Sâm, Dum -->
       <div class="grid grid-cols-7 gap-1 text-center font-bold text-[11px] mb-1.5">
         <div class="text-slate-600">Lun</div>
         <div class="text-slate-600">Mar</div>
@@ -766,12 +725,8 @@
         <div class="text-rose-500">Dum</div>
       </div>
 
-      <!-- Grila Zilelor Lunii -->
-      <div id="visualCalDaysGrid" class="grid grid-cols-7 gap-1 text-center mb-4">
-        <!-- Renderizat dinamic din JS -->
-      </div>
+      <div id="visualCalDaysGrid" class="grid grid-cols-7 gap-1 text-center mb-4"></div>
 
-      <!-- Preseturi Rapide de Tură (Acces = Albastru, Seară = Verde, Noapte = Roșu) -->
       <div class="border-t border-slate-100 pt-3 mb-3">
         <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2">Alege Tipul de Tură</label>
         <div class="grid grid-cols-3 gap-1.5 text-xs">
@@ -802,9 +757,7 @@
         <button onclick="closeCongregationModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
       
-      <div id="congregationListContainer" class="space-y-3 overflow-y-auto pr-1 flex-grow">
-        <!-- Renderizat din JS -->
-      </div>
+      <div id="congregationListContainer" class="space-y-3 overflow-y-auto pr-1 flex-grow"></div>
 
       <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end items-center">
         <button onclick="closeCongregationModal()" class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-2 rounded-xl text-sm font-medium transition">Gata</button>
@@ -844,11 +797,8 @@
     </div>
   </div>
 
-  
-
   <!-- SCRIPT LOGICĂ CU INTEGRARE FIREBASE FIRESTORE -->
   <script type="module">
-    // 1. Configurare și inițializare Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
       getFirestore,
@@ -879,7 +829,6 @@
       measurementId: "G-TSGE08LGVF"
     };
 
-    // Inițializare instanță Firebase, Firestore cu Cache Local Persistent (IndexedDB pentru viteză instantă) și Auth
     const app = initializeApp(firebaseConfig);
     let db;
     try {
@@ -893,15 +842,12 @@
     }
     const auth = getAuth(app);
 
-    // Email autorizat exclusiv pentru modul de editare
     const AUTHORIZED_ADMIN_EMAIL = "valeriu.siminitchi@gmail.com";
 
-    // Stare globală
     let calendar = null;
     let isAdmin = false;
-    let currentSelectedEvent = null; // Evenimentul curent pentru modalul de detalii/editare/dublare
+    let currentSelectedEvent = null;
 
-    // Date congregații: încărcăm întâi din cache local pentru a preveni suprascrierea cu date de test
     const loadCachedCongregations = () => {
       try {
         const stored = localStorage.getItem('paza_congregatii_cache');
@@ -916,17 +862,16 @@
     };
 
     const initialCongs = loadCachedCongregations();
-    // Păstrăm congregațiile salvate de utilizator; doar dacă nu există absolut niciun cache pornim cu lista goală
     let congregations = initialCongs !== null ? initialCongs : [];
 
-    // Returnează toate persoanele din toate congregațiile cu detalii congregație
     function getAllRegisteredPeople() {
       const list = [];
       congregations.forEach(c => {
         if (Array.isArray(c.people)) {
           c.people.forEach(p => {
+            const pName = typeof p === 'object' ? p.name : p;
             list.push({
-              name: p,
+              name: pName,
               congId: c.id,
               congName: c.name,
               congShort: c.short
@@ -937,7 +882,6 @@
       return list;
     }
 
-    // Salvare congregații în Firebase Firestore și actualizare cache local
     async function saveCongregations() {
       try {
         localStorage.setItem('paza_congregatii_cache', JSON.stringify(congregations));
@@ -947,23 +891,18 @@
       }
     }
 
-    // Ascultare în timp real a congregațiilor din Firebase
     function listenToCongregations() {
       const congDocRef = doc(db, "setari", "congregatii");
       onSnapshot(congDocRef, async (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
           if (Array.isArray(data.list)) {
-            // Folosim lista reală primită din Firestore și salvăm în cache local
-            // NU o suprascriem niciodată cu date de test!
             congregations = data.list;
             try {
               localStorage.setItem('paza_congregatii_cache', JSON.stringify(congregations));
             } catch(e) {}
           }
         } else {
-          // Documentul nu există încă în Firebase.
-          // Dacă avem date salvate local de utilizator, le sincronizăm în Firebase fără să folosim date de test
           if (congregations.length > 0) {
             await saveCongregations();
           }
@@ -976,13 +915,10 @@
           calendar.render();
         }
       }, (error) => {
-        // Dacă nu se obține răspuns imediat sau rețeaua e lentă,
-        // păstrăm intacte datele existente în memorie/cache și NU suprascriem cu date de test!
-        console.warn("Notificare rețea/Firestore la congregații (se păstrează datele locale):", error);
+        console.warn("Notificare rețea/Firestore la congregații:", error);
       });
     }
 
-    // Ascultare în timp real a turelor (evenimentelor) din colecția 'ture_paza'
     let isInitialEventsLoad = true;
 
     function listenToEvents() {
@@ -1023,7 +959,6 @@
             return;
           }
 
-          // La actualizări, procesăm strict doar documentele modificate (fără rescrierea întregului calendar)
           snapshot.docChanges().forEach((change) => {
             const evtData = change.doc.data();
             if (!evtData || !evtData.id) return;
@@ -1062,7 +997,6 @@
                 const curEndMs = localEvt.end ? localEvt.end.getTime() : 0;
                 const newEndMs = evtData.end ? new Date(evtData.end).getTime() : 0;
 
-                // Nu reseta poziția în calendar dacă este identică (ex: imediat după drag & drop / resize)
                 if (curStartMs !== newStartMs && newStartMs > 0) {
                   localEvt.setStart(evtData.start);
                 }
@@ -1098,7 +1032,6 @@
       });
     }
 
-    // Aplică imediat modificarea local în instanța calendarului pentru viteză instantă (0ms)
     function applyEventLocally(eventData) {
       if (!calendar) return;
       const existing = calendar.getEventById(eventData.id);
@@ -1126,27 +1059,19 @@
       }
     }
 
-    // Salvare tură în Firebase Firestore (asincron în fundal, fără blocare UI)
     async function saveEventToFirebase(eventData) {
       try {
         await setDoc(doc(db, "ture_paza", eventData.id), eventData);
       } catch (err) {
         console.error("Eroare la salvarea turei în Firebase:", err);
-        alert(currentLang === 'RU' 
-          ? "Ошибка синхронизации с базой данных Firebase." 
-          : "Eroare la sincronizarea cu baza de date Firebase.");
       }
     }
 
-    // Ștergere tură din Firebase Firestore (asincron în fundal, fără blocare UI)
     async function deleteEventFromFirebase(id) {
       try {
         await deleteDoc(doc(db, "ture_paza", id));
       } catch (err) {
         console.error("Eroare la ștergerea turei din Firebase:", err);
-        alert(currentLang === 'RU' 
-          ? "Ошибка удаления из базы данных Firebase." 
-          : "Eroare la ștergerea din baza de date Firebase.");
       }
     }
 
@@ -1191,7 +1116,6 @@
       if (color) arg.el.style.backgroundColor = color;
     }
 
-    /* ==== CONSTRUIRE ȘI GESTIONARE COLOANĂ ÎNGHEȚATĂ LA GLISARE ORIZONTALĂ ==== */
     function buildFrozenColumn() {
       const overlay = document.getElementById('frozenAxisOverlay');
       const timegrid = document.querySelector('.fc-timegrid');
@@ -1200,7 +1124,6 @@
       const axisHeaderCell = document.querySelector('.fc-col-header .fc-timegrid-axis');
       if (!overlay || !timegrid) return;
 
-      // Determinăm poziția exactă a grilei calendarului în raport cu containerul exterior
       const containerRect = overlay.parentElement.getBoundingClientRect();
       const timegridRect = timegrid.getBoundingClientRect();
       
@@ -1231,22 +1154,18 @@
           <i class="fa-regular fa-clock text-xs"></i>
         </div>
         <div class="relative overflow-hidden" style="height: ${bodyHeight}px; width: ${axisWidth}px;">
-          <!-- 1. Coloana cu secțiuni pază colorate (30px) -->
           <div class="absolute left-0 top-0 bottom-0 w-[30px] flex flex-col z-10 overflow-hidden select-none border-r border-white/20">
             <div class="shift-section bg-blue-600 border-b border-white/20" style="height: 41.6667%;" title="${tipAccess}"><span>${tAccess}</span></div>
             <div class="shift-section bg-green-600 border-b border-white/20" style="height: 16.6666%;" title="${tipEvening}"><span class="${isRuEvening ? 'multiline-shift' : ''}">${tEvening}</span></div>
             <div class="shift-section bg-red-600" style="height: 41.6667%;" title="${tipNight}"><span>${tNight}</span></div>
           </div>
-          <!-- 2. A 2-a coloană cu celulele orelor fix ca în tabelul calendarului -->
-          <div class="absolute left-[30px] right-0 top-0 bottom-0 flex flex-col overflow-hidden" id="frozenHoursContainer">
-          </div>
+          <div class="absolute left-[30px] right-0 top-0 bottom-0 flex flex-col overflow-hidden" id="frozenHoursContainer"></div>
         </div>
       `;
 
       const hoursContainer = document.getElementById('frozenHoursContainer');
       if (!hoursContainer) return;
 
-      // Căutăm rândurile orelor în ambele tabele FullCalendar (slots sau cols)
       let rows = document.querySelectorAll('.fc-timegrid-slots tr[data-time]');
       if (!rows || rows.length === 0) {
         rows = document.querySelectorAll('.fc-timegrid tr[data-time]');
@@ -1286,7 +1205,6 @@
           hoursContainer.appendChild(rowDiv);
         });
       } else {
-        // Fallback garantat: generăm cele 24 ore de la 07:00 la 30:00 (7:00 până la 06:00 dimineața următoare)
         const totalHoursCount = 24;
         const singleHeight = bodyHeight / totalHoursCount;
         for (let h = 7; h < 31; h++) {
@@ -1326,18 +1244,15 @@
       wrapper.addEventListener('scroll', function() {
         const overlay = document.getElementById('frozenAxisOverlay');
         if (!overlay) return;
-        // Când se glisează spre dreapta (scrollLeft > 15), coloana înghețată devine vizibilă
         if (wrapper.scrollLeft > 15) {
           overlay.classList.remove('hidden');
           buildFrozenColumn();
         } else {
-          // Când se revine la stânga complet, coloana desenată dispare
           overlay.classList.add('hidden');
         }
       });
     }
 
-    // Extrage lista de voluntari dintr-un eveniment
     function getVolunteersFromEvent(event) {
       if (event.extendedProps && Array.isArray(event.extendedProps.volunteers) && event.extendedProps.volunteers.length > 0) {
         return event.extendedProps.volunteers;
@@ -1358,7 +1273,6 @@
       return [];
     }
 
-    // Calculează data de ieri (ziua precedentă) pentru a afișa mereu: Ieri, Azi, și următoarele 5 zile (7 zile în total)
     function getYesterdayDate() {
       const d = new Date();
       d.setDate(d.getDate() - 1);
@@ -1405,14 +1319,6 @@
         slotLabelDidMount: function(arg) { colorizeTimeSlot(arg, true); },
         slotLaneDidMount: function(arg) { colorizeTimeSlot(arg, false); },
 
-        // Randare card pe calendar:
-        // - Aliniere la STÂNGA pentru numere și nume
-        // - Numele cu familia se afișează complet cât permite lățimea celulei, restul prin (...)
-        // - Orele dispar DOAR când:
-        //    1) celula are 1 oră interval și este 1 persoană
-        //    2) celula are 2 ore interval și sunt 2 persoane
-        //    3) celula are 1 oră interval și sunt 2 persoane => dispar orele ȘI textul persoanelor se micșorează ca să încapă ambele
-        // - În toate celelalte cazuri (ex: 2 ore cu 1 persoană, 3+ ore) orele se afișează pe un singur rând cu linie separatoare
         eventContent: function(arg) {
           const start = arg.event.start ? arg.event.start.toLocaleTimeString('ro-RO', {hour: '2-digit', minute:'2-digit'}) : '';
           const end = arg.event.end ? arg.event.end.toLocaleTimeString('ro-RO', {hour: '2-digit', minute:'2-digit'}) : '';
@@ -1429,15 +1335,12 @@
           if (durationHours <= 1) {
             hideHours = true;
             if (numPeople >= 2) {
-              isSuperCompact = true; // font redus ca să încapă ambele nume
+              isSuperCompact = true;
             }
           } else if (durationHours <= 2 && numPeople >= 2) {
-            hideHours = true; // 2 ore cu 2 persoane: dispar orele
+            hideHours = true;
           }
 
-          // Verificăm dacă înălțimea este suficientă pentru ca numele și familia să continue pe al 2-lea rând
-          // Ex: dacă tura are >= 3 ore cu 1 sau 2 persoane, sau 2 ore cu 1 persoană, etc.
-          // Când celula este mică (1 oră sau 2 ore cu 2 persoane), se folosește nowrap-row / compact-row
           let allowWrap = false;
           if (durationHours >= 3) {
             allowWrap = true;
@@ -1463,7 +1366,6 @@
 
           let html = '';
           if (hideHours) {
-            // Fără ore: doar numele aliniate din stânga
             html = `
               <div class="fc-custom-event-card">
                 <div class="fc-event-body-left">
@@ -1472,7 +1374,6 @@
               </div>
             `;
           } else {
-            // Cu ore pe un singur rând (ex: 07:00 - 12:00) și linie dedesubt
             html = `
               <div class="fc-custom-event-card">
                 <div class="fc-event-time-header">
@@ -1508,7 +1409,6 @@
       listenToEvents();
     }
 
-    /* ==== GESTIUNE TEMĂ: ALBĂ (light), NEAGRĂ (dark), SISTEM (system) ==== */
     let currentThemeMode = localStorage.getItem('app_theme_mode') || 'system';
 
     function applyTheme(mode, persist = true) {
@@ -1526,7 +1426,6 @@
       } else if (mode === 'light') {
         effectiveDark = false;
       } else {
-        // system
         effectiveDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       }
 
@@ -1536,10 +1435,6 @@
         document.documentElement.classList.remove('dark');
       }
 
-      // Actualizăm pictograma și stilul butonului în funcție de modul selectat:
-      // 1. Albă -> Soare (fa-sun)
-      // 2. Neagră -> Lună (fa-moon)
-      // 3. Sistem -> Ecran/Desktop (fa-desktop)
       if (iconElem && btnElem) {
         if (mode === 'light') {
           iconElem.className = 'fa-solid fa-sun text-amber-500';
@@ -1548,13 +1443,11 @@
           iconElem.className = 'fa-solid fa-moon text-indigo-400';
           btnElem.title = 'Temă: Neagră (click pentru Sistem)';
         } else {
-          // system
           iconElem.className = 'fa-solid fa-desktop text-emerald-400';
           btnElem.title = 'Temă: Sistem (click pentru Albă)';
         }
       }
 
-      // Re-colorăm sloturile din calendar și re-generăm coloana înghețată pentru noua temă
       if (calendar) {
         calendar.render();
       }
@@ -1562,7 +1455,6 @@
     }
 
     function cycleTheme() {
-      // Secvență ciclică: light -> dark -> system -> light ...
       if (currentThemeMode === 'light') {
         applyTheme('dark');
       } else if (currentThemeMode === 'dark') {
@@ -1572,7 +1464,6 @@
       }
     }
 
-    // Ascultăm modificările din sistemul de operare dacă modul este 'system'
     if (window.matchMedia) {
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
         if (currentThemeMode === 'system') {
@@ -1581,7 +1472,6 @@
       });
     }
 
-    /* ==== GESTIUNE LIMBĂ: RO (Română) / RU (Русский) ==== */
     let currentLang = localStorage.getItem('app_language') || 'RO';
 
     const I18N = {
@@ -1597,25 +1487,11 @@
         shiftEveningFull: "Pază de Seară",
         shiftNightFull: "Pază de Noapte",
         defaultShiftTitle: "Tură Pază",
-        legendTitle: "Indicii intervale ore:",
-        legendAccess: "Pază de Acces (07:00 - 17:00)",
-        legendEvening: "Pază de Seară (17:00 - 21:00)",
-        legendNight: "Pază de Noapte (21:00 - 07:00)",
         kingdomHall: "Sala Regatului",
         exportWeek: "Săptămâna:",
         exportGenerated: "Generat pe:",
         exportAtHour: "la ora",
         exportToday: "AZI",
-        exportBtnGenerating: "Generare imagine...",
-        exportBtnTitle: "Exportă A4",
-        lockViewTip: "Regim Vizualizare (click pentru Mod Editare)",
-        lockEditTip: "Mod Editare Activ (click pentru Regim Vizualizare)",
-        loginTip: "Autentificare Google (Admin: valeriu.siminitchi@gmail.com)",
-        logoutTip: "Deconectare",
-        pwaInstallTip: "Instalează Aplicația (PWA)",
-        themeTipLight: "Temă: Albă (click pentru Neagră)",
-        themeTipDark: "Temă: Neagră (click pentru Sistem)",
-        themeTipSys: "Temă: Sistem (click pentru Albă)",
         detailsTitle: "Detalii Tură Pază",
         detailsHours: "Interval de ore",
         detailsVolunteers: "Voluntari înscriși",
@@ -1624,10 +1500,6 @@
         detailsEdit: "Editează",
         detailsClose: "Închide",
         unspecifiedCong: "Nespecificată",
-        backupTitle: "Copie de Rezervă",
-        backupSubtitle: "Exportă și importă congregațiile și persoanele salvate",
-        backupTabExport: "Exportă (Salvare)",
-        backupTabImport: "Importă (Restaurare)",
         backupAllTitle: "Toate Congregațiile",
         backupAllDesc: "Descarcă o copie completă cu toate congregațiile și toți voluntarii aferenți.",
         backupAllBtn: "Descarcă Toate (.json)",
@@ -1636,8 +1508,7 @@
         backupSingleBtn: "Descarcă Congregația (.json)",
         backupChooseCong: "Alege congregația:",
         chkExportAllShiftsText: "Exportă și turele fiecărui vestitor (toate din calendar)",
-        chkExportSingleShiftsText: "Exportă și turele fiecărui vestitor din această congregație",
-        backupClose: "Închide"
+        chkExportSingleShiftsText: "Exportă și turele fiecărui vestitor din această congregație"
       },
       RU: {
         appTitle: "График Охраны",
@@ -1651,25 +1522,11 @@
         shiftEveningFull: "Вечерняя Охрана",
         shiftNightFull: "Ночная Охрана",
         defaultShiftTitle: "Смена Охраны",
-        legendTitle: "Обозначение интервалов смен:",
-        legendAccess: "Охрана Доступа (07:00 - 17:00)",
-        legendEvening: "Вечерняя Охрана (17:00 - 21:00)",
-        legendNight: "Ночная Охрана (21:00 - 07:00)",
         kingdomHall: "Зал Царства",
         exportWeek: "Неделя:",
         exportGenerated: "Сгенерировано:",
         exportAtHour: "в",
         exportToday: "СЕГОДНЯ",
-        exportBtnGenerating: "Создание изображения...",
-        exportBtnTitle: "Экспорт А4",
-        lockViewTip: "Режим Просмотра (клик для Режима Редактирования)",
-        lockEditTip: "Режим Редактирования Активен (клик для Режима Просмотра)",
-        loginTip: "Вход через Google (Администратор: valeriu.siminitchi@gmail.com)",
-        logoutTip: "Выйти из аккаунта",
-        pwaInstallTip: "Установить Приложение (PWA)",
-        themeTipLight: "Тема: Светлая (клик для Тёмной)",
-        themeTipDark: "Тема: Тёмная (клик для Системной)",
-        themeTipSys: "Тема: Системная (клик для Светлой)",
         detailsTitle: "Детали Смены Охраны",
         detailsHours: "Интервал времени",
         detailsVolunteers: "Записанные добровольцы",
@@ -1678,10 +1535,6 @@
         detailsEdit: "Редактировать",
         detailsClose: "Закрыть",
         unspecifiedCong: "Не указано",
-        backupTitle: "Резервная Копия",
-        backupSubtitle: "Экспорт и импорт сохранённых собраний и возвещателей",
-        backupTabExport: "Экспорт (Сохранить)",
-        backupTabImport: "Импорт (Восстановить)",
         backupAllTitle: "Все Собрания",
         backupAllDesc: "Скачать полную копию всех собраний и всех назначенных возвещателей.",
         backupAllBtn: "Скачать Всё (.json)",
@@ -1690,8 +1543,7 @@
         backupSingleBtn: "Скачать Собрание (.json)",
         backupChooseCong: "Выберите собрание:",
         chkExportAllShiftsText: "Экспортировать также смены каждого возвещателя (все из календаря)",
-        chkExportSingleShiftsText: "Экспортировать также смены каждого возвещателя из этого собрания",
-        backupClose: "Закрыть"
+        chkExportSingleShiftsText: "Экспортировать также смены каждого возвещателя из этого собрания"
       }
     };
 
@@ -1755,9 +1607,8 @@
       applyLanguage(newLang);
     }
 
-    /* ==== GESTIUNE SESIUNE GOOGLE & MOD EDITARE / VIZUALIZARE (LACĂT) ==== */
     let currentAuthUser = null;
-    let isEditMode = false; // La deschiderea sitului: mereu în contul utilizatorului și la regim vizualizare (lacăt închis)!
+    let isEditMode = false;
 
     function updateAuthUI() {
       const t = I18N[currentLang] || I18N.RO;
@@ -1767,32 +1618,30 @@
       const btnExp = document.getElementById('btnExportWeek');
       const btnBackup = document.getElementById('btnBackupRestore');
 
-      // 1. Buton Conectare Google / Deconectare
       if (currentAuthUser) {
         if (btnAdmin) {
           btnAdmin.disabled = false;
-          btnAdmin.title = `${t.logoutTip} (${currentAuthUser.email})`;
+          btnAdmin.title = `${t.logoutTip || 'Deconectare'} (${currentAuthUser.email})`;
           btnAdmin.className = "bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0";
           btnAdmin.innerHTML = `<i class="fa-solid fa-right-from-bracket text-base"></i>`;
         }
 
-        // 2. Buton Lacăt (comutare între Regim Vizualizare și Mod Editare)
         if (btnLock) {
           btnLock.classList.remove('hidden');
           if (isEditMode) {
             btnLock.className = "bg-emerald-950/80 hover:bg-emerald-900 text-emerald-400 border border-emerald-500/50 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0";
             btnLock.innerHTML = `<i class="fa-solid fa-lock-open text-emerald-400"></i>`;
-            btnLock.title = t.lockEditTip;
+            btnLock.title = t.lockEditTip || 'Mod Editare Activ';
           } else {
             btnLock.className = "bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0";
             btnLock.innerHTML = `<i class="fa-solid fa-lock text-slate-300"></i>`;
-            btnLock.title = `${t.lockViewTip} — ${currentAuthUser.email}`;
+            btnLock.title = `${t.lockViewTip || 'Regim Vizualizare'} — ${currentAuthUser.email}`;
           }
         }
       } else {
         if (btnAdmin) {
           btnAdmin.disabled = false;
-          btnAdmin.title = t.loginTip;
+          btnAdmin.title = t.loginTip || 'Autentificare Google';
           btnAdmin.className = "bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-bold transition shadow-sm w-9 h-9 flex items-center justify-center shrink-0";
           btnAdmin.innerHTML = `<i class="fa-brands fa-google text-white text-base"></i>`;
         }
@@ -1801,7 +1650,6 @@
         }
       }
 
-      // 3. Butoanele de administrare apar DOAR când Modul Editare este activat (lacăt deschis)
       isAdmin = !!(currentAuthUser && isEditMode);
 
       if (isAdmin) {
@@ -1833,7 +1681,6 @@
     async function handleAdminButtonClick() {
       const btn = document.getElementById('btnAdminAccess');
       if (currentAuthUser) {
-        // Deconectare administrator
         try {
           if (btn) btn.disabled = true;
           await signOut(auth);
@@ -1847,7 +1694,6 @@
           if (btn) btn.disabled = false;
         }
       } else {
-        // Conectare prin Google
         try {
           if (btn) {
             btn.disabled = true;
@@ -1861,14 +1707,13 @@
 
           if (userEmail === AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
             currentAuthUser = user;
-            // Conform cerinței: la conectare/deschidere începe mereu în Regim Vizualizare (lacăt închis)
             isEditMode = false;
             isAdmin = false;
             updateAuthUI();
           } else {
             alert(currentLang === 'RU'
-              ? `Доступ ограничен!\nАккаунт Google (${user.email}) не имеет прав администратора.\nТолько ${AUTHORIZED_ADMIN_EMAIL} имеет доступ к редактированию.`
-              : `Acces restricționat!\nContul Google (${user.email}) nu are permisiuni de editare.\nDoar ${AUTHORIZED_ADMIN_EMAIL} poate accesa modul de administrare.`);
+              ? `Доступ ограничен!\nАккаунт Google (${user.email}) не имеет прав администратора.`
+              : `Acces restricționat!\nContul Google (${user.email}) nu are permisiuni de editare.`);
             await signOut(auth);
             currentAuthUser = null;
             isEditMode = false;
@@ -1878,7 +1723,6 @@
         } catch (err) {
           if (err.code !== 'auth/popup-closed-by-user') {
             console.error("Eroare la autentificarea Google:", err);
-            alert("A apărut o problemă la conectarea Google: " + (err.message || 'Nu s-a putut finaliza conectarea'));
           }
           updateAuthUI();
         } finally {
@@ -1887,11 +1731,10 @@
       }
     }
 
-    // Ascultare sesiune Google Firebase în fundal (menține sesiunea utilizatorului, dar pornește mereu în Regim Vizualizare)
     onAuthStateChanged(auth, (user) => {
       if (user && (user.email || '').toLowerCase().trim() === AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
         currentAuthUser = user;
-        isEditMode = false; // Întotdeauna pornește în Regim Vizualizare la încărcare
+        isEditMode = false;
         isAdmin = false;
         updateAuthUI();
       } else {
@@ -1902,7 +1745,6 @@
       }
     });
 
-    /* ==== SUPORT PWA (INSTALARE APLICAȚIE PE TELEFON / PC) ==== */
     let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -1932,28 +1774,18 @@
           document.getElementById('iosInstallModal')?.classList.remove('hidden');
         } else {
           alert(currentLang === 'RU' 
-            ? "Для установки приложения откройте меню браузера и нажмите 'Установить приложение' или 'Добавить на главный экран'."
-            : "Pentru a instala aplicația, accesați meniul browserului și alegeți 'Instalează aplicația' sau 'Adaugă pe ecranul principal'.");
+            ? "Для установки приложения откройте меню браузера и нажмите 'Установить приложение'."
+            : "Pentru a instala aplicația, accesați meniul browserului și alegeți 'Adaugă pe ecranul principal'.");
         }
       }
     }
 
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(err => {
-          console.warn('Înregistrare Service Worker:', err);
-        });
-      });
-    }
-
-    // Afișăm butonul PWA dacă nu rulează deja în mod standalone instalat
     const isStandaloneApp = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     if (!isStandaloneApp) {
       const btnPwa = document.getElementById('btnInstallPwa');
       if (btnPwa) btnPwa.classList.remove('hidden');
     }
 
-    /* ==== COMENZI PENTRU BARA DE CONTROL FIXATĂ A CALENDARULUI ==== */
     function customCalPrev() {
       if (calendar) calendar.prev();
     }
@@ -1964,7 +1796,6 @@
       if (calendar) calendar.gotoDate(getYesterdayDate());
     }
 
-    /* ==== MODAL DETALII TURĂ (LA CLICK PE TURĂ) ==== */
     function openDetailsModal(event) {
       const modal = document.getElementById('viewDetailsModal');
       const t = I18N[currentLang] || I18N.RO;
@@ -1984,7 +1815,6 @@
                         startDay === endDay;
 
         if (!sameDay) {
-          // Tura se încheie în ziua următoare (ex: 21:00 Luni până 07:00 Marți)
           const startWeekday = event.start.toLocaleDateString(localeCode, { weekday: 'long', day: 'numeric', month: 'long' });
           const endWeekday = event.end.toLocaleDateString(localeCode, { weekday: 'long', day: 'numeric', month: 'long' });
           const capStart = startWeekday.charAt(0).toUpperCase() + startWeekday.slice(1);
@@ -2002,7 +1832,6 @@
       document.getElementById('viewModalTimeRange').innerText = `${startStr} - ${endStr}`;
       document.getElementById('viewModalDate').innerText = dateDisplayText;
 
-      // Actualizăm textele dinamice din modal conform limbii active
       const titleEl = document.getElementById('viewDetailsModalTitle') || modal.querySelector('h3');
       if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-calendar-check text-amber-500"></i> ${t.detailsTitle}`;
 
@@ -2047,7 +1876,6 @@
         });
       }
 
-      // Butoanele Editează și Dublează sunt vizibile doar în modul editare (admin)
       const btnEdit = document.getElementById('btnEditFromDetails');
       const btnDuplicate = document.getElementById('btnDuplicateFromDetails');
       if (btnDuplicate) btnDuplicate.innerHTML = `<i class="fa-solid fa-copy"></i> ${t.detailsDuplicate}`;
@@ -2081,8 +1909,6 @@
       closeDetailsModal();
       openEventModal(originalEvent, '', '', true);
     }
-
-    /* ==== MODAL ADĂUGARE / EDITARE / DUBLARE TURE ==== */
 
     let volunteerSlotsState = [];
 
@@ -2201,23 +2027,18 @@
                 ` : ''}
               </div>
 
-              <!-- Buton + pentru selecție manuală -->
-              <button type="button" onclick="window.toggleManualPicker(${index})" class="bg-slate-200 hover:bg-slate-300 text-slate-700 w-9 h-9 rounded-lg text-sm font-bold flex items-center justify-center shrink-0 shadow-sm transition" title="Alege manual congregația și persoana">
+              <button type="button" onclick="window.toggleManualPicker(${index})" class="bg-slate-200 hover:bg-slate-300 text-slate-700 w-9 h-9 rounded-lg text-sm font-bold flex items-center justify-center shrink-0 shadow-sm transition" title="Alege manual">
                 <i class="fa-solid fa-plus text-amber-600"></i>
               </button>
 
-              <!-- Buton Done / Gata -->
-              <button type="button" onclick="window.confirmSlot(${index})" class="${isSlotConfirmed ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-slate-800 hover:bg-slate-700'} text-white px-3 h-9 rounded-lg text-xs font-semibold flex items-center gap-1 shrink-0 shadow-sm transition" title="Confirmă persoana">
+              <button type="button" onclick="window.confirmSlot(${index})" class="${isSlotConfirmed ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-slate-800 hover:bg-slate-700'} text-white px-3 h-9 rounded-lg text-xs font-semibold flex items-center gap-1 shrink-0 shadow-sm transition" title="Confirmă">
                 <i class="fa-solid fa-check"></i> Gata
               </button>
             </div>
 
-            <!-- Dropdown sugestii automate la tastare -->
-            <div id="slotSuggestions_${index}" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 max-h-52 overflow-y-auto divide-y divide-slate-100">
-            </div>
+            <div id="slotSuggestions_${index}" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 max-h-52 overflow-y-auto divide-y divide-slate-100"></div>
           </div>
 
-          <!-- Panou colapsabil de selecție manuală (+): Congregație apoi Persoană -->
           <div id="slotManualPicker_${index}" class="hidden mt-2.5 pt-2.5 border-t border-slate-200 bg-white p-3 rounded-lg border border-slate-100">
             <div class="text-xs font-bold text-slate-700 mb-2 flex items-center justify-between">
               <span>Alegere Manuală:</span>
@@ -2232,9 +2053,7 @@
               </div>
               <div>
                 <label class="block text-[11px] font-semibold text-slate-600 mb-1">2. Alege Persoana</label>
-                <select id="manualPersonSelect_${index}" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs focus:ring-2 focus:ring-amber-500 bg-white">
-                  <!-- Populat din JS -->
-                </select>
+                <select id="manualPersonSelect_${index}" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs focus:ring-2 focus:ring-amber-500 bg-white"></select>
               </div>
             </div>
             <button type="button" onclick="window.applyManualSelection(${index})" class="w-full bg-amber-600 hover:bg-amber-500 text-white py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1">
@@ -2242,7 +2061,6 @@
             </button>
           </div>
 
-          <!-- Afisare eticheta congregație detectată/asociată -->
           ${congDisplayName ? `
             <div class="mt-2 text-[11px] text-slate-600 flex items-center gap-1.5">
               <i class="fa-solid fa-building text-amber-500"></i>
@@ -2371,9 +2189,10 @@
 
       if (cong && Array.isArray(cong.people) && cong.people.length > 0) {
         cong.people.forEach(p => {
+          const pName = typeof p === 'object' ? p.name : p;
           const opt = document.createElement('option');
-          opt.value = p;
-          opt.textContent = p;
+          opt.value = pName;
+          opt.textContent = pName;
           personSelect.appendChild(opt);
         });
       } else {
@@ -2421,10 +2240,9 @@
       renderVolunteerSlots();
     }
 
-    /* ==== MODAL SELECTOR CALENDAR VIZUAL (PENTRU DATA ȘI ORA) ==== */
     let visualCalCurrentDate = new Date();
     let visualCalSelectedDate = new Date();
-    let visualCalSelectedShift = 'acces'; // 'acces', 'seara', 'noapte'
+    let visualCalSelectedShift = 'acces';
 
     function openVisualCalendarPicker() {
       const startInputVal = document.getElementById('eventStart').value;
@@ -2545,7 +2363,7 @@
       } else if (visualCalSelectedShift === 'seara') {
         startDate = new Date(year, month, day, 17, 0, 0);
         endDate = new Date(year, month, day, 21, 0, 0);
-        colorValue = '#16a34a'; // Verde pentru Pază de Seară
+        colorValue = '#16a34a';
       } else if (visualCalSelectedShift === 'noapte') {
         startDate = new Date(year, month, day, 21, 0, 0);
         endDate = new Date(year, month, day + 1, 7, 0, 0);
@@ -2561,7 +2379,6 @@
       closeVisualCalendarPicker();
     }
 
-    // Salvare tură completă în Firebase Firestore
     async function saveEvent(e) {
       e.preventDefault();
       const id = document.getElementById('eventId').value || 'evt_' + Date.now();
@@ -2623,13 +2440,9 @@
       };
       
       closeEventModal();
-      // 1. Aplicare instantanee locală în calendar (0 milisecunde, ecranul nu se blochează deloc)
       applyEventLocally(eventData);
-      // 2. Salvare asincronă în fundal în Firebase
       saveEventToFirebase(eventData);
-      // ==========================================
-      // AICI PUI CODUL TĂU PENTRU TELEGRAM BOT:
-      // ==========================================
+
       const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzNJ6HbssBA08uYhKUIeecf4CYRF5ghAGv7fTN-rJfh3S16Q8RP1CbsiHNjrJ-efwRcmw/exec";
 
       finalVolunteers.forEach(voluntarObj => {
@@ -2650,7 +2463,6 @@
       });
     }
 
-
     async function deleteEvent() {
       const id = document.getElementById('eventId').value;
       if (!id) return;
@@ -2659,10 +2471,8 @@
         : "Sigur dorești să ștergi această tură?";
       if (confirm(confirmMsg)) {
         closeEventModal();
-        // Ștergere instantanee locală din calendar
         const localEvt = calendar ? calendar.getEventById(id) : null;
         if (localEvt) localEvt.remove();
-        // Ștergere asincronă în fundal din Firebase
         deleteEventFromFirebase(id);
       }
     }
@@ -2682,7 +2492,6 @@
           congregationId: event.extendedProps?.congregationId || ''
         }
       };
-      // Salvare asincronă în fundal fără blocare UI la mutare (drag & drop / resize)
       saveEventToFirebase(eventData);
     }
 
@@ -2692,8 +2501,7 @@
       return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
     }
 
-   /* ==== MODAL CONGREGAȚII & PERSOANE ==== */
-
+    /* ==== MODAL CONGREGAȚII & PERSOANE ==== */
     function renderCongregationsManager() {
       const container = document.getElementById('congregationListContainer');
       container.innerHTML = '';
@@ -2708,7 +2516,6 @@
       }
 
       congregations.forEach(c => {
-        // Sortăm alfabetic o copie a listei de persoane pentru afișare corectă (suportă și formatul vechi, și obiectele noi)
         const sortedPeople = c.people ? [...c.people].sort((a, b) => {
           const nameA = typeof a === 'object' ? a.name : a;
           const nameB = typeof b === 'object' ? b.name : b;
@@ -2723,10 +2530,10 @@
                 <p class="text-xs text-slate-500 mt-0.5">Expresie afișată: <span class="font-semibold text-slate-700">${c.short}</span></p>
               </div>
               <div class="flex items-center gap-1">
-                <button onclick="event.stopPropagation(); window.editCongregationDetails('${c.id}')" class="text-slate-400 hover:text-amber-600 p-2 rounded-lg" title="Editează Denumirea Congregației">
+                <button onclick="event.stopPropagation(); window.editCongregationDetails('${c.id}')" class="text-slate-400 hover:text-amber-600 p-2 rounded-lg" title="Editează Denumirea">
                   <i class="fa-solid fa-pen-to-square"></i>
                 </button>
-                <button onclick="event.stopPropagation(); window.deleteCongregation('${c.id}')" class="text-slate-400 hover:text-rose-500 p-2 rounded-lg" title="Șterge Congregația">
+                <button onclick="event.stopPropagation(); window.deleteCongregation('${c.id}')" class="text-slate-400 hover:text-rose-500 p-2 rounded-lg" title="Șterge">
                   <i class="fa-solid fa-trash-can"></i>
                 </button>
               </div>
@@ -2734,14 +2541,11 @@
             <div id="acc-${c.id}" class="cong-accordion-content border-t border-slate-200 bg-white p-3">
               <div class="space-y-1.5 mb-3">
                 ${sortedPeople.map((person) => {
-                  const realIdx = c.people.indexOf(person); // Găsim indexul real în array-ul original
-                  
-                  // Extragem datele fie în format obiect, fie text simplu (retrocompatibilitate)
+                  const realIdx = c.people.indexOf(person);
                   const pName = typeof person === 'object' ? person.name : person;
                   const pChatId = typeof person === 'object' ? person.chatId : '';
                   const pLang = typeof person === 'object' ? (person.lang || 'ro') : 'ro';
 
-                  // Construim eticheta vizuală pentru Telegram
                   let telegramBadge = '';
                   if (pChatId && pChatId.trim() !== '') {
                     telegramBadge = `<span class="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-md font-mono font-semibold flex items-center gap-1">
@@ -2760,8 +2564,8 @@
                       <div>${telegramBadge}</div>
                     </div>
                     <div class="flex items-center gap-1 self-end sm:self-auto">
-                      <button onclick="window.openEditPersonModal('${c.id}',${realIdx})" class="p-1.5 text-slate-400 hover:text-amber-600 transition text-xs" title="Modifică persoana"><i class="fa-solid fa-pen"></i></button>
-                      <button onclick="window.deletePerson('${c.id}',${realIdx})" class="p-1.5 text-slate-400 hover:text-rose-500 transition text-xs" title="Șterge persoana"><i class="fa-solid fa-trash"></i></button>
+                      <button onclick="window.openEditPersonModal('${c.id}', ${realIdx})" class="p-1.5 text-slate-400 hover:text-amber-600 transition text-xs" title="Modifică"><i class="fa-solid fa-pen"></i></button>
+                      <button onclick="window.deletePerson('${c.id}', ${realIdx})" class="p-1.5 text-slate-400 hover:text-rose-500 transition text-xs" title="Șterge"><i class="fa-solid fa-trash"></i></button>
                     </div>
                   </div>
                 `;
@@ -2776,9 +2580,7 @@
         `;
         container.insertAdjacentHTML('beforeend', html);
       });
-    }
 
-      // Buton la finalul listei pentru adăugarea unei noi congregații
       const addCongBtnHtml = `
         <button type="button" onclick="window.addCongregation()" class="w-full py-2.5 px-3 rounded-xl border border-dashed border-amber-300 bg-amber-50/40 hover:bg-amber-50 text-amber-700 font-bold text-xs flex items-center justify-center gap-2 transition mt-3">
           <i class="fa-solid fa-plus"></i> Adaugă o Congregație Nouă
@@ -2824,7 +2626,7 @@
       if(!cong) return;
       let newName = prompt("Introdu numele complet al congregației:", cong.name);
       if (newName === null || newName.trim() === '') return;
-      let newShort = prompt("Introdu expresia scurtă de afișat în calendar (ex: Loc, Vec1):", cong.short);
+      let newShort = prompt("Introdu expresia scurtă de afișat în calendar:", cong.short);
       if (newShort !== null) {
         cong.name = newName.trim();
         cong.short = newShort.trim();
@@ -2833,7 +2635,6 @@
       }
     }
 
-    // --- FUNCȚII PENTRU MODALUL NOU DE PERSOANE ---
     function openAddPersonModal(congId) {
       document.getElementById('modalCongId').value = congId;
       document.getElementById('modalPersonIndex').value = "-1";
@@ -2891,7 +2692,6 @@
         cong.people.push({ name, chatId, lang });
       }
 
-      // Sortare alfabetică după nume
       cong.people.sort((a, b) => {
         const nameA = typeof a === 'object' ? a.name : a;
         const nameB = typeof b === 'object' ? b.name : b;
@@ -2900,7 +2700,6 @@
 
       await saveCongregations();
 
-      // Actualizare automată în calendar dacă s-a schimbat numele
       if (index >= 0 && oldName && oldName !== name && calendar) {
         const allEvents = calendar.getEvents();
         for (const ev of allEvents) {
@@ -2955,7 +2754,6 @@
     }
     function closeCongregationModal() { document.getElementById('congregationModal').classList.add('hidden'); }
 
-    /* ==== SISTEM COPIE DE REZERVĂ: EXPORT & IMPORT CONGREGAȚII ȘI PERSOANE ==== */
     let pendingImportData = null;
 
     function downloadJsonFile(filename, dataObj) {
@@ -3040,9 +2838,7 @@
 
     function exportAllCongregations() {
       if (!congregations || congregations.length === 0) {
-        alert(currentLang === 'RU' 
-          ? "Нет настроенных собраний для создания резервной копии." 
-          : "Nu există congregații configurate pentru a genera o copie de rezervă.");
+        alert("Nu există congregații configurate.");
         return;
       }
       const now = new Date();
@@ -3087,12 +2883,7 @@
 
     function exportSingleCongregationById(congId) {
       const cong = congregations.find(c => c.id === congId);
-      if (!cong) {
-        alert(currentLang === 'RU' 
-          ? "Выбранное собрание не найдено." 
-          : "Congregația selectată nu a fost găsită.");
-        return;
-      }
+      if (!cong) return;
       const now = new Date();
       const dateStr = now.toISOString().split('T')[0];
       const safeName = (cong.name || 'congregatie').replace(/[^a-zA-Z0-9_\u00C0-\u017F]/g, '_');
@@ -3106,7 +2897,7 @@
           return vols.some(v => 
             v.congregationId === congId ||
             (cong.name && v.congregationName === cong.name) ||
-            (Array.isArray(cong.people) && cong.people.includes(v.name))
+            (Array.isArray(cong.people) && cong.people.some(p => (typeof p === 'object' ? p.name : p) === v.name))
           );
         }).map(ev => {
           const vols = getVolunteersFromEvent(ev);
@@ -3144,9 +2935,7 @@
       const select = document.getElementById('exportSingleCongSelect');
       const congId = select ? select.value : '';
       if (!congId) {
-        alert(currentLang === 'RU' 
-          ? "Пожалуйста, выберите собрание из списка для экспорта." 
-          : "Te rog să alegi o congregație din listă pentru export.");
+        alert("Te rog să alegi o congregație din listă pentru export.");
         return;
       }
       exportSingleCongregationById(congId);
@@ -3187,9 +2976,7 @@
             isSingle = false;
             allCongsList = parsed;
           } else {
-            throw new Error(currentLang === 'RU' 
-              ? "JSON файл не содержит допустимой структуры собраний или возвещателей."
-              : "Fișierul JSON nu conține o structură validă de congregații sau persoane.");
+            throw new Error("Fișierul JSON nu conține o structură validă.");
           }
 
           if (previewBox) previewBox.classList.remove('hidden');
@@ -3213,11 +3000,11 @@
             if (summaryText) summaryText.innerHTML = `Detectat: Congregația <strong>"${singleCong.name || 'Fără nume'}"</strong> (${numP} persoane)${shiftsInfoHtml}`;
             if (optionsContainer) {
               optionsContainer.innerHTML = `
-                <label class="block text-xs font-bold text-slate-700 mb-1">Alege cum vrei să imporți această congregație:</label>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Alege cum vrei să imporți:</label>
                 <div class="space-y-1.5 text-xs text-slate-700">
                   <label class="flex items-center gap-2 cursor-pointer">
                     <input type="radio" name="importSingleMode" value="update" checked class="text-emerald-600 focus:ring-emerald-500">
-                    <span>Actualizează congregația dacă există deja cu același nume/ID (sau adaug-o dacă lipsește)</span>
+                    <span>Actualizează congregația dacă există deja (sau adaug-o dacă lipsește)</span>
                   </label>
                   <label class="flex items-center gap-2 cursor-pointer">
                     <input type="radio" name="importSingleMode" value="new" class="text-emerald-600 focus:ring-emerald-500">
@@ -3232,11 +3019,11 @@
             if (summaryText) summaryText.innerHTML = `Detectat: <strong>${allCongsList.length} congregații</strong> cu un total de <strong>${totalP} persoane</strong>${shiftsInfoHtml}`;
             if (optionsContainer) {
               optionsContainer.innerHTML = `
-                <label class="block text-xs font-bold text-slate-700 mb-1">Alege modul de import pentru toate congregațiile:</label>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Alege modul de import:</label>
                 <div class="space-y-1.5 text-xs text-slate-700">
                   <label class="flex items-center gap-2 cursor-pointer">
                     <input type="radio" name="importAllMode" value="merge" checked class="text-emerald-600 focus:ring-emerald-500">
-                    <span>Fuzionează / Adaugă (păstrează congregațiile actuale și adaugă elementele noi din fișier)</span>
+                    <span>Fuzionează / Adaugă (păstrează congregațiile actuale și adaugă elementele noi)</span>
                   </label>
                   <label class="flex items-center gap-2 cursor-pointer">
                     <input type="radio" name="importAllMode" value="replace" class="text-emerald-600 focus:ring-emerald-500">
@@ -3248,7 +3035,7 @@
             }
           }
         } catch (err) {
-          console.error("Eroare analizare fișier copie rezervă:", err);
+          console.error("Eroare analizare fișier:", err);
           alert("Eroare: " + err.message);
           if (previewBox) previewBox.classList.add('hidden');
           pendingImportData = null;
@@ -3259,7 +3046,7 @@
 
     async function executeBackupImport() {
       if (!pendingImportData) {
-        alert(currentLang === 'RU' ? "Сначала выберите действительный JSON-файл." : "Selectează întâi un fișier JSON valid.");
+        alert("Selectează întâi un fișier JSON valid.");
         return;
       }
 
@@ -3284,13 +3071,11 @@
 
         if (isSingle) {
           const mode = document.querySelector('input[name="importSingleMode"]:checked')?.value || 'update';
-          // Păstrăm obiectele care conțin nume, chatId și lang
           const cleanPeople = Array.isArray(singleCong.people) ? singleCong.people.map(p => {
             if (typeof p === 'string' && p.trim()) return { name: p.trim(), chatId: '', lang: 'ro' };
             if (p && p.name) return { name: p.name.trim(), chatId: p.chatId || '', lang: p.lang || 'ro' };
             return null;
           }).filter(Boolean) : [];
-          // ... restul codului de import rămâne compatibil
 
           if (mode === 'update') {
             const existingIdx = congregations.findIndex(c => (c.id && c.id === singleCong.id) || (c.name && singleCong.name && c.name.toLowerCase().trim() === singleCong.name.toLowerCase().trim()));
@@ -3312,7 +3097,6 @@
               });
             }
           } else {
-            // New
             congregations.push({
               id: 'c_' + Date.now(),
               name: singleCong.name || 'Congregație importată',
@@ -3323,19 +3107,24 @@
         } else {
           const mode = document.querySelector('input[name="importAllMode"]:checked')?.value || 'merge';
           if (mode === 'replace') {
-            if (!confirm("Atenție! Această acțiune va înlocui complet lista curentă de congregații cu cele din fișier. Continui?")) {
+            if (!confirm("Atenție! Această acțiune va înlocui complet lista curentă de congregații. Continui?")) {
               return;
             }
             congregations = allCongsList.map((c, i) => ({
               id: c.id || ('c_' + Date.now() + '_' + i),
               name: c.name || `Congregația ${i + 1}`,
               short: c.short || (c.name || 'Loc').substring(0, 4),
-              people: Array.isArray(c.people) ? c.people.filter(p => typeof p === 'string' && p.trim()) : []
+              people: Array.isArray(c.people) ? c.people.map(p => {
+                if (typeof p === 'string') return { name: p.trim(), chatId: '', lang: 'ro' };
+                return p;
+              }).filter(Boolean) : []
             }));
           } else {
-            // Merge
             allCongsList.forEach((incoming, i) => {
-              const incomingPeople = Array.isArray(incoming.people) ? incoming.people.filter(p => typeof p === 'string' && p.trim()) : [];
+              const incomingPeople = Array.isArray(incoming.people) ? incoming.people.map(p => {
+                if (typeof p === 'string') return { name: p.trim(), chatId: '', lang: 'ro' };
+                return p;
+              }).filter(Boolean) : [];
               const existingIdx = congregations.findIndex(c => (c.id && c.id === incoming.id) || (c.name && incoming.name && c.name.toLowerCase().trim() === incoming.name.toLowerCase().trim()));
               if (existingIdx !== -1) {
                 const existing = congregations[existingIdx];
@@ -3357,11 +3146,9 @@
           }
         }
 
-        // Salvare congregații în Firestore și cache
         await saveCongregations();
         renderCongregationsManager();
 
-        // Dacă fișierul include și ture de pază și utilizatorul a bifat importul lor
         const importShiftsChecked = document.getElementById('chkImportShiftsToCalendar')?.checked;
         if (importShiftsChecked && Array.isArray(pendingImportData.events) && pendingImportData.events.length > 0) {
           for (const evItem of pendingImportData.events) {
@@ -3372,64 +3159,14 @@
         }
 
         if (calendar) calendar.render();
-        alert(currentLang === 'RU' ? "Резервная копия успешно импортирована!" : "Copie de rezervă importată cu succes!");
+        alert("Copie de rezervă importată cu succes!");
         closeBackupModal();
       } catch (err) {
-        console.error("Eroare la aplicarea importului:", err);
+        console.error("Eroare la import:", err);
         alert("A apărut o problemă: " + err.message);
       }
     }
 
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('#volunteerSlotsContainer')) {
-        document.querySelectorAll('[id^="slotSuggestions_"]').forEach(el => el.classList.add('hidden'));
-      }
-    });
-
-    window.addEventListener('resize', () => {
-      buildFrozenColumn();
-    });
-
-    // Mapare funcții pe obiectul window pentru apelare din markup
-    window.handleAdminButtonClick = handleAdminButtonClick;
-    window.openCongregationModal = openCongregationModal;
-    window.closeCongregationModal = closeCongregationModal;
-    window.openBackupModal = openBackupModal;
-    window.closeBackupModal = closeBackupModal;
-    window.switchBackupTab = switchBackupTab;
-    window.exportAllCongregations = exportAllCongregations;
-    window.exportSingleCongregationById = exportSingleCongregationById;
-    window.exportSelectedSingleCongregation = exportSelectedSingleCongregation;
-    window.handleBackupFileSelect = handleBackupFileSelect;
-    window.executeBackupImport = executeBackupImport;
-    window.openEventModal = openEventModal;
-    window.closeEventModal = closeEventModal;
-    window.openDetailsModal = openDetailsModal;
-    window.closeDetailsModal = closeDetailsModal;
-    window.editFromDetails = editFromDetails;
-    window.duplicateFromDetails = duplicateFromDetails;
-    window.openVisualCalendarPicker = openVisualCalendarPicker;
-    window.closeVisualCalendarPicker = closeVisualCalendarPicker;
-    window.prevVisualMonth = prevVisualMonth;
-    window.nextVisualMonth = nextVisualMonth;
-    window.selectShiftPreset = selectShiftPreset;
-    window.applyVisualCalendarSelection = applyVisualCalendarSelection;
-    window.saveEvent = saveEvent;
-    window.deleteEvent = deleteEvent;
-    window.toggleCongAccordion = toggleCongAccordion;
-    window.editCongregationDetails = editCongregationDetails;
-    window.addCongregation = addCongregation;
-    window.deleteCongregation = deleteCongregation;
-    window.addPerson = addPerson;
-    window.editPerson = editPerson;
-    window.deletePerson = deletePerson;
-    window.addVolunteerSlot = addVolunteerSlot;
-    window.removeVolunteerSlot = removeVolunteerSlot;
-    window.openAddPersonModal = openAddPersonModal;
-    window.openEditPersonModal = openEditPersonModal;
-    window.closePersonModal = closePersonModal;
-    window.savePersonModalData = savePersonModalData;
-    /* ==== EXPORTARE / TIPĂRIRE GRAFIC SĂPTĂMÂNAL IDENTIC CU TABELUL CALENDAR (AZI + 6 ZILE) ==== */
     async function exportCurrentWeekA4() {
       if (!calendar) return;
 
@@ -3444,7 +3181,6 @@
         const today = new Date();
         const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1, 0, 0, 0);
 
-        // Generăm cele 7 zile conform cerinței: ziua precedentă (ieri), ziua curentă (azi) și următoarele 5 zile
         const days = [];
         for (let i = 0; i < 7; i++) {
           const d = new Date(yesterday);
@@ -3454,30 +3190,24 @@
 
         const t = I18N[currentLang] || I18N.RO;
         const localeCode = currentLang === 'RU' ? 'ru-RU' : 'ro-RO';
-
-        // Preluăm toate evenimentele existente din calendar
         const allEvents = calendar.getEvents();
 
-        // Titlul săptămânii curente exportate
         const startStr = days[0].toLocaleDateString(localeCode, { day: 'numeric', month: 'long', year: 'numeric' });
         const endStr = days[6].toLocaleDateString(localeCode, { day: 'numeric', month: 'long', year: 'numeric' });
         
-        // Preluăm textul săptămânii afișat în calendar
         const customTitleElem = document.getElementById('customCalTitle');
         const weekHeadingText = (customTitleElem && customTitleElem.innerText.trim()) 
           ? customTitleElem.innerText.trim() 
           : `${startStr} — ${endStr}`;
 
-        // Orele tabelului: 24 de ore în total, de la 07:00 la 30:00 (7 dimineața până la 7 a doua zi)
         const totalHours = 24;
-        const hourRowHeight = 36; // px per oră exact
-        const axisWidthPx = 95; // lățimea fixă a coloanei din stânga cu orele
+        const hourRowHeight = 36;
+        const axisWidthPx = 95;
         const totalGridHeight = totalHours * hourRowHeight;
-        const hShiftAccess = 10 * hourRowHeight; // 360px (07:00 - 17:00)
-        const hShiftEvening = 4 * hourRowHeight; // 144px (17:00 - 21:00)
-        const hShiftNight = 10 * hourRowHeight; // 360px (21:00 - 07:00)
+        const hShiftAccess = 10 * hourRowHeight;
+        const hShiftEvening = 4 * hourRowHeight;
+        const hShiftNight = 10 * hourRowHeight;
 
-        // Container temporar de randare
         const exportContainer = document.createElement('div');
         exportContainer.id = 'exportWeekA4Container';
         exportContainer.style.position = 'fixed';
@@ -3491,7 +3221,6 @@
         exportContainer.style.boxSizing = 'border-box';
         exportContainer.style.zIndex = '99999';
 
-        // 1. Antetul tabelului: Coloana stângă (95px) + 7 Coloane cu zile (restul lățimii împărțit egal)
         let headerThs = `
           <th align="center" style="width: ${axisWidthPx}px; min-width: ${axisWidthPx}px; max-width: ${axisWidthPx}px; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 10px 4px; text-align: center; vertical-align: middle; box-sizing: border-box;">
             <i class="fa-regular fa-clock" style="font-size: 15px; color: #64748b;"></i>
@@ -3499,7 +3228,7 @@
         `;
 
         days.forEach((dayObj, idx) => {
-          const isToday = (idx === 1); // Index 0 este ziua precedentă, Index 1 este ziua curentă (AZI)!
+          const isToday = (idx === 1);
           const weekday = dayObj.toLocaleDateString(localeCode, { weekday: 'long' });
           const dayNum = dayObj.toLocaleDateString(localeCode, { day: 'numeric', month: 'numeric' });
           const capWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
@@ -3518,10 +3247,9 @@
           `;
         });
 
-        // 2. Corpul tabelului (24 de rânduri de ore, de la 07 la 06)
         let rowsHtml = '';
         for (let hIndex = 0; hIndex < totalHours; hIndex++) {
-          const hourVal = 7 + hIndex; // de la 7 la 30
+          const hourVal = 7 + hIndex;
           const displayHourNum = (hourVal % 24 < 10 ? '0' : '') + (hourVal % 24);
 
           let slotBg = '#ffffff';
@@ -3538,7 +3266,6 @@
             if (hourVal === 21) borderTopStyle = '3px solid #dc2626';
           }
 
-          // Celula orei din prima coloană (30px ocupat de sidebarul de secțiuni, restul de 65px de numărul orei)
           const hourCellTd = `
             <td style="width: ${axisWidthPx}px; min-width: ${axisWidthPx}px; max-width: ${axisWidthPx}px; height: ${hourRowHeight}px; padding: 0; margin: 0; box-sizing: border-box; background: ${slotBg}; border-top: ${borderTopStyle}; border-right: 1px solid #cbd5e1; border-left: 1px solid #cbd5e1; border-bottom: 1px solid #e2e8f0; vertical-align: middle;">
               <div style="display: flex; height: 100%; width: 100%;">
@@ -3550,7 +3277,6 @@
             </td>
           `;
 
-          // Celulele fiecărei zile pentru acest rând (linii orizontale de fundal)
           let daysColsTd = '';
           for (let d = 0; d < 7; d++) {
             daysColsTd += `
@@ -3562,16 +3288,12 @@
           rowsHtml += `<tr>${hourCellTd}${daysColsTd}</tr>`;
         }
 
-        // 3. Poziționarea sigură a cardurilor pe fiecare coloană de zi
-        // Fiecare coloană de zi primește propriul container poziționat cu left: 0 și width: 100% în cadrul coloanei respective din grilă
         let dayColumnContainers = '';
 
         days.forEach((dayObj, dayIdx) => {
-          // Calculăm fereastra exactă de timp de 24h pentru ziua curentă: de la 07:00 în ziua respectivă până la 07:00 în ziua următoare
           const dayStartTs = new Date(dayObj.getFullYear(), dayObj.getMonth(), dayObj.getDate(), 7, 0, 0, 0).getTime();
-          const dayEndTs = dayStartTs + (24 * 60 * 60 * 1000); // 07:00 a doua zi
+          const dayEndTs = dayStartTs + (24 * 60 * 60 * 1000);
 
-          // Filtrăm evenimentele care aparțin sau se suprapun cu această zi
           const dayEvts = allEvents.filter(ev => {
             if (!ev.start) return false;
             const evStartTs = ev.start.getTime();
@@ -3584,7 +3306,6 @@
             const evStartTs = ev.start.getTime();
             const evEndTs = ev.end ? ev.end.getTime() : evStartTs + (3600 * 1000);
 
-            // Calculăm decalajul (offset) în ore strict față de ora 07:00 a zilei curente
             const clampedStart = Math.max(evStartTs, dayStartTs);
             const clampedEnd = Math.min(evEndTs, dayEndTs);
             const startHourOffset = (clampedStart - dayStartTs) / (1000 * 60 * 60);
@@ -3592,7 +3313,6 @@
 
             if (durationInHours <= 0) return;
 
-            // Poziționare verticală exactă: de la startHourOffset * hourRowHeight cu înălțime proporțională
             const topPx = Math.round(startHourOffset * hourRowHeight);
             const heightPx = Math.max(Math.round(durationInHours * hourRowHeight) - 3, 26);
 
@@ -3600,7 +3320,6 @@
             const sTime = ev.start ? ev.start.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' }) : '';
             const eTime = ev.end ? ev.end.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' }) : '';
 
-            // Culoare card în concordanță cu calendarul aplicației
             let cardBg = ev.backgroundColor || '#2563eb';
             const originalStartHour = ev.start ? ev.start.getHours() : 7;
             if (!ev.backgroundColor || ev.backgroundColor === '#2563eb') {
@@ -3609,7 +3328,6 @@
               else cardBg = '#2563eb';
             }
 
-            // Reguli de afișare text exact ca în aplicație
             const fullDuration = (evEndTs - evStartTs) / (1000 * 60 * 60);
             const numPeople = vols.length || 1;
             let hideHours = false;
@@ -3661,7 +3379,6 @@
             `;
           });
 
-          // Fiecare zi este o coloană cu flex: 1 exact peste coloana din tabel
           dayColumnContainers += `
             <div style="flex: 1; position: relative; height: ${totalGridHeight}px; box-sizing: border-box;">
               ${cardsHtml}
@@ -3670,7 +3387,6 @@
         });
 
         exportContainer.innerHTML = `
-          <!-- Antet Pagina: Denumire + Săptămână dedesubt (stânga) și Generat pe data/ora (dreapta) -->
           <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #0f172a; padding-bottom: 10px; margin-bottom: 14px;">
             <div>
               <h2 style="font-size: 24px; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px;">
@@ -3687,43 +3403,35 @@
             </div>
           </div>
 
-          <!-- Tabel Calendar cu Grilă Identică Aplicației -->
           <div style="position: relative; width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #ffffff;">
             
-            <!-- 1. Sidebarul vertical stânga cu cele 3 ture colorate (lățime 30px peste înălțimea grilei, aliniere SVG matematic centrată) -->
             <div id="exportSidebarEl" style="position: absolute; left: 0; top: 45px; width: 30px; height: ${totalGridHeight}px; display: flex; flex-direction: column; z-index: 10; border-right: 1px solid rgba(255,255,255,0.3); overflow: hidden; box-sizing: border-box;">
-              
-              <!-- Tura 1: Acces (Albastru) - centrat perfect pe mijloc -->
               <div style="height: ${hShiftAccess}px; width: 30px; background: #2563eb; border-bottom: 1px solid rgba(255,255,255,0.3); position: relative; overflow: hidden; box-sizing: border-box;">
                 <svg width="30" height="${hShiftAccess}" viewBox="0 0 30 ${hShiftAccess}" style="display: block; width: 30px; height: ${hShiftAccess}px;">
-                  <text x="15" y="${hShiftAccess / 2}" transform="rotate(-90 15 ${hShiftAccess / 2})" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="11" font-weight="900" letter-spacing="1.5" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">${t.shiftAccess}</text>
+                  <text x="15" y="${hShiftAccess / 2}" transform="rotate(-90 15 ${hShiftAccess / 2})" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="11" font-weight="900" letter-spacing="1.5" font-family="system-ui">${t.shiftAccess}</text>
                 </svg>
               </div>
 
-              <!-- Tura 2: Seară (Verde) - centrat perfect pe mijloc (în rusă pe 2 rânduri aliniate pe centru) -->
               <div style="height: ${hShiftEvening}px; width: 30px; background: #16a34a; border-bottom: 1px solid rgba(255,255,255,0.3); position: relative; overflow: hidden; box-sizing: border-box;">
                 <svg width="30" height="${hShiftEvening}" viewBox="0 0 30 ${hShiftEvening}" style="display: block; width: 30px; height: ${hShiftEvening}px;">
                   ${currentLang === 'RU' ? `
                     <g transform="rotate(-90 15 ${hShiftEvening / 2})">
-                      <text x="15" y="${(hShiftEvening / 2) - 6}" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="8.5" font-weight="900" letter-spacing="0.4" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">ВЕЧЕРНЯЯ</text>
-                      <text x="15" y="${(hShiftEvening / 2) + 6}" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="8.5" font-weight="900" letter-spacing="0.4" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">ОХРАНА</text>
+                      <text x="15" y="${(hShiftEvening / 2) - 6}" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="8.5" font-weight="900" letter-spacing="0.4" font-family="system-ui">ВЕЧЕРНЯЯ</text>
+                      <text x="15" y="${(hShiftEvening / 2) + 6}" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="8.5" font-weight="900" letter-spacing="0.4" font-family="system-ui">ОХРАНА</text>
                     </g>
                   ` : `
-                    <text x="15" y="${hShiftEvening / 2}" transform="rotate(-90 15 ${hShiftEvening / 2})" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="11" font-weight="900" letter-spacing="1.5" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">PAZĂ SEARĂ</text>
+                    <text x="15" y="${hShiftEvening / 2}" transform="rotate(-90 15 ${hShiftEvening / 2})" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="11" font-weight="900" letter-spacing="1.5" font-family="system-ui">PAZĂ SEARĂ</text>
                   `}
                 </svg>
               </div>
 
-              <!-- Tura 3: Noapte (Roșu) - centrat perfect pe mijloc -->
               <div style="height: ${hShiftNight}px; width: 30px; background: #dc2626; position: relative; overflow: hidden; box-sizing: border-box;">
                 <svg width="30" height="${hShiftNight}" viewBox="0 0 30 ${hShiftNight}" style="display: block; width: 30px; height: ${hShiftNight}px;">
-                  <text x="15" y="${hShiftNight / 2}" transform="rotate(-90 15 ${hShiftNight / 2})" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="11" font-weight="900" letter-spacing="1.5" font-family="system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">${t.shiftNight}</text>
+                  <text x="15" y="${hShiftNight / 2}" transform="rotate(-90 15 ${hShiftNight / 2})" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="11" font-weight="900" letter-spacing="1.5" font-family="system-ui">${t.shiftNight}</text>
                 </svg>
               </div>
-
             </div>
 
-            <!-- Structură tabel cu colgroup pentru a garanta lățimea exactă a coloanei din stânga și împărțirea egală a celor 7 zile -->
             <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
               <colgroup>
                 <col style="width: ${axisWidthPx}px;" />
@@ -3745,14 +3453,12 @@
               </tbody>
             </table>
 
-            <!-- Cardurile cu ture: amplasate cu precizie într-un container flex aliniat perfect peste cele 7 coloane -->
             <div id="exportCardsOverlay" style="position: absolute; top: 45px; left: ${axisWidthPx}px; right: 0; height: ${totalGridHeight}px; display: flex; pointer-events: none; z-index: 20;">
               ${dayColumnContainers}
             </div>
 
           </div>
 
-          <!-- Indicii din josul paginii: intervale de ore, culori și denumiri cu pătrățele aliniate pe centru cu textul -->
           <div style="margin-top: 14px; width: 100%; border-top: 2px solid #e2e8f0; padding-top: 10px;">
             <table style="width: 100%; border-collapse: collapse;">
               <tr>
@@ -3780,23 +3486,15 @@
 
         document.body.appendChild(exportContainer);
 
-        // Măsurăm exact înălțimea antetului și a rândurilor randate de browser în exportContainer
         const theadEl = exportContainer.querySelector('thead');
         const firstSlotRow = exportContainer.querySelector('tbody tr');
         const measuredHeaderHeight = theadEl ? theadEl.getBoundingClientRect().height : 54;
-        const measuredRowHeight = firstSlotRow ? firstSlotRow.getBoundingClientRect().height : hourRowHeight;
 
-        // Actualizăm poziția containerului de carduri și a sidebar-ului la înălțimea măsurată exactă a antetului
         const cardsOverlayEl = document.getElementById('exportCardsOverlay');
         const sidebarEl = document.getElementById('exportSidebarEl');
-        if (cardsOverlayEl) {
-          cardsOverlayEl.style.top = `${measuredHeaderHeight}px`;
-        }
-        if (sidebarEl) {
-          sidebarEl.style.top = `${measuredHeaderHeight}px`;
-        }
+        if (cardsOverlayEl) cardsOverlayEl.style.top = `${measuredHeaderHeight}px`;
+        if (sidebarEl) sidebarEl.style.top = `${measuredHeaderHeight}px`;
 
-        // Randăm cu html2canvas la rezoluție mărită (scale: 2) pentru claritate tipărire
         if (typeof html2canvas === 'function') {
           const canvas = await html2canvas(exportContainer, {
             scale: 2,
@@ -3806,7 +3504,6 @@
 
           document.body.removeChild(exportContainer);
 
-          // Generăm descărcarea imaginii PNG
           const imageURL = canvas.toDataURL('image/png');
           const downloadLink = document.createElement('a');
           const fileDateStr = today.toISOString().split('T')[0];
@@ -3820,8 +3517,7 @@
           }
         }
       } catch (err) {
-        console.error("Eroare la exportul calendarului:", err);
-        alert("A apărut o problemă la generarea imaginii.");
+        console.error("Eroare la export:", err);
       } finally {
         if (btnExp) {
           btnExp.disabled = false;
@@ -3845,8 +3541,42 @@
     window.toggleManualPicker = toggleManualPicker;
     window.handleManualCongChange = handleManualCongChange;
     window.applyManualSelection = applyManualSelection;
+    window.handleAdminButtonClick = handleAdminButtonClick;
+    window.openCongregationModal = openCongregationModal;
+    window.closeCongregationModal = closeCongregationModal;
+    window.openBackupModal = openBackupModal;
+    window.closeBackupModal = closeBackupModal;
+    window.switchBackupTab = switchBackupTab;
+    window.exportAllCongregations = exportAllCongregations;
+    window.exportSingleCongregationById = exportSingleCongregationById;
+    window.exportSelectedSingleCongregation = exportSelectedSingleCongregation;
+    window.handleBackupFileSelect = handleBackupFileSelect;
+    window.executeBackupImport = executeBackupImport;
+    window.openEventModal = openEventModal;
+    window.closeEventModal = closeEventModal;
+    window.openDetailsModal = openDetailsModal;
+    window.closeDetailsModal = closeDetailsModal;
+    window.editFromDetails = editFromDetails;
+    window.duplicateFromDetails = duplicateFromDetails;
+    window.openVisualCalendarPicker = openVisualCalendarPicker;
+    window.closeVisualCalendarPicker = closeVisualCalendarPicker;
+    window.prevVisualMonth = prevVisualMonth;
+    window.nextVisualMonth = nextVisualMonth;
+    window.selectShiftPreset = selectShiftPreset;
+    window.applyVisualCalendarSelection = applyVisualCalendarSelection;
+    window.saveEvent = saveEvent;
+    window.deleteEvent = deleteEvent;
+    window.toggleCongAccordion = toggleCongAccordion;
+    window.editCongregationDetails = editCongregationDetails;
+    window.addCongregation = addCongregation;
+    window.deleteCongregation = deleteCongregation;
+    window.addVolunteerSlot = addVolunteerSlot;
+    window.removeVolunteerSlot = removeVolunteerSlot;
+    window.openAddPersonModal = openAddPersonModal;
+    window.openEditPersonModal = openEditPersonModal;
+    window.closePersonModal = closePersonModal;
+    window.savePersonModalData = savePersonModalData;
 
-    // Inițializare la pornire
     document.addEventListener('DOMContentLoaded', function() {
       applyTheme(currentThemeMode, false);
       applyLanguage(currentLang);
