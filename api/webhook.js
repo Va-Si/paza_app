@@ -36,100 +36,45 @@ export default async function handler(req, res) {
   }
 }
 
+// Funcție care preia dinamic lista de voluntari și ID-urile de Telegram direct din Firestore (setari/congregatii)
+async function obtineListaVoluntariDinFirestore() {
+  const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
+  const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/setari/congregatii`;
+  
+  try {
+    const response = await fetch(url);
+    const rezultat = await response.json();
+    
+    let userTelegramIds = {};
+
+    if (rezultat?.fields?.list?.arrayValue?.values) {
+      const congregatii = rezultat.fields.list.arrayValue.values;
+      congregatii.forEach(cong => {
+        const people = cong?.mapValue?.fields?.people?.arrayValue?.values || [];
+        people.forEach(p => {
+          if (p?.mapValue?.fields) {
+            const pf = p.mapValue.fields;
+            const name = pf.name?.stringValue;
+            const chatId = pf.chatId?.stringValue;
+            const lang = pf.lang?.stringValue || 'ro';
+            if (name && chatId) {
+              userTelegramIds[name] = { chatId, lang };
+            }
+          }
+        });
+      });
+    }
+    return userTelegramIds;
+  } catch (err) {
+    console.error("Eroare la preluarea userilor din Firestore pe Vercel:", err);
+    return {};
+  }
+}
+
 // Funcție pentru căutarea și trimiterea turelor
 async function proceseazaTurePentruUtilizator(userTelegramId, token) {
-  // Maparea utilizatorilor (poți muta asta și în variabile de mediu sau lăsa aici)
-  const USER_TELEGRAM_IDS = {
-    // Pune aici utilizatorii tăi exact cum îi aveai în Google Apps Script, de ex:
-    // "Nume Prenume": { chatId: "632767613", lang: "ro" }
-    // Sau poți folosi direct ID-ul tău pentru test:
-   "Siminițchi Valeriu": { chatId: "-1004441991904", lang: "ro" },
-  "Siminițchi Nicoleta": { chatId: "-1004441991904", lang: "ro" },
-  "Ghileţchi Dana": { chatId: "-1004441991904", lang: "ro" },
-  "Ghileţchi Oleg": { chatId: "-1004441991904", lang: "ro" },
-  "Vlasiuc Constantin": { chatId: "-1004441991904", lang: "ro" },
-  "Pustii Natalia": { chatId: "-1004441991904", lang: "ro" },
-  "Pustii Ruslan": { chatId: "-1004441991904", lang: "ro" },
-  "Mărgineanu Valentin": { chatId: "-1004441991904", lang: "ro" },
-  "Mărgineanu Dorin": { chatId: "-1004441991904", lang: "ro" },
-  "Ciuș Ludmila": { chatId: "-1004441991904", lang: "ro" },
-  "Vîhodeț Natalia": { chatId: "-1004441991904", lang: "ro" },
-  "Carp Felicia": { chatId: "-1004441991904", lang: "ro" },
-  "Puls Marina": { chatId: "-1004441991904", lang: "ro" },
-  "Apostol Mariana": { chatId: "450542519", lang: "ro" },
-  "Pleșca Erica": { chatId: "-1004441991904", lang: "ro" },
-  "Gorbuleac Veaceslav": { chatId: "-1004441991904", lang: "ro" },
-  "Chirtoacă Nelea": { chatId: "-1004441991904", lang: "ro" },
-  "Petic Svetlana": { chatId: "-1004441991904", lang: "ro" },
-  "Tertea Grigore": { chatId: "-1004441991904", lang: "ro" },
-  "Focșa Simion": { chatId: "-1004441991904", lang: "ro" },
-  "Rudenco Sergiu": { chatId: "-1004441991904", lang: "ro" },
-  "Rudenco Tatiana": { chatId: "-1004441991904", lang: "ro" },
-  "Mereuță Rodica": { chatId: "-1004441991904", lang: "ro" },
-  "Mereuță Sergiu": { chatId: "8001826259", lang: "ro" },
-  "Ciuș Valeriu": { chatId: "-1004441991904", lang: "ro" },
-  "Banaru Constantin": { chatId: "-1004441991904", lang: "ro" },
-  "Banaru Natalia": { chatId: "-1004441991904", lang: "ro" },
-  "Codreanu Elena": { chatId: "-1004441991904", lang: "ro" },
-  "Artin Lilia": { chatId: "-1004441991904", lang: "ro" },
-  "Solomon Natalia": { chatId: "-1004441991904", lang: "ro" },
-  "Iacuboi Vasilii": { chatId: "-1004441991904", lang: "ro" },
-  "Tuvicenco Olesea": { chatId: "-1004441991904", lang: "ro" },
-  "Tuvicenco Sergiu": { chatId: "-1004441991904", lang: "ro" },
-  "Croitoru Irina": { chatId: "-1004441991904", lang: "ro" },
-  "Ceban Adriana": { chatId: "-1004441991904", lang: "ro" },
-  "Rotaru Maria": { chatId: "-1004441991904", lang: "ro" },
-  "Rotaru Ana": { chatId: "-1004441991904", lang: "ro" },
-  "Rotaru Sergiu": { chatId: "-1004441991904", lang: "ro" },
-  "Codreanu Milena": { chatId: "-1004441991904", lang: "ro" },
-  "Becciu Claudia": { chatId: "-1004441991904", lang: "ro" },
-  "Arnaut Cristina": { chatId: "-1004441991904", lang: "ro" },
-  "Istratii Vitalie": { chatId: "-1004441991904", lang: "ro" },
-  "Istratii Victoria": { chatId: "-1004441991904", lang: "ro" },
-  "Croitoru Victor": { chatId: "-1004441991904", lang: "ro" },
-  "Molic Alexandra": { chatId: "-1004441991904", lang: "ro" },
-  "Bandalac Valeria": { chatId: "-1004441991904", lang: "ro" },
-  "Pascari Rodica": { chatId: "-1004441991904", lang: "ro" },
-  "Diacon Daniel": { chatId: "-1004441991904", lang: "ro" },
-  "Golovko Nikita": { chatId: "-1004441991904", lang: "ro" },
-  "Pricop Nicoleta": { chatId: "-1004441991904", lang: "ro" },
-  "Mura Sergiu": { chatId: "-1004441991904", lang: "ru" },
-  "Josanu Olga": { chatId: "-1004441991904", lang: "ro" },
-  "Marga Valeria": { chatId: "-1004441991904", lang: "ro" },
-  "Popa Cristi": { chatId: "-1004441991904", lang: "ro" },
-  "Mămăligă Maria": { chatId: "-1004441991904", lang: "ro" },
-  "Pricop Victoria": { chatId: "-1004441991904", lang: "ro" },
-  "Gușan Valeriu": { chatId: "-1004441991904", lang: "ro" },
-  "Josanu Sultana": { chatId: "-1004441991904", lang: "ro" },
-  "Josanu Maxim": { chatId: "-1004441991904", lang: "ro" },
-  "Codreanu Vitalie": { chatId: "-1004441991904", lang: "ro" },
-  "Badan Victor": { chatId: "-1004441991904", lang: "ro" },
-  "Șchepu Daniel": { chatId: "-1004441991904", lang: "ro" },
-
-  // --- LIMBA RUSĂ (ru) ---
-  "Виеру Валерий": { chatId: "-1004441991904", lang: "ru" },
-  "Голубкова Светлана": { chatId: "-1004441991904", lang: "ru" },
-  "Дикусар Арианна": { chatId: "-1004441991904", lang: "ru" },
-  "Жаворонков Роман": { chatId: "-1004441991904", lang: "ru" },
-  "Жаворонкова Снежанна": { chatId: "-1004441991904", lang: "ru" },
-  "Иванова Нина": { chatId: "-1004441991904", lang: "ru" },
-  "Ионица Анастасия": { chatId: "-1004441991904", lang: "ru" },
-  "Киперь Инна": { chatId: "-1004441991904", lang: "ru" },
-  "Киркиш Марчел": { chatId: "-1004441991904", lang: "ru" },
-  "Клименко Людмила": { chatId: "-1004441991904", lang: "ru" },
-  "Маммедов Мухаммед": { chatId: "-1004441991904", lang: "ru" },
-  "Маммедова Ширин": { chatId: "-1004441991904", lang: "ru" },
-  "Марчук Артем": { chatId: "-1004441991904", lang: "ru" },
-  "Переверзева Светлана": { chatId: "-1004441991904", lang: "ru" },
-  "Рядинская Татьяна": { chatId: "-1004441991904", lang: "ru" },
-  "Флянку Виталий": { chatId: "-1004441991904", lang: "ru" },
-  "Флянку Марина": { chatId: "-1004441991904", lang: "ru" },
-  "Фудзинский Леонид": { chatId: "-1004441991904", lang: "ru" },
-  "Чебанова Карнелия": { chatId: "-1004441991904", lang: "ru" },
-  "Шаповалова Татьяна": { chatId: "632767613", lang: "ru" },
-  "Бурлачук Светлана": { chatId: "-1004441991904", lang: "ru" },
-  "Шулер Мария": { chatId: "-1004441991904", lang: "ru" }
-  };
+  // Preluăm dinamic utilizatorii direct din Firestore (fără să mai modifici codul manual pe Vercel)
+  const USER_TELEGRAM_IDS = await obtineListaVoluntariDinFirestore();
 
   // Căutăm limba și numele voluntarului după ID-ul de Telegram
   let voluntariGasiti = [];
@@ -143,7 +88,7 @@ async function proceseazaTurePentruUtilizator(userTelegramId, token) {
   const lang = voluntariGasiti.length > 0 ? voluntariGasiti[0].lang : 'ro';
 
   if (voluntariGasiti.length === 0) {
-    const mesajEroare = `⚠️ Contul tău de Telegram (ID: ${userTelegramId}) nu a fost găsit în lista de voluntari.`;
+    const mesajEroare = `⚠️ Contul tău de Telegram (ID: ${userTelegramId}) nu a fost găsit în lista de voluntari din aplicație.`;
     await trimiteMesaj(userTelegramId, mesajEroare, token);
     return;
   }
@@ -199,15 +144,14 @@ async function proceseazaTurePentruUtilizator(userTelegramId, token) {
   await trimiteMesaj(userTelegramId, textRapsuns, token);
 }
 
-// Interogare Firestore (folosind datele tale existente)
+// Interogare Firestore pentru colecția "ture_paza"
 async function preiaTureDinFirebase() {
   const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
-  const FIRESTORE_COLLECTION = process.env.FIRESTORE_COLLECTION || 'shifts';
   const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents:runQuery`;
   
   const payload = {
     structuredQuery: {
-      from: [{ collectionId: FIRESTORE_COLLECTION }],
+      from: [{ collectionId: 'ture_paza' }],
       where: {
         fieldFilter: {
           field: { fieldPath: "start" },
