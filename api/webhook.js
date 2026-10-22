@@ -120,7 +120,7 @@ async function proceseazaTurePentruUtilizator(userTelegramId, token) {
         const oraEnd = end.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Chisinau' });
         const colegi = tura.volunteers.filter(p => p && !NumeList.includes(p.trim().toLowerCase())).join(', ');
         
-        textRapsuns += `${idx + 1}. 🗓 *${dataFmt}* | ⏰ *${oraStart} - ${oraEnd}*\n   Партнер: *${colegi || 'никто'}*\n\n`;
+        textRapsuns += `${idx + 1}. 🗓 *${dataFmt}* | ⏰ *${oraStart} - ${oraEnd}*\n   Напарник: *${colegi || 'никто'}*\n\n`;
       });
     }
   } else {
