@@ -3235,19 +3235,19 @@
           const todayBadge = t.exportToday;
 
        headerThs += `
-            <th align="center" style="background: ${isToday ? '#ea580c' : '#ffffff'}; color: ${isToday ? '#ffffff' : '#1e293b'}; border: 1px solid #cbd5e1; padding: 6px 4px 8px 4px; text-align: center; vertical-align: middle; box-sizing: border-box;">
+            <th align="center" style="background: ${isToday ? '#ea580c' : '#ffffff'}; color: ${isToday ? '#ffffff' : '#1e293b'}; border: 1px solid #cbd5e1; padding: 4px 4px 6px 4px; text-align: center; vertical-align: middle; box-sizing: border-box;">
               ${isToday ? `
-                <div style="width: 100%; text-align: center; margin-bottom: 4px;">
-                  <svg width="62" height="22" viewBox="0 0 62 22" style="display: inline-block; vertical-align: top;">
-                    <rect x="0" y="0" width="62" height="22" rx="11" ry="11" fill="#ffffff"/>
-                    <text x="31" y="11" text-anchor="middle" dominant-baseline="central"
-                          font-size="10" font-weight="800" fill="#ea580c"
+                <div style="width: 100%; text-align: center; margin-bottom: 2px;">
+                  <svg width="62" height="20" viewBox="0 0 62 20" style="display: inline-block; vertical-align: top;">
+                    <rect x="0" y="0" width="62" height="20" rx="10" ry="10" fill="#ffffff"/>
+                    <text x="31" y="10" text-anchor="middle" dominant-baseline="central"
+                          font-size="9" font-weight="800" fill="#ea580c"
                           font-family="inherit" style="text-transform: uppercase;">${todayBadge.toUpperCase()}</text>
                   </svg>
                 </div>
               ` : ''}
               <div style="width: 100%; text-align: center; margin: 0 auto; font-size: 14px; font-weight: 800; text-transform: capitalize; letter-spacing: -0.2px;">${capWeekday}</div>
-              <div style="width: 100%; text-align: center; margin: 2px auto 0 auto; font-size: 12px; font-weight: 700; opacity: ${isToday ? '0.95' : '0.75'};">${dayNum}</div>
+              <div style="width: 100%; text-align: center; margin: 1px auto 0 auto; font-size: 12px; font-weight: 700; opacity: ${isToday ? '0.95' : '0.75'};">${dayNum}</div>
             </th>
 `;
         });
