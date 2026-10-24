@@ -1084,7 +1084,7 @@
       const sidebar = document.createElement('div');
       sidebar.id = 'shiftSidebar';
       const tAccess = currentLang === 'RU' ? 'ОХРАНА ДОСТУПА' : 'PAZĂ ACCES';
-      const tEvening = currentLang === 'RU' ? 'ВЕЧЕРНЯЯ<br>ОХРАНА' : 'PAZĂ SEARĂ';
+      const tEvening = currentLang === 'RU' ? 'ОХРАНА<br>ВЕЧЕРНЯЯ' : 'PAZĂ SEARĂ';
       const tNight = currentLang === 'RU' ? 'НОЧНАЯ ОХРАНА' : 'PAZĂ NOAPTE';
       const isRuEvening = currentLang === 'RU';
       const tipAccess = currentLang === 'RU' ? 'Охрана Доступа (07:00 - 17:00)' : 'Pază de Acces (07:00 - 17:00)';
@@ -1142,7 +1142,7 @@
       const headerBgClass = isDark ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-100 border-slate-300 text-slate-500';
 
       const tAccess = currentLang === 'RU' ? 'ОХРАНА ДОСТУПА' : 'PAZĂ ACCES';
-      const tEvening = currentLang === 'RU' ? 'ВЕЧЕРНЯЯ<br>ОХРАНА' : 'PAZĂ SEARĂ';
+      const tEvening = currentLang === 'RU' ? 'ОХРАНА<br>ВЕЧЕРНЯЯ' : 'PAZĂ SEARĂ';
       const tNight = currentLang === 'RU' ? 'НОЧНАЯ ОХРАНА' : 'PAZĂ NOAPTE';
       const isRuEvening = currentLang === 'RU';
       const tipAccess = currentLang === 'RU' ? 'Охрана Доступа (07:00 - 17:00)' : 'Pază de Acces (07:00 - 17:00)';
@@ -1712,8 +1712,8 @@
             updateAuthUI();
           } else {
             alert(currentLang === 'RU'
-              ? `Доступ ограничен!\nАккаунт Google (${user.email}) не имеет прав администратора.`
-              : `Acces restricționat!\nContul Google (${user.email}) nu are permisiuni de editare.`);
+              ? `Доступ ограничен!\nАккаунт Google (${user.email}) не имеет прав администратора,только у Siminițchi Valeriu есть такие права.`
+              : `Acces restricționat!\nContul Google (${user.email}) nu are permisiuni de editare, doar Siminițchi Valeriu are aceste permisiuni.`);
             await signOut(auth);
             currentAuthUser = null;
             isEditMode = false;
