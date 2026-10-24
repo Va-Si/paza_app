@@ -3240,7 +3240,13 @@
               <div style="width: 100%; text-align: center; margin: 4px auto 0 auto; font-size: 12px; font-weight: 700; opacity: ${isToday ? '0.95' : '0.75'};">${dayNum}</div>
               ${isToday ? `
                 <div style="width: 100%; text-align: center; margin-top: 6px;">
-                  <div style="display: inline-block; padding: 4px 12px; font-size: 10px; font-weight: 700; background: #1e293b; color: #ea580c; border-radius: 9999px; text-align: center; box-sizing: border-box;">${todayBadge}</div>
+                  <table align="center" cellpadding="0" cellspacing="0" style="margin: 0 auto; background: #ffffff; border-radius: 9999px; border-collapse: separate; border: none;">
+                    <tr>
+                      <td align="center" valign="middle" style="height: 22px; padding: 0 10px; font-size: 10px; font-weight: 700; color: #ea580c; white-space: nowrap; border: none;">
+                        ${todayBadge}
+                      </td>
+                    </tr>
+                  </table>
                 </div>
               ` : ''}
             </th>
