@@ -3239,11 +3239,14 @@
               <div style="width: 100%; text-align: center; margin: 0 auto; font-size: 14px; font-weight: 800; text-transform: capitalize; letter-spacing: -0.2px;">${capWeekday}</div>
               <div style="width: 100%; text-align: center; margin: 4px auto 0 auto; font-size: 12px; font-weight: 700; opacity: ${isToday ? '0.95' : '0.75'};">${dayNum}</div>
               ${isToday ? `
-                <div style="width: 100%; text-align: center; margin-top: 6px;">
-                  <div style="display: inline-block; width: 62px; height: 22px; background: #ffffff; border-radius: 9999px; box-shadow: 0 1px 2px rgba(0,0,0,0.15); position: relative; box-sizing: border-box;">
-                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: 800; color: #ea580c; text-transform: uppercase; white-space: nowrap; line-height: 1;">${todayBadge}</span>
-                  </div>
-                </div>
+  <div style="width: 100%; text-align: center; margin-top: 6px;">
+    <svg width="62" height="22" viewBox="0 0 62 22" style="display: inline-block; vertical-align: top;">
+      <rect x="0" y="0" width="62" height="22" rx="11" ry="11" fill="#ffffff"/>
+      <text x="31" y="11" text-anchor="middle" dominant-baseline="central"
+            font-size="10" font-weight="800" fill="#ea580c"
+            font-family="inherit" style="text-transform: uppercase;">${todayBadge.toUpperCase()}</text>
+    </svg>
+  </div>
               ` : ''}
             </th>
           `;
