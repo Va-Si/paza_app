@@ -3240,13 +3240,9 @@
               <div style="width: 100%; text-align: center; margin: 4px auto 0 auto; font-size: 12px; font-weight: 700; opacity: ${isToday ? '0.95' : '0.75'};">${dayNum}</div>
               ${isToday ? `
                 <div style="width: 100%; text-align: center; margin-top: 6px;">
-                  <table align="center" cellpadding="0" cellspacing="0" style="margin: 0 auto; background: #ffffff; border-radius: 9999px; border-collapse: separate; border: none;">
-                    <tr>
-                      <td align="center" valign="middle" style="padding: 3px 10px 4px 10px; font-size: 10px; font-weight: 800; color: #ea580c; text-transform: uppercase; white-space: nowrap; border: none; line-height: 1;">
-                        ${todayBadge}
-                      </td>
-                    </tr>
-                  </table>
+                  <div style="display: inline-block; width: 62px; height: 22px; background: #ffffff; border-radius: 9999px; box-shadow: 0 1px 2px rgba(0,0,0,0.15); position: relative; box-sizing: border-box;">
+                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: 800; color: #ea580c; text-transform: uppercase; white-space: nowrap; line-height: 1;">${todayBadge}</span>
+                  </div>
                 </div>
               ` : ''}
             </th>
