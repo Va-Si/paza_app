@@ -3373,7 +3373,7 @@
             cardsHtml += `
               <div style="position: absolute; top: ${topPx + 1}px; left: 3px; right: 3px; height: ${heightPx}px; background: ${cardBg}; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); padding: 3px 6px; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-start; z-index: 5;">
                 ${!hideHours ? `
-                  <div style="font-size: 11px; font-weight: 800; line-height: 1.25; color: #ffffff; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.4); padding-top: 1px; padding-bottom: 4px; margin-bottom: 4px; letter-spacing: -0.2px;">
+                  <div style="font-size: 11px; font-weight: 800; line-height: 1.25; color: #ffffff; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.4); padding-top: 0px; padding-bottom: 8px; margin-bottom: 6px; letter-spacing: -0.2px;">
                     ${sTime} - ${eTime}
                   </div>
                 ` : ''}
@@ -3391,6 +3391,26 @@
           `;
         });
 
+        const _mctx = document.createElement('canvas').getContext('2d');
+const measureText = (txt, weight, size = 12) => {
+  _mctx.font = `${weight} ${size}px system-ui, sans-serif`;
+  return _mctx.measureText(txt).width;
+};
+
+const legendItem = (color, bold, rest, marginRight = 0) => {
+  const gap = 4;
+  const w = Math.ceil(14 + 8 + measureText(bold, '700') + gap + measureText(rest, '400')) + 2;
+  return `
+    <svg width="${w}" height="18" viewBox="0 0 ${w} 18"
+         style="display:inline-block; vertical-align:middle; margin-right:${marginRight}px;">
+      <rect x="0" y="2" width="14" height="14" rx="3" ry="3" fill="${color}"/>
+      <text x="22" y="9" dominant-baseline="central" font-size="12"
+            font-family="system-ui, sans-serif" fill="#475569">
+        <tspan font-weight="700" fill="#0f172a">${bold}</tspan><tspan dx="${gap}">${rest}</tspan>
+      </text>
+    </svg>`;
+};
+        
         exportContainer.innerHTML = `
           <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #0f172a; padding-bottom: 10px; margin-bottom: 14px;">
             <div>
@@ -3467,20 +3487,11 @@
           <div style="margin-top: 14px; width: 100%; border-top: 2px solid #e2e8f0; padding-top: 10px;">
             <table style="width: 100%; border-collapse: collapse;">
               <tr>
-                <td style="text-align: left; vertical-align: middle; padding: 0;">
-                  <div style="display: inline-block; vertical-align: middle; margin-right: 24px; white-space: nowrap;">
-                    <span style="display: inline-block; vertical-align: middle; width: 14px; height: 14px; background: #2563eb; border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.15); margin-right: 8px;"></span>
-                    <span style="display: inline-block; vertical-align: middle; font-size: 12px; line-height: 14px; color: #475569;"><strong style="color: #0f172a;">${t.shiftAccessFull}</strong> (07:00 - 17:00)</span>
-                  </div>
-                  <div style="display: inline-block; vertical-align: middle; margin-right: 24px; white-space: nowrap;">
-                    <span style="display: inline-block; vertical-align: middle; width: 14px; height: 14px; background: #16a34a; border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.15); margin-right: 8px;"></span>
-                    <span style="display: inline-block; vertical-align: middle; font-size: 12px; line-height: 14px; color: #475569;"><strong style="color: #0f172a;">${t.shiftEveningFull}</strong> (17:00 - 21:00)</span>
-                  </div>
-                  <div style="display: inline-block; vertical-align: middle; white-space: nowrap;">
-                    <span style="display: inline-block; vertical-align: middle; width: 14px; height: 14px; background: #dc2626; border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.15); margin-right: 8px;"></span>
-                    <span style="display: inline-block; vertical-align: middle; font-size: 12px; line-height: 14px; color: #475569;"><strong style="color: #0f172a;">${t.shiftNightFull}</strong> (21:00 - 07:00)</span>
-                  </div>
-                </td>
+               <td style="text-align: left; vertical-align: middle; padding: 0;">
+  ${legendItem('#2563eb', t.shiftAccessFull,  '(07:00 - 17:00)', 24)}
+  ${legendItem('#16a34a', t.shiftEveningFull, '(17:00 - 21:00)', 24)}
+  ${legendItem('#dc2626', t.shiftNightFull,   '(21:00 - 07:00)', 0)}
+</td>
                 <td style="text-align: right; vertical-align: middle; padding: 0; white-space: nowrap;">
                   <span style="font-weight: 800; font-size: 13px; color: #0f172a; vertical-align: middle;">${t.kingdomHall}</span>
                 </td>
