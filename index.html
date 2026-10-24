@@ -3234,15 +3234,19 @@
           const capWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
           const todayBadge = t.exportToday;
 
-         headerThs += `
+       headerThs += `
             <th align="center" style="background: ${isToday ? '#ea580c' : '#ffffff'}; color: ${isToday ? '#ffffff' : '#1e293b'}; border: 1px solid #cbd5e1; padding: 8px 4px; text-align: center; vertical-align: middle; box-sizing: border-box;">
               <div style="width: 100%; text-align: center; margin: 0 auto; font-size: 14px; font-weight: 800; text-transform: capitalize; letter-spacing: -0.2px;">${capWeekday}</div>
               <div style="width: 100%; text-align: center; margin: 4px auto 0 auto; font-size: 12px; font-weight: 700; opacity: ${isToday ? '0.95' : '0.75'};">${dayNum}</div>
               ${isToday ? `
                 <div style="width: 100%; text-align: center; margin-top: 6px;">
-                  <div style="display: inline-block; width: 64px; height: 22px; background: #ffffff; color: #ea580c; border-radius: 9999px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.15); box-sizing: border-box; overflow: hidden;">
-                    <div style="width: 100%; height: 22px; line-height: 22px; font-size: 10px; font-weight: 800; text-transform: uppercase; text-align: center; box-sizing: border-box; padding-top: 1px;">${todayBadge}</div>
-                  </div>
+                  <table align="center" cellpadding="0" cellspacing="0" style="margin: 0 auto; background: #ffffff; border-radius: 9999px; border-collapse: separate; border: none;">
+                    <tr>
+                      <td align="center" valign="middle" style="padding: 3px 10px 4px 10px; font-size: 10px; font-weight: 800; color: #ea580c; text-transform: uppercase; white-space: nowrap; border: none; line-height: 1;">
+                        ${todayBadge}
+                      </td>
+                    </tr>
+                  </table>
                 </div>
               ` : ''}
             </th>
