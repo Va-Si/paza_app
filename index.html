@@ -3297,7 +3297,9 @@
 
         days.forEach((dayObj, dayIdx) => {
           const dayStartTs = new Date(dayObj.getFullYear(), dayObj.getMonth(), dayObj.getDate(), 7, 0, 0, 0).getTime();
-          const dayEndTs = dayStartTs + (24 * 60 * 60 * 1000);
+          // old 24h ,probelma la schimbul orei in 23h sau 25h const dayEndTs = dayStartTs + (24 * 60 * 60 * 1000);
+          //codul de jos dejaautomat va functiona cand e 23 sau 25h
+          const dayEndTs = new Date(dayObj.getFullYear(), dayObj.getMonth(), dayObj.getDate() + 1, 7, 0, 0, 0).getTime();
 
           const dayEvts = allEvents.filter(ev => {
             if (!ev.start) return false;
