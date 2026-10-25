@@ -3398,6 +3398,14 @@ const measureText = (txt, weight, size = 12) => {
 };
 
 const legendItem = (color, bold, rest, marginRight = 0) => {
+  const isDarkReader =
+    document.documentElement.hasAttribute('data-darkreader-mode') ||
+    document.documentElement.hasAttribute('data-darkreader-scheme') ||
+    !!document.querySelector('meta[name="darkreader"]');
+
+  const boldColor = isDarkReader ? '#ffffff' : '#0f172a';
+  const restColor = isDarkReader ? '#e2e8f0' : '#475569';
+
   const gap = 4;
   const w = Math.ceil(14 + 8 + measureText(bold, '700') + gap + measureText(rest, '400')) + 2;
   return `
@@ -3405,8 +3413,8 @@ const legendItem = (color, bold, rest, marginRight = 0) => {
          style="display:inline-block; vertical-align:middle; margin-right:${marginRight}px;">
       <rect x="0" y="2" width="14" height="14" rx="3" ry="3" fill="${color}"/>
       <text x="22" y="9" dominant-baseline="central" font-size="12"
-            font-family="system-ui, sans-serif" fill="#475569">
-        <tspan font-weight="700" fill="#0f172a">${bold}</tspan><tspan dx="${gap}">${rest}</tspan>
+            font-family="system-ui, sans-serif" style="fill:${restColor};">
+        <tspan font-weight="700" style="fill:${boldColor};">${bold}</tspan><tspan dx="${gap}" style="fill:${restColor};">${rest}</tspan>
       </text>
     </svg>`;
 };
