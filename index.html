@@ -2379,6 +2379,41 @@
       closeVisualCalendarPicker();
     }
 
+        // Trimite un mesaj către Apps Script (care îl livrează pe Telegram)
+    function trimiteLaScript(payload) {
+      const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzNJ6HbssBA08uYhKUIeecf4CYRF5ghAGv7fTN-rJfh3S16Q8RP1CbsiHNjrJ-efwRcmw/exec";
+      return fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(err => console.error("Eroare trimitere Telegram:", err));
+    }
+
+    // Compară persoanele dinainte și de după salvare:
+    //  - deConfirmat: persoane ADĂUGATE sau al căror partener s-a schimbat
+    //  - deAnulat: persoane ELIMINATE din tură
+    // Dacă s-au schimbat doar orele sau culoarea, ambele liste rămân goale.
+    function calculeazaNotificariPersoane(voluntariVechi, voluntariNoi) {
+      const norm = s => String(s || '').trim().toLowerCase();
+      const colegiKey = (lista, nume) => lista.filter(v => norm(v.name) !== norm(nume)).map(v => norm(v.name)).sort().join('|');
+      const colegiText = (lista, nume) => lista.filter(v => norm(v.name) !== norm(nume)).map(v => v.name).join(', ');
+
+      const deConfirmat = [];
+      voluntariNoi.forEach(v => {
+        const exista = voluntariVechi.some(o => norm(o.name) === norm(v.name));
+        if (!exista || colegiKey(voluntariVechi, v.name) !== colegiKey(voluntariNoi, v.name)) {
+          deConfirmat.push({ nume: v.name, colegi: colegiText(voluntariNoi, v.name) || 'Niciunul' });
+        }
+      });
+
+      const deAnulat = voluntariVechi
+        .filter(o => !voluntariNoi.some(v => norm(v.name) === norm(o.name)))
+        .map(o => o.name);
+
+      return { deConfirmat, deAnulat };
+    }
+
     async function saveEvent(e) {
       e.preventDefault();
       const id = document.getElementById('eventId').value || 'evt_' + Date.now();
@@ -2438,28 +2473,24 @@
           congregationId: finalVolunteers[0]?.congregationId || '' 
         }
       };
+            // Starea DINAINTE de salvare (pentru a ști cine a fost adăugat / eliminat)
+      const evtVechi = calendar ? calendar.getEventById(id) : null;
+      const voluntariVechi = evtVechi ? getVolunteersFromEvent(evtVechi) : [];
+      const startVechi = (evtVechi && evtVechi.start) ? evtVechi.start.toISOString() : '';
+      const endVechi = (evtVechi && evtVechi.end) ? evtVechi.end.toISOString() : startVechi;
       
       closeEventModal();
       applyEventLocally(eventData);
       saveEventToFirebase(eventData);
 
-      const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzNJ6HbssBA08uYhKUIeecf4CYRF5ghAGv7fTN-rJfh3S16Q8RP1CbsiHNjrJ-efwRcmw/exec";
+            const { deConfirmat, deAnulat } = calculeazaNotificariPersoane(voluntariVechi, finalVolunteers);
 
-      finalVolunteers.forEach(voluntarObj => {
-        const voluntar = voluntarObj.name;
-        const colegi = finalVolunteers.filter(v => v.name !== voluntar).map(v => v.name).join(', ');
-        
-        fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            nume: voluntar,
-            start: eventData.start,
-            end: eventData.end,
-            colegi: colegi ? colegi : 'Niciunul'
-          })
-        }).catch(err => console.error("Eroare trimitere Telegram:", err));
+      deConfirmat.forEach(p => {
+        trimiteLaScript({ nume: p.nume, start: eventData.start, end: eventData.end, colegi: p.colegi });
+      });
+
+      deAnulat.forEach(nume => {
+        trimiteLaScript({ tip: 'anulare', nume: nume, start: startVechi, end: endVechi });
       });
     }
 
@@ -2472,6 +2503,14 @@
       if (confirm(confirmMsg)) {
         closeEventModal();
         const localEvt = calendar ? calendar.getEventById(id) : null;
+        // NOU: anulare pentru toate persoanele din tură
+        if (localEvt && localEvt.start) {
+          const startS = localEvt.start.toISOString();
+          const endS = localEvt.end ? localEvt.end.toISOString() : startS;
+          getVolunteersFromEvent(localEvt).forEach(v => {
+            trimiteLaScript({ tip: 'anulare', nume: v.name, start: startS, end: endS });
+          });
+        }
         if (localEvt) localEvt.remove();
         deleteEventFromFirebase(id);
       }
