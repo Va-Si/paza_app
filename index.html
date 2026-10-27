@@ -477,6 +477,29 @@
       position: relative;
       left: -3px;              /* ajustare fină: -4px sau -5px mută mai spre stânga, -2px mai spre dreapta */
     }
+
+        /* Telefon: butoanele și titlul datei rămân pe același rând (și în limba rusă) */
+    @media (max-width: 640px) {
+      .calendar-fixed-controls {
+        flex-wrap: nowrap !important;
+        gap: 6px !important;
+      }
+      .calendar-fixed-controls > div:first-child {
+        gap: 4px !important;
+        flex-shrink: 0;
+      }
+      .calendar-fixed-controls > div:first-child button {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+      }
+      .calendar-fixed-controls #customCalTitle {
+        font-size: clamp(10px, 2.9vw, 14px) !important;
+        white-space: nowrap;
+        min-width: 0;
+        flex: 1 1 auto;
+        text-align: center;
+      }
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col transition-colors duration-200">
