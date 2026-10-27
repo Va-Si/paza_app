@@ -9,8 +9,8 @@
   <meta name="description" content="Graficul turelor de pază pentru Sala Regatului">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Grafic Pază">
-  <meta property="og:title" content="Grafic Pază Sala Regatului">
-  <meta property="og:description" content="Vezi turele de pază pentru Sala Regatului.">
+  <meta property="og:title" content="Grafic Pază | График Охраны">
+  <meta property="og:description" content="Vezi turele de pază pentru Sala Regatului | Посмотрите смены охраны в Зале Царства">
   <meta property="og:url" content="https://va-si.github.io/paza_app/">
   <meta property="og:image" content="https://va-si.github.io/paza_app/pwa-maskable-512x512.png">
   <meta property="og:image:width" content="512">
@@ -378,6 +378,28 @@
     html.dark .text-slate-600,
     html.dark .text-slate-500 {
       color: #94a3b8 !important;
+    }
+        /* ==== COMPLETĂRI DARK MODE: ferestre și butoane rămase deschise la culoare ==== */
+
+    /* Ferestrele „Adaugă Persoană” și „Instalare iPhone” nu erau incluse în regulile de mai sus */
+    html.dark #personModal .bg-white,
+    html.dark #iosInstallModal .bg-white {
+      background-color: #0f172a !important;
+      border-color: #1e293b !important;
+      color: #f1f5f9 !important;
+    }
+
+    /* Butoane gri deschis (Închide, Anulează, „alege manual”, săgețile lunii etc.) */
+    html.dark button.bg-slate-100,
+    html.dark button.bg-slate-200 {
+      background-color: #1e293b !important;
+      border-color: #334155 !important;
+      color: #f1f5f9 !important;
+    }
+    html.dark button.bg-slate-100:hover,
+    html.dark button.bg-slate-200:hover,
+    html.dark button.hover\:bg-slate-100:hover {
+      background-color: #334155 !important;
     }
   </style>
 </head>
