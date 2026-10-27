@@ -478,22 +478,15 @@
       left: -3px;              /* ajustare fină: -4px sau -5px mută mai spre stânga, -2px mai spre dreapta */
     }
 
-        /* Telefon: butoanele și titlul datei rămân pe același rând (și în limba rusă) */
+        /* Telefon: butoanele și titlul datei rămân pe același rând (și în limba rusă) (dimensiunea o potrivește scriptul de mai jos) */
     @media (max-width: 640px) {
       .calendar-fixed-controls {
         flex-wrap: nowrap !important;
-        gap: 6px !important;
       }
       .calendar-fixed-controls > div:first-child {
-        gap: 4px !important;
         flex-shrink: 0;
       }
-      .calendar-fixed-controls > div:first-child button {
-        padding-left: 8px !important;
-        padding-right: 8px !important;
-      }
       .calendar-fixed-controls #customCalTitle {
-        font-size: clamp(10px, 2.9vw, 14px) !important;
         white-space: nowrap;
         min-width: 0;
         flex: 1 1 auto;
@@ -3779,6 +3772,29 @@ const legendItem = (color, bold, rest, marginRight = 0) => {
       applyLanguage(currentLang);
       initCalendar();
     });
+  </script>
+    <script>
+    // Titlul perioadei: 14px (ca înainte) dacă încape pe primul rând, altfel se micșorează cât e nevoie
+    (function () {
+      const titlu = document.getElementById('customCalTitle');
+      if (!titlu) return;
+
+      function potrivesteTitlu() {
+        titlu.style.fontSize = '';
+        if (window.innerWidth > 640) return;   // pe ecrane late nu se schimbă nimic
+        let size = 14;
+        titlu.style.fontSize = size + 'px';
+        while (titlu.scrollWidth > titlu.clientWidth && size > 9) {
+          size -= 0.5;
+          titlu.style.fontSize = size + 'px';
+        }
+      }
+
+      new MutationObserver(potrivesteTitlu).observe(titlu, { childList: true, characterData: true, subtree: true });
+      window.addEventListener('resize', potrivesteTitlu);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(potrivesteTitlu);
+      potrivesteTitlu();
+    })();
   </script>
 </body>
 </html>
