@@ -396,10 +396,15 @@
       border-color: #334155 !important;
       color: #f1f5f9 !important;
     }
-    html.dark button.bg-slate-100:hover,
-    html.dark button.bg-slate-200:hover,
-    html.dark button.hover\:bg-slate-100:hover {
+   /* Fundal la hover / atingere (pe telefon „hover” rămâne activ după atingere) */
+    html.dark .hover\:bg-slate-50:hover,
+    html.dark .hover\:bg-slate-100:hover,
+    html.dark .hover\:bg-slate-200:hover,
+    html.dark .hover\:bg-slate-300:hover {
       background-color: #334155 !important;
+    }
+    html.dark .hover\:bg-amber-50:hover {
+      background-color: rgba(245, 158, 11, 0.18) !important;
     }
   </style>
 </head>
